@@ -1,0 +1,463 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}CVision | AI Resume Screening Platform{% endblock %}
+
+{% block content %}
+
+<!-- ===================== NAVBAR ===================== -->
+
+<nav class="navbar navbar-expand-lg fixed-top custom-navbar">
+
+    <div class="container">
+
+        <a class="navbar-brand logo" href="#">
+
+            CVision
+
+        </a>
+
+        <button class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
+
+            <span class="navbar-toggler-icon"></span>
+
+        </button>
+
+        <div class="collapse navbar-collapse"
+             id="navbarNav">
+
+            <ul class="navbar-nav mx-auto">
+
+                <li class="nav-item">
+
+                    <a class="nav-link active"
+                       href="#">
+
+                        Home
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       href="#features">
+
+                        Features
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       href="#workflow">
+
+                        Workflow
+
+                    </a>
+
+                </li>
+
+                <li class="nav-item">
+
+                    <a class="nav-link"
+                       href="#contact">
+
+                        Contact
+
+                    </a>
+
+                </li>
+
+            </ul>
+
+            <div class="d-flex">
+
+                <a href="/login"
+                   class="btn btn-login">
+
+                    Login
+
+                </a>
+
+                <a href="/register"
+                   class="btn btn-register">
+
+                    Register
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+
+<!-- ===================== HERO ===================== -->
+
+<section class="hero-section">
+
+    <div class="container">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-6">
+
+                <span class="hero-badge">
+
+                    AI Recruitment Platform
+
+                </span>
+
+                <h1>
+
+                    Revolutionize Your
+
+                    <span>
+
+                        Hiring Process
+
+                    </span>
+
+                </h1>
+
+                <p>
+
+                    Screen resumes intelligently,
+                    rank candidates automatically,
+                    and discover the best talent
+                    with Artificial Intelligence.
+
+                </p>
+
+                <div class="hero-buttons">
+
+                    <a href="/register"
+                       class="btn btn-primary-custom">
+
+                        Get Started
+
+                    </a>
+
+                    <a href="#features"
+                       class="btn btn-secondary-custom">
+
+                        Explore
+
+                    </a>
+
+                </div>
+
+                <div class="hero-stats">
+
+                    <div>
+
+                        <h3>
+
+                            10K+
+
+                        </h3>
+
+                        <span>
+
+                            Resumes
+
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <h3>
+
+                            98%
+
+                        </h3>
+
+                        <span>
+
+                            Accuracy
+
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <h3>
+
+                            400+
+
+                        </h3>
+
+                        <span>
+
+                            Recruiters
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-6">
+
+                <div class="dashboard">
+
+                    <div class="dashboard-header">
+
+                        <div class="circle red"></div>
+
+                        <div class="circle yellow"></div>
+
+                        <div class="circle green"></div>
+
+                    </div>
+
+                    <div class="dashboard-body">
+
+                        <div class="dashboard-card">
+
+                            <h5>
+
+                                Resume Score
+
+                            </h5>
+
+                            <h2>
+
+                                94%
+
+                            </h2>
+
+                        </div>
+
+                        <div class="dashboard-card">
+
+                            <h5>
+
+                                Skills Match
+
+                            </h5>
+
+                            <div class="progress">
+
+                                <div class="progress-bar w-75"></div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="dashboard-card">
+
+                            <h5>
+
+                                Top Candidate
+
+                            </h5>
+
+                            <div class="candidate">
+
+                                <div class="avatar">
+
+                                    A
+
+                                </div>
+
+                                <div>
+
+                                    <strong>
+
+                                        Alex Johnson
+
+                                    </strong>
+
+                                    <br>
+
+                                    Python Developer
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="dashboard-card">
+
+                            <h5>
+
+                                AI Recommendation
+
+                            </h5>
+
+                            <p>
+
+                                Highly Recommended
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===================== COMPANIES ===================== -->
+
+<section class="companies">
+
+    <div class="container">
+
+        <p>
+
+            TRUSTED BY MODERN COMPANIES
+
+        </p>
+
+        <div class="company-list">
+
+            <span>Google</span>
+
+            <span>Microsoft</span>
+
+            <span>Amazon</span>
+
+            <span>Netflix</span>
+
+            <span>Meta</span>
+
+            <span>Tesla</span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+
+<!-- ===================== FEATURES ===================== -->
+
+<section id="features"
+         class="features">
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <small>
+
+                FEATURES
+
+            </small>
+
+            <h2>
+
+                Everything You Need
+
+            </h2>
+
+            <p>
+
+                AI powered recruitment platform built for the future.
+
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4">
+
+                <div class="feature-card">
+
+                    <i class="bi bi-file-earmark-text"></i>
+
+                    <h4>
+
+                        Resume Parsing
+
+                    </h4>
+
+                    <p>
+
+                        Automatically extract candidate information.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="feature-card">
+
+                    <i class="bi bi-cpu"></i>
+
+                    <h4>
+
+                        AI Screening
+
+                    </h4>
+
+                    <p>
+
+                        TensorFlow Lite powered resume prediction.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4">
+
+                <div class="feature-card">
+
+                    <i class="bi bi-bar-chart-line"></i>
+
+                    <h4>
+
+                        Candidate Ranking
+
+                    </h4>
+
+                    <p>
+
+                        Instantly rank applicants based on job requirements.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}
