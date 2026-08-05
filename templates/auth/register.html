@@ -3,319 +3,255 @@
 {% block title %}Register | CVision{% endblock %}
 
 {% block content %}
-
 <div class="container mt-5 pt-5">
 
     <div class="row justify-content-center">
 
-        <div class="col-lg-7">
+        <div class="col-lg-10">
 
-            <div class="card shadow-lg border-0 rounded-4 p-4">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                
+                <div class="row g-0">
 
-                <h2 class="text-center mb-4 fw-bold text-primary">
+                    <!-- LEFT - CSS Illustration -->
+                    <div class="col-lg-5 d-flex align-items-center justify-content-center signup-image-box">
+                        <div class="css-illustration">
+                            <!-- Main circle -->
+                            <div class="illustration-circle">
+                                <div class="circle-inner">
+                                    <!-- Decorative dots -->
+                                    <div class="dot dot-1"></div>
+                                    <div class="dot dot-2"></div>
+                                    <div class="dot dot-3"></div>
+                                    <div class="dot dot-4"></div>
+                                    
+                                    <!-- Center icon -->
+                                    <div class="center-icon">
+                                        <i class="bi bi-person-plus"></i>
+                                    </div>
+                                    
+                                    <!-- Floating elements -->
+                                    <div class="float-element el-1">
+                                        <i class="bi bi-file-text"></i>
+                                    </div>
+                                    <div class="float-element el-2">
+                                        <i class="bi bi-check-circle"></i>
+                                    </div>
+                                    <div class="float-element el-3">
+                                        <i class="bi bi-star"></i>
+                                    </div>
+                                    <div class="float-element el-4">
+                                        <i class="bi bi-building"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Text overlay -->
+                            <div class="illustration-text">
+                                <h3>Join CVision Today</h3>
+                                <p>Start your journey to success</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Signup Form Section -->
+                    <div class="col-lg-7 p-4 p-lg-5">
+<h2 class="text-center mb-4 fw-bold pt-4 signup-title">
                     Create Your Account
                 </h2>
+                        <form method="POST">
 
-                <form method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        Full Name
+                                    </label>
+                                    <input
+                                            type="text"
+                                            name="full_name"
+                                            class="form-control"
+                                            required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        Username
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="username"
+                                        id="username"
+                                        class="form-control"
+                                        autocomplete="off"
+                                        required>
+                                    <small id="usernameMessage" class="fw-semibold"></small>
+                                </div>
+                            </div>
 
-                    <div class="row">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        id="email"
+                                        class="form-control"
+                                        autocomplete="off"
+                                        required>
+                                    <small id="emailMessage" class="fw-semibold"></small>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        Phone
+                                    </label>
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        id="phone"
+                                        class="form-control"
+                                        maxlength="11"
+                                        autocomplete="off"
+                                        required>
+                                    <small id="phoneMessage" class="fw-semibold"></small>
+                                </div>
+                            </div>
 
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Full Name
-                            </label>
-
-                            <input
-                                    type="text"
-                                    name="full_name"
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Date of Birth
+                                </label>
+                                <input
+                                    type="date"
+                                    name="date_of_birth"
                                     class="form-control"
                                     required>
+                            </div>
 
-                        </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        District
+                                    </label>
+                                    <select
+                                        id="district"
+                                        name="district_id"
+                                        class="form-select"
+                                        required>
+                                        <option value="">
+                                            Select District
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        Area
+                                    </label>
+                                    <select
+                                        id="area"
+                                        name="area_id"
+                                        class="form-select"
+                                        required>
+                                        <option value="">
+                                            Select Area
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
 
-                        <div class="col-md-6 mb-3">
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Password
+                                </label>
+                                <div class="input-group">
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        id="password"
+                                        class="form-control"
+                                        required>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="showPassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div
+                                        id="passwordStrength"
+                                        class="progress-bar"
+                                        style="width:0%">
+                                    </div>
+                                </div>
+                                <small id="passwordMessage"></small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Confirm Password
+                                </label>
+                                <input
+                                    type="password"
+                                    name="confirm_password"
+                                    id="confirm_password"
+                                    class="form-control"
+                                    required>
+                                <small id="confirmMessage"></small>
+                            </div>
 
                             <label class="form-label">
-                                Username
+                                Select Account Type
                             </label>
+                            <div class="row g-3 justify-content-center">
+                                <div class="col-md-6">
+                                    <input
+                                        type="radio"
+                                        class="btn-check"
+                                        name="role"
+                                        id="applicant"
+                                        value="Applicant"
+                                        required>
+                                    <label
+                                        class="btn btn-outline-primary w-100 p-3 rounded-3"
+                                        for="applicant">
+                                        <i class="bi bi-person fs-3"></i>
+                                        <br>
+                                        Applicant
+                                    </label>
+                                </div>
+                                <div class="col-md-6">
+                                    <input
+                                        type="radio"
+                                        class="btn-check"
+                                        name="role"
+                                        id="recruiter"
+                                        value="Recruiter">
+                                    <label
+                                        class="btn btn-outline-primary w-100 p-3 rounded-3"
+                                        for="recruiter">
+                                        <i class="bi bi-building fs-3"></i>
+                                        <br>
+                                        Recruiter
+                                    </label>
+                                </div>
+                            </div>
 
-                            <input
-    type="text"
-    name="username"
-    id="username"
-    class="form-control"
-    autocomplete="off"
-    required>
+                            <button
+                                    class="btn register-btn w-100 mt-4">
+                                Register
+                            </button>
 
-<small id="usernameMessage" class="fw-semibold"></small>
+                        </form>
 
+                        <div class="text-center mt-4">
+                            Already have an account?
+                            <a href="{{ url_for('auth.login') }}">
+                                Login
+                            </a>
                         </div>
 
                     </div>
-
-                    <div class="row">
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">
-            Email
-        </label>
-
-       <input
-    type="email"
-    name="email"
-    id="email"
-    class="form-control"
-    autocomplete="off"
-    required>
-
-<small id="emailMessage" class="fw-semibold"></small>
-    </div>
-
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">
-            Phone
-        </label>
-
-        <input
-    type="text"
-    name="phone"
-    id="phone"
-    class="form-control"
-    maxlength="11"
-    autocomplete="off"
-    required>
-
-<small id="phoneMessage" class="fw-semibold"></small>
-    </div>
-
-</div>
-                    <div class="mb-3">
-
-<label class="form-label">
-    Date of Birth
-</label>
-
-
-<input
-type="date"
-name="date_of_birth"
-class="form-control"
-required>
-
-
-</div>
-<div class="row">
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">
-            District
-        </label>
-
-
-        <select
-        id="district"
-        name="district_id"
-        class="form-select"
-        required>
-
-            <option value="">
-                Select District
-            </option>
-
-        </select>
-
-    </div>
-
-
-
-    <div class="col-md-6 mb-3">
-
-        <label class="form-label">
-            Area
-        </label>
-
-
-        <select
-        id="area"
-        name="area_id"
-        class="form-select"
-        required>
-
-            <option value="">
-                Select Area
-            </option>
-
-        </select>
-
-    </div>
-
-</div>
-                    <div class="mb-3">
-
-<label class="form-label">
-    Password
-</label>
-
-<div class="input-group">
-
-<input
-type="password"
-name="password"
-id="password"
-class="form-control"
-required>
-
-
-<button
-type="button"
-class="btn btn-outline-secondary"
-id="showPassword">
-
-<i class="bi bi-eye"></i>
-
-</button>
-
-
-</div>
-
-
-<div class="progress mt-2">
-
-<div
-id="passwordStrength"
-class="progress-bar"
-style="width:0%">
-</div>
-
-</div>
-
-
-<small id="passwordMessage"></small>
-
-
-</div>
-
-
-
-<div class="mb-3">
-
-<label class="form-label">
-
-Confirm Password
-
-</label>
-
-
-<input
-
-type="password"
-
-name="confirm_password"
-
-id="confirm_password"
-
-class="form-control"
-
-required>
-
-
-<small id="confirmMessage"></small>
-
-
-</div>
-
-                    <label class="form-label">
-    Select Account Type
-</label>
-
-
-<div class="row g-3 justify-content-center">
-
-
-    <div class="col-md-6">
-
-        <input
-        type="radio"
-        class="btn-check"
-        name="role"
-        id="applicant"
-        value="Applicant"
-        required>
-
-
-        <label
-        class="btn btn-outline-primary w-100 p-3 rounded-3"
-        for="applicant">
-
-
-            <i class="bi bi-person fs-3"></i>
-
-            <br>
-
-            Applicant
-
-
-        </label>
-
-    </div>
-
-
-
-    <div class="col-md-6">
-
-
-        <input
-        type="radio"
-        class="btn-check"
-        name="role"
-        id="recruiter"
-        value="Recruiter">
-
-
-        <label
-        class="btn btn-outline-primary w-100 p-3 rounded-3"
-        for="recruiter">
-
-
-            <i class="bi bi-building fs-3"></i>
-
-            <br>
-
-            Recruiter
-
-
-        </label>
-
-
-    </div>
-
-
-</div>
-
-</div>
-                    <button
-                            class="btn btn-primary w-100">
-
-                        Register
-
-                    </button>
-
-                </form>
-
-                <div class="text-center mt-4">
-
-                    Already have an account?
-
-                    <a href="{{ url_for('auth.login') }}">
-
-                        Login
-
-                    </a>
 
                 </div>
 
@@ -326,530 +262,171 @@ required>
     </div>
 
 </div>
-
 {% endblock %}
+
 {% block extra_js %}
-
 <script>
+    const usernameInput = document.getElementById("username");
+    const usernameMessage = document.getElementById("usernameMessage");
 
-const usernameInput = document.getElementById("username");
-const usernameMessage = document.getElementById("usernameMessage");
-
-usernameInput.addEventListener("keyup", function(){
-
-    const username = usernameInput.value;
-
-    if(username.length < 3){
-
-        usernameMessage.innerHTML = "";
-        return;
-
-    }
-    
-    fetch("/check_username",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/x-www-form-urlencoded"
-        },
-
-        body:"username="+encodeURIComponent(username)
-
-    })
-
-    .then(response => response.json())
-
-    .then(data=>{
-
-        usernameMessage.innerHTML = data.message;
-
-        if(data.available){
-
-            usernameMessage.style.color="green";
-
-        }else{
-
-            usernameMessage.style.color="red";
-
+    usernameInput.addEventListener("keyup", function() {
+        const username = usernameInput.value;
+        if (username.length < 3) {
+            usernameMessage.innerHTML = "";
+            return;
         }
-
-    });
-
-});
-
-</script>
-<script>
-
-
-// Load districts when page opens
-
-fetch("/get_districts")
-
-.then(response => response.json())
-
-.then(data => {
-
-
-    let districtBox =
-    document.getElementById("district");
-
-
-    data.forEach(district => {
-
-
-        let option =
-        document.createElement("option");
-
-
-        option.value = district.id;
-
-        option.textContent = district.name;
-
-
-        districtBox.appendChild(option);
-
-
-    });
-
-
-});
-
-
-
-
-
-// Load areas when district changes
-
-
-document
-.getElementById("district")
-.addEventListener(
-"change",
-function(){
-
-
-    let districtId = this.value;
-
-
-    let areaBox =
-    document.getElementById("area");
-
-
-
-    areaBox.innerHTML =
-    `
-    <option>
-    Loading...
-    </option>
-    `;
-
-
-
-    fetch(
-        "/get_areas/" + districtId
-    )
-
-    .then(response =>
-        response.json()
-    )
-
-
-    .then(data => {
-
-
-        areaBox.innerHTML =
-        `
-        <option value="">
-        Select Area
-        </option>
-        `;
-
-
-
-        data.forEach(area => {
-
-
-            let option =
-            document.createElement("option");
-
-
-            option.value =
-            area.id;
-
-
-            option.textContent =
-            area.name;
-
-
-            areaBox.appendChild(option);
-
-
+        fetch("/check_username", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "username=" + encodeURIComponent(username)
+        })
+        .then(response => response.json())
+        .then(data => {
+            usernameMessage.innerHTML = data.message;
+            if (data.available) {
+                usernameMessage.style.color = "green";
+            } else {
+                usernameMessage.style.color = "red";
+            }
         });
+    });
+</script>
 
-
+<script>
+    // Load districts when page opens
+    fetch("/get_districts")
+    .then(response => response.json())
+    .then(data => {
+        let districtBox = document.getElementById("district");
+        data.forEach(district => {
+            let option = document.createElement("option");
+            option.value = district.id;
+            option.textContent = district.name;
+            districtBox.appendChild(option);
+        });
     });
 
-
-
-});
-
-
+    // Load areas when district changes
+    document.getElementById("district").addEventListener("change", function() {
+        let districtId = this.value;
+        let areaBox = document.getElementById("area");
+        areaBox.innerHTML = `<option>Loading...</option>`;
+        fetch("/get_areas/" + districtId)
+        .then(response => response.json())
+        .then(data => {
+            areaBox.innerHTML = `<option value="">Select Area</option>`;
+            data.forEach(area => {
+                let option = document.createElement("option");
+                option.value = area.id;
+                option.textContent = area.name;
+                areaBox.appendChild(option);
+            });
+        });
+    });
 </script>
+
 <script>
-
-
-// Show / Hide Password
-
-
-document
-.getElementById("showPassword")
-.onclick=function(){
-
-
-let password =
-document.getElementById("password");
-
-
-if(password.type==="password"){
-
-
-password.type="text";
-
-
-this.innerHTML =
-'<i class="bi bi-eye-slash"></i>';
-
-
-}
-
-else{
-
-
-password.type="password";
-
-
-this.innerHTML =
-'<i class="bi bi-eye"></i>';
-
-
-}
-
-
-}
-
-
-
-
-
-// Password Strength
-
-
-let password =
-document.getElementById("password");
-
-
-password.addEventListener(
-"keyup",
-function(){
-
-
-let value=this.value;
-
-
-let bar =
-document.getElementById(
-"passwordStrength"
-);
-
-
-let message =
-document.getElementById(
-"passwordMessage"
-);
-
-
-
-let strength=0;
-
-
-
-if(value.length>=8)
-strength+=25;
-
-
-if(/[A-Z]/.test(value))
-strength+=25;
-
-
-if(/[0-9]/.test(value))
-strength+=25;
-
-
-if(/[^A-Za-z0-9]/.test(value))
-strength+=25;
-
-
-
-bar.style.width =
-strength+"%";
-
-
-
-if(strength<=25){
-
-message.innerHTML =
-"Weak password";
-
-}
-
-
-else if(strength<=75){
-
-message.innerHTML =
-"Medium password";
-
-}
-
-
-else{
-
-message.innerHTML =
-"Strong password";
-
-}
-
-
-
-});
-
-
-
-
-
-
-// Confirm Password
-
-
-document
-.getElementById("confirm_password")
-.addEventListener(
-"keyup",
-function(){
-
-
-let password =
-document.getElementById(
-"password"
-).value;
-
-
-let confirm =
-this.value;
-
-
-let message =
-document.getElementById(
-"confirmMessage"
-);
-
-
-
-if(password===confirm){
-
-message.innerHTML =
-"Passwords match";
-
-message.style.color="green";
-
-
-}
-
-else{
-
-
-message.innerHTML =
-"Passwords do not match";
-
-message.style.color="red";
-
-
-}
-
-
-});
-
-
-// Bangladesh Phone Number Validation
-
-const phoneInput = document.getElementById("phone");
-
-const phoneMessage = document.getElementById("phoneMessage");
-
-
-phoneInput.addEventListener("keyup", function(){
-
-
-    let phone = this.value;
-
-
-    // Remove non-numeric characters
-
-    this.value = phone.replace(/[^0-9]/g, "");
-
-
-    phone = this.value;
-
-
-
-    if(phone.length === 0){
-
-        phoneMessage.innerHTML = "";
-
-        return;
-
+    // Show / Hide Password
+    document.getElementById("showPassword").onclick = function() {
+        let password = document.getElementById("password");
+        if (password.type === "password") {
+            password.type = "text";
+            this.innerHTML = '<i class="bi bi-eye-slash"></i>';
+        } else {
+            password.type = "password";
+            this.innerHTML = '<i class="bi bi-eye"></i>';
+        }
     }
 
-
-
-    let bdPattern = /^01[3-9]\d{8}$/;
-
-
-
-    if(bdPattern.test(phone)){
-
-
-        phoneMessage.innerHTML =
-        "✅ Valid Bangladesh phone number";
-
-
-        phoneMessage.style.color = "green";
-
-
-    }
-
-    else{
-
-
-        phoneMessage.innerHTML =
-        "❌ Enter a valid Bangladesh number (01XXXXXXXXX)";
-
-
-        phoneMessage.style.color = "red";
-
-
-    }
-
-
-});
-// Email Availability Check
-
-
-const emailInput =
-document.getElementById("email");
-
-
-const emailMessage =
-document.getElementById("emailMessage");
-
-
-
-emailInput.addEventListener(
-"keyup",
-function(){
-
-
-let email = this.value;
-
-
-
-let emailPattern =
-/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-
-
-if(email.length === 0){
-
-    emailMessage.innerHTML = "";
-
-    return;
-
-}
-
-
-
-if(!emailPattern.test(email)){
-
-
-    emailMessage.innerHTML =
-    "❌ Enter a valid email address";
-
-
-    emailMessage.style.color="red";
-
-
-    return;
-
-}
-
-
-
-
-fetch("/check_email",{
-
-
-    method:"POST",
-
-
-    headers:{
-
-        "Content-Type":
-        "application/x-www-form-urlencoded"
-
-    },
-
-
-    body:
-    "email="+encodeURIComponent(email)
-
-
-
-})
-
-.then(response =>
-response.json()
-)
-
-
-.then(data=>{
-
-
-    emailMessage.innerHTML =
-    data.message;
-
-
-
-    if(data.available){
-
-
-        emailMessage.style.color="green";
-
-
-    }
-
-    else{
-
-
-        emailMessage.style.color="red";
-
-
-    }
-
-
-});
-
-
-});
+    // Password Strength
+    let password = document.getElementById("password");
+    password.addEventListener("keyup", function() {
+        let value = this.value;
+        let bar = document.getElementById("passwordStrength");
+        let message = document.getElementById("passwordMessage");
+        let strength = 0;
+        if (value.length >= 8) strength += 25;
+        if (/[A-Z]/.test(value)) strength += 25;
+        if (/[0-9]/.test(value)) strength += 25;
+        if (/[^A-Za-z0-9]/.test(value)) strength += 25;
+        bar.style.width = strength + "%";
+        if (strength <= 25) {
+            message.innerHTML = "Weak password";
+        } else if (strength <= 75) {
+            message.innerHTML = "Medium password";
+        } else {
+            message.innerHTML = "Strong password";
+        }
+    });
+
+    // Confirm Password
+    document.getElementById("confirm_password").addEventListener("keyup", function() {
+        let password = document.getElementById("password").value;
+        let confirm = this.value;
+        let message = document.getElementById("confirmMessage");
+        if (password === confirm) {
+            message.innerHTML = "Passwords match";
+            message.style.color = "green";
+        } else {
+            message.innerHTML = "Passwords do not match";
+            message.style.color = "red";
+        }
+    });
+
+    // Bangladesh Phone Number Validation
+    const phoneInput = document.getElementById("phone");
+    const phoneMessage = document.getElementById("phoneMessage");
+    phoneInput.addEventListener("keyup", function() {
+        let phone = this.value;
+        this.value = phone.replace(/[^0-9]/g, "");
+        phone = this.value;
+        if (phone.length === 0) {
+            phoneMessage.innerHTML = "";
+            return;
+        }
+        let bdPattern = /^01[3-9]\d{8}$/;
+        if (bdPattern.test(phone)) {
+            phoneMessage.innerHTML = "✅ Valid Bangladesh phone number";
+            phoneMessage.style.color = "green";
+        } else {
+            phoneMessage.innerHTML = "❌ Enter a valid Bangladesh number (01XXXXXXXXX)";
+            phoneMessage.style.color = "red";
+        }
+    });
+
+    // Email Availability Check
+    const emailInput = document.getElementById("email");
+    const emailMessage = document.getElementById("emailMessage");
+    emailInput.addEventListener("keyup", function() {
+        let email = this.value;
+        let emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email.length === 0) {
+            emailMessage.innerHTML = "";
+            return;
+        }
+        if (!emailPattern.test(email)) {
+            emailMessage.innerHTML = "❌ Enter a valid email address";
+            emailMessage.style.color = "red";
+            return;
+        }
+        fetch("/check_email", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "email=" + encodeURIComponent(email)
+        })
+        .then(response => response.json())
+        .then(data => {
+            emailMessage.innerHTML = data.message;
+            if (data.available) {
+                emailMessage.style.color = "green";
+            } else {
+                emailMessage.style.color = "red";
+            }
+        });
+    });
 </script>
-
 {% endblock %}

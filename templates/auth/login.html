@@ -1,130 +1,169 @@
 {% extends "layouts/base.html" %}
 
-
 {% block title %}
 Login | CVision
 {% endblock %}
 
-
-
 {% block content %}
-
 
 <div class="container mt-5 pt-5">
 
+    <div class="row justify-content-center">
 
-<div class="row justify-content-center">
+        <div class="col-lg-9">
 
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
 
-<div class="col-md-5">
+                <div class="row g-0">
 
+                    <!-- LEFT -->
+                    <div class="col-lg-5 d-flex align-items-center justify-content-center signup-image-box">
 
-<div class="card shadow-lg border-0 rounded-4 p-4">
+                        <div class="css-illustration">
 
+                            <div class="illustration-circle">
 
-<h2 class="text-center fw-bold text-primary mb-4">
+                                <div class="circle-inner">
 
-Welcome Back
+                                    <div class="center-icon">
+                                        <i class="bi bi-box-arrow-in-right"></i>
+                                    </div>
 
-</h2>
+                                </div>
 
+                            </div>
 
+                            <div class="illustration-text">
 
-<form method="POST">
+                                <h3>Welcome Back</h3>
 
+                                <p>Login and continue building your career.</p>
 
-<div class="mb-3">
+                            </div>
 
+                        </div>
 
-<label class="form-label">
+                    </div>
 
-Email or Username
+                    <!-- RIGHT -->
 
-</label>
+                    <div class="col-lg-7 p-5">
 
+                        <h2 class="signup-title mb-4">
+                            Sign In
+                        </h2>
 
-<input
-type="text"
-name="identity"
-class="form-control"
-placeholder="Email or Username"
-required>
+                        <form method="POST">
 
-</div>
+                            <div class="mb-3">
 
+                                <label class="form-label">
+                                    Email or Username
+                                </label>
 
+                                <input
+                                    type="text"
+                                    name="identity"
+                                    class="form-control"
+                                    placeholder="Enter Email or Username"
+                                    required>
 
+                            </div>
 
-<div class="mb-3">
+                            <div class="mb-3">
 
-    <label class="form-label">
-        Password
-    </label>
+                                <label class="form-label">
+                                    Password
+                                </label>
 
+                                <div class="input-group">
 
-    <input
-    type="password"
-    name="password"
-    class="form-control"
-    required>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        id="password"
+                                        class="form-control"
+                                        required>
 
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="showPassword">
 
-    <div class="text-end mt-2">
+                                        <i class="bi bi-eye"></i>
 
-        <a href="{{ url_for('auth.forgot_password') }}"
-           class="text-decoration-none small">
+                                    </button>
 
-            Forgot Password?
+                                </div>
 
-        </a>
+                                <div class="text-end mt-2">
+
+                                    <a href="{{ url_for('auth.forgot_password') }}">
+                                        Forgot Password?
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                            <button class="btn register-btn w-100 mt-3">
+
+                                Login
+
+                            </button>
+
+                        </form>
+
+                        <div class="text-center mt-4">
+
+                            Don't have an account?
+
+                            <a href="{{ url_for('auth.register') }}">
+
+                                Register
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
-
 </div>
 
-<button
+{% endblock %}
 
-class="btn btn-primary w-100">
+{% block extra_js %}
 
-Login
+<script>
 
-</button>
+document.getElementById("showPassword").onclick = function(){
 
+    let password = document.getElementById("password");
 
+    if(password.type==="password"){
 
+        password.type="text";
 
-</form>
+        this.innerHTML='<i class="bi bi-eye-slash"></i>';
 
+    }else{
 
+        password.type="password";
 
+        this.innerHTML='<i class="bi bi-eye"></i>';
 
-<div class="text-center mt-4">
+    }
 
+}
 
-Don't have an account?
-
-
-<a href="{{ url_for('auth.register') }}">
-
-Register
-
-</a>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
+</script>
 
 {% endblock %}
