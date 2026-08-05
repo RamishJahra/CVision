@@ -16,6 +16,9 @@ from models import db
 
 from models.user import User
 import re
+from flask_login import login_user
+
+
 
 auth = Blueprint("auth", __name__)
 
