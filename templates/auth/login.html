@@ -38,7 +38,7 @@ Welcome Back
 
 <label class="form-label">
 
-Email
+Email or Username
 
 </label>
 
@@ -55,31 +55,33 @@ required>
 
 
 
-<div class="mb-4">
+<div class="mb-3">
+
+    <label class="form-label">
+        Password
+    </label>
 
 
-<label class="form-label">
+    <input
+    type="password"
+    name="password"
+    class="form-control"
+    required>
 
-Password
 
-</label>
+    <div class="text-end mt-2">
 
+        <a href="{{ url_for('auth.forgot_password') }}"
+           class="text-decoration-none small">
 
-<input
+            Forgot Password?
 
-type="password"
+        </a>
 
-name="password"
-
-class="form-control"
-
-required>
+    </div>
 
 
 </div>
-
-
-
 
 <button
 
@@ -88,6 +90,7 @@ class="btn btn-primary w-100">
 Login
 
 </button>
+
 
 
 

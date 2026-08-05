@@ -607,3 +607,260 @@ def get_areas(district_id):
         for area in areas
 
     ])
+
+# ==========================
+# Forgot Password
+# ==========================
+
+
+@auth.route("/forgot-password", methods=["GET","POST"])
+def forgot_password():
+
+
+    if request.method == "POST":
+
+
+        email = request.form.get("email")
+
+
+
+        user = User.query.filter_by(
+            email=email
+        ).first()
+
+
+
+        if not user:
+
+
+            flash(
+                "No account found with this email.",
+                "danger"
+            )
+
+
+            return redirect(
+                url_for("auth.forgot_password")
+            )
+
+
+
+        otp = str(
+            random.randint(100000,999999)
+        )
+
+
+
+        user.reset_code = otp
+
+        user.reset_expiry = datetime.now() + timedelta(minutes=10)
+
+
+
+        db.session.commit()
+
+
+
+        msg = Message(
+
+            "CVision Password Reset",
+
+            sender="yourgmail@gmail.com",
+
+            recipients=[email]
+
+        )
+
+
+
+        msg.body = f"""
+
+Your CVision password reset OTP is:
+
+{otp}
+
+
+This OTP will expire in 10 minutes.
+
+"""
+
+
+
+        mail.send(msg)
+
+
+
+        return redirect(
+
+            url_for(
+                "auth.verify_reset_otp",
+                email=email
+            )
+
+        )
+
+
+
+    return render_template(
+        "auth/forgot_password.html"
+    )
+
+@auth.route("/verify-reset-otp", methods=["GET","POST"])
+def verify_reset_otp():
+
+
+    email = request.args.get("email")
+
+
+
+    if request.method == "POST":
+
+
+        otp = request.form.get("otp")
+
+
+
+        user = User.query.filter_by(
+            email=email
+        ).first()
+
+
+
+        if not user:
+
+
+            flash(
+                "User not found.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.login")
+            )
+
+
+
+        if user.reset_code != otp:
+
+
+            flash(
+                "Invalid OTP.",
+                "danger"
+            )
+
+
+            return redirect(
+                url_for(
+                    "auth.verify_reset_otp",
+                    email=email
+                )
+            )
+
+
+
+        if datetime.now() > user.reset_expiry:
+
+
+            flash(
+                "OTP expired.",
+                "danger"
+            )
+
+
+            return redirect(
+                url_for(
+                    "auth.forgot_password",
+                )
+            )
+
+
+
+        return redirect(
+
+            url_for(
+                "auth.reset_password",
+                email=email
+            )
+
+        )
+
+
+
+    return render_template(
+        "auth/verify_reset_otp.html",
+        email=email
+    )
+
+@auth.route("/reset-password", methods=["GET","POST"])
+def reset_password():
+
+
+    email = request.args.get("email")
+
+
+
+    if request.method == "POST":
+
+
+        password = request.form.get("password")
+
+        confirm_password = request.form.get(
+            "confirm_password"
+        )
+
+
+
+        if password != confirm_password:
+
+
+            flash(
+                "Passwords do not match.",
+                "danger"
+            )
+
+
+            return redirect(
+                url_for(
+                    "auth.reset_password",
+                    email=email
+                )
+            )
+
+
+
+        user = User.query.filter_by(
+            email=email
+        ).first()
+
+
+
+        user.password = generate_password_hash(
+            password
+        )
+
+
+        user.reset_code = None
+
+        user.reset_expiry = None
+
+
+
+        db.session.commit()
+
+
+
+        flash(
+            "Password reset successful. Login now.",
+            "success"
+        )
+
+
+        return redirect(
+            url_for("auth.login")
+        )
+
+
+
+    return render_template(
+        "auth/reset_password.html"
+    )

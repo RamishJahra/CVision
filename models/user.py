@@ -66,6 +66,16 @@ class User(UserMixin, db.Model):
     area = db.relationship(
         "Area"
     )
+    reset_code = db.Column(
+    db.String(6),
+    nullable=True
+)
+
+
+    reset_expiry = db.Column(
+        db.DateTime,
+        nullable=True
+    )
 
     def __repr__(self):
         return f"<User {self.username}>"
