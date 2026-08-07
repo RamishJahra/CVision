@@ -3,7 +3,6 @@
 {% block title %}CVision | AI Resume Screening Platform{% endblock %}
 
 {% block content %}
-
 <!-- ===================== NAVBAR ===================== -->
 
 <nav class="navbar navbar-expand-lg fixed-top custom-navbar">
@@ -11,85 +10,69 @@
     <div class="container">
 
         <a class="navbar-brand logo" href="#">
-
             CVision
-
         </a>
 
-        <button class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarNav">
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav">
 
             <span class="navbar-toggler-icon"></span>
 
         </button>
 
-        <div class="collapse navbar-collapse"
-             id="navbarNav">
+        <div class="collapse navbar-collapse" id="navbarNav">
 
             <ul class="navbar-nav mx-auto">
 
                 <li class="nav-item">
-
-                    <a class="nav-link active"
-                       href="#">
-
+                    <a class="nav-link active" href="#">
                         Home
-
                     </a>
-
                 </li>
 
                 <li class="nav-item">
-
-                    <a class="nav-link"
-                       href="#features">
-
+                    <a class="nav-link" href="#features">
                         Features
-
                     </a>
-
                 </li>
 
                 <li class="nav-item">
-
-                    <a class="nav-link"
-                       href="#workflow">
-
+                    <a class="nav-link" href="#workflow">
                         Workflow
-
                     </a>
-
                 </li>
 
                 <li class="nav-item">
-
-                    <a class="nav-link"
-                       href="#contact">
-
-                        Contact
-
+                    <a class="nav-link" href="#why">
+                        Why CVision
                     </a>
+                </li>
 
+                <li class="nav-item">
+                    <a class="nav-link" href="#faq">
+                        FAQ
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="#contact">
+                        Contact
+                    </a>
                 </li>
 
             </ul>
 
-            <div class="d-flex">
+            <div class="d-flex align-items-center gap-2">
 
-                <a href="/login"
-                   class="btn btn-login">
-
+                <a href="/login" class="btn btn-login">
                     Login
-
                 </a>
 
-                <a href="/register"
-                   class="btn btn-register">
-
+                <a href="/register" class="btn btn-register">
                     Register
-
                 </a>
 
             </div>
@@ -102,114 +85,105 @@
 
 
 
+
+
 <!-- ===================== HERO ===================== -->
 
 <section class="hero-section">
 
     <div class="container">
 
-        <div class="row align-items-center">
+        <div class="row align-items-center g-5">
+
+            <!-- LEFT -->
 
             <div class="col-lg-6">
 
-                <span class="hero-badge">
+                <div class="hero-content">
 
-                    AI Recruitment Platform
+                    <span class="hero-badge">
 
-                </span>
+                        <i class="bi bi-stars"></i>
 
-                <h1>
-
-                    Revolutionize Your
-
-                    <span>
-
-                        Hiring Process
+                        AI Recruitment Platform
 
                     </span>
 
-                </h1>
+                    <h1>
 
-                <p>
+                        Revolutionize Your
 
-                    Screen resumes intelligently,
-                    rank candidates automatically,
-                    and discover the best talent
-                    with Artificial Intelligence.
+                        <span>Hiring Process</span>
 
-                </p>
+                    </h1>
 
-                <div class="hero-buttons">
+                    <p>
 
-                    <a href="/register"
-                       class="btn btn-primary-custom">
+                        CVision uses Artificial Intelligence to analyze resumes,
+                        rank candidates, match skills with job requirements,
+                        and help recruiters hire the right talent faster than ever.
 
-                        Get Started
+                    </p>
 
-                    </a>
+                    <div class="hero-buttons">
 
-                    <a href="#features"
-                       class="btn btn-secondary-custom">
+                        <a href="/register"
+                           class="btn btn-primary-custom">
 
-                        Explore
+                            <i class="bi bi-rocket-takeoff-fill me-2"></i>
 
-                    </a>
+                            Get Started
 
-                </div>
+                        </a>
 
-                <div class="hero-stats">
+                        <a href="#features"
+                           class="btn btn-secondary-custom">
 
-                    <div>
+                            <i class="bi bi-play-circle me-2"></i>
 
-                        <h3>
+                            Explore
 
-                            10K+
-
-                        </h3>
-
-                        <span>
-
-                            Resumes
-
-                        </span>
+                        </a>
 
                     </div>
 
-                    <div>
+                    <div class="hero-stats">
 
-                        <h3>
+                        <div>
 
-                            98%
+                            <h3>10K+</h3>
 
-                        </h3>
+                            <span>Resumes Screened</span>
 
-                        <span>
+                        </div>
 
-                            Accuracy
+                        <div>
 
-                        </span>
+                            <h3>98%</h3>
 
-                    </div>
+                            <span>AI Accuracy</span>
 
-                    <div>
+                        </div>
 
-                        <h3>
+                        <div>
 
-                            400+
+                            <h3>400+</h3>
 
-                        </h3>
+                            <span>Recruiters</span>
 
-                        <span>
-
-                            Recruiters
-
-                        </span>
+                        </div>
 
                     </div>
 
                 </div>
 
             </div>
+
+
+
+
+
+            <!-- RIGHT -->
 
             <div class="col-lg-6">
 
@@ -229,31 +203,22 @@
 
                         <div class="dashboard-card">
 
-                            <h5>
+                            <small>Resume Score</small>
 
-                                Resume Score
-
-                            </h5>
-
-                            <h2>
-
-                                94%
-
-                            </h2>
+                            <h2>94%</h2>
 
                         </div>
 
                         <div class="dashboard-card">
 
-                            <h5>
+                            <small>Skills Match</small>
 
-                                Skills Match
+                            <div class="progress mt-2">
 
-                            </h5>
+                                <div class="progress-bar bg-success"
+                                     style="width:75%">
 
-                            <div class="progress">
-
-                                <div class="progress-bar w-75"></div>
+                                </div>
 
                             </div>
 
@@ -261,17 +226,13 @@
 
                         <div class="dashboard-card">
 
-                            <h5>
+                            <small>Top Candidate</small>
 
-                                Top Candidate
-
-                            </h5>
-
-                            <div class="candidate">
+                            <div class="candidate mt-3">
 
                                 <div class="avatar">
 
-                                    A
+                                    AJ
 
                                 </div>
 
@@ -285,7 +246,11 @@
 
                                     <br>
 
-                                    Python Developer
+                                    <span>
+
+                                        Python Developer
+
+                                    </span>
 
                                 </div>
 
@@ -295,17 +260,17 @@
 
                         <div class="dashboard-card">
 
-                            <h5>
+                            <small>AI Recommendation</small>
 
-                                AI Recommendation
+                            <div class="mt-2">
 
-                            </h5>
+                                <span class="badge bg-success">
 
-                            <p>
+                                    Highly Recommended
 
-                                Highly Recommended
+                                </span>
 
-                            </p>
+                            </div>
 
                         </div>
 
@@ -321,88 +286,46 @@
 
 </section>
 
-
-
-<!-- ===================== COMPANIES ===================== -->
-
-<section class="companies">
-
-    <div class="container">
-
-        <p>
-
-            TRUSTED BY MODERN COMPANIES
-
-        </p>
-
-        <div class="company-list">
-
-            <span>Google</span>
-
-            <span>Microsoft</span>
-
-            <span>Amazon</span>
-
-            <span>Netflix</span>
-
-            <span>Meta</span>
-
-            <span>Tesla</span>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
 <!-- ===================== FEATURES ===================== -->
 
-<section id="features"
-         class="features">
+<section id="features" class="features py-5">
 
     <div class="container">
 
-        <div class="section-title">
+        <div class="section-title text-center mb-5">
 
-            <small>
+            <small>FEATURES</small>
 
-                FEATURES
-
-            </small>
-
-            <h2>
-
-                Everything You Need
-
-            </h2>
+            <h2>Everything You Need for Smart Recruitment</h2>
 
             <p>
-
-                AI powered recruitment platform built for the future.
-
+                CVision combines Artificial Intelligence with modern recruitment
+                tools to simplify hiring, reduce manual effort, and improve
+                candidate selection.
             </p>
 
         </div>
 
         <div class="row g-4">
 
-            <div class="col-lg-4">
+            <!-- Feature 1 -->
 
-                <div class="feature-card">
+            <div class="col-lg-4 col-md-6">
 
-                    <i class="bi bi-file-earmark-text"></i>
+                <div class="feature-card h-100">
 
-                    <h4>
+                    <div class="feature-icon">
 
-                        Resume Parsing
+                        <i class="bi bi-file-earmark-text-fill"></i>
 
-                    </h4>
+                    </div>
+
+                    <h4>Resume Parsing</h4>
 
                     <p>
 
-                        Automatically extract candidate information.
+                        Automatically extracts candidate information including
+                        education, skills, experience and certifications.
 
                     </p>
 
@@ -410,21 +333,24 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <!-- Feature 2 -->
 
-                <div class="feature-card">
+            <div class="col-lg-4 col-md-6">
 
-                    <i class="bi bi-cpu"></i>
+                <div class="feature-card h-100">
 
-                    <h4>
+                    <div class="feature-icon">
 
-                        AI Screening
+                        <i class="bi bi-cpu-fill"></i>
 
-                    </h4>
+                    </div>
+
+                    <h4>AI Resume Screening</h4>
 
                     <p>
 
-                        TensorFlow Lite powered resume prediction.
+                        Uses TensorFlow Lite to analyze resumes and predict
+                        candidate suitability with high accuracy.
 
                     </p>
 
@@ -432,21 +358,100 @@
 
             </div>
 
-            <div class="col-lg-4">
+            <!-- Feature 3 -->
 
-                <div class="feature-card">
+            <div class="col-lg-4 col-md-6">
 
-                    <i class="bi bi-bar-chart-line"></i>
+                <div class="feature-card h-100">
 
-                    <h4>
+                    <div class="feature-icon">
 
-                        Candidate Ranking
+                        <i class="bi bi-bar-chart-fill"></i>
 
-                    </h4>
+                    </div>
+
+                    <h4>Candidate Ranking</h4>
 
                     <p>
 
-                        Instantly rank applicants based on job requirements.
+                        Automatically ranks applicants based on skills,
+                        qualifications and job requirements.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Feature 4 -->
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100">
+
+                    <div class="feature-icon">
+
+                        <i class="bi bi-search-heart-fill"></i>
+
+                    </div>
+
+                    <h4>Skill Matching</h4>
+
+                    <p>
+
+                        Matches applicant skills with recruiter requirements
+                        to identify the most suitable candidates.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Feature 5 -->
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100">
+
+                    <div class="feature-icon">
+
+                        <i class="bi bi-speedometer2"></i>
+
+                    </div>
+
+                    <h4>Fast Processing</h4>
+
+                    <p>
+
+                        Screen hundreds of resumes within seconds,
+                        saving recruiters valuable hiring time.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Feature 6 -->
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="feature-card h-100">
+
+                    <div class="feature-icon">
+
+                        <i class="bi bi-shield-check"></i>
+
+                    </div>
+
+                    <h4>Secure Platform</h4>
+
+                    <p>
+
+                        User authentication, encrypted passwords,
+                        and secure resume management ensure complete
+                        data protection.
 
                     </p>
 
@@ -459,5 +464,1132 @@
     </div>
 
 </section>
+<!-- ===================== WORKFLOW ===================== -->
 
+<section id="workflow" class="workflow-section py-5">
+
+    <div class="container">
+
+        <div class="section-title text-center mb-5">
+
+            <small>WORKFLOW</small>
+
+            <h2>How CVision Works</h2>
+
+            <p>
+                Five simple steps from resume submission to hiring the perfect candidate.
+            </p>
+
+        </div>
+
+        <div class="workflow-wrapper">
+
+            <!-- Step 1 -->
+
+            <div class="workflow-item">
+
+                <div class="workflow-card">
+
+                    <div class="step-number">01</div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-upload"></i>
+                    </div>
+
+                    <h5>Upload Resume</h5>
+
+                    <p>
+                        Applicants upload their resumes in PDF format through the platform.
+                    </p>
+
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+
+            </div>
+
+            <!-- Step 2 -->
+
+            <div class="workflow-item">
+
+                <div class="workflow-card">
+
+                    <div class="step-number">02</div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+
+                    <h5>AI Analysis</h5>
+
+                    <p>
+                        CVision extracts candidate skills, education, projects and experience.
+                    </p>
+
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+
+            </div>
+
+            <!-- Step 3 -->
+
+            <div class="workflow-item">
+
+                <div class="workflow-card">
+
+                    <div class="step-number">03</div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+
+                    <h5>Skill Matching</h5>
+
+                    <p>
+                        Artificial Intelligence compares every resume with job requirements.
+                    </p>
+
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+
+            </div>
+
+            <!-- Step 4 -->
+
+            <div class="workflow-item">
+
+                <div class="workflow-card">
+
+                    <div class="step-number">04</div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-bar-chart-line"></i>
+                    </div>
+
+                    <h5>Candidate Ranking</h5>
+
+                    <p>
+                        Candidates receive intelligent scores and are ranked automatically.
+                    </p>
+
+                </div>
+
+                <div class="workflow-arrow">
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+
+            </div>
+
+            <!-- Step 5 -->
+
+            <div class="workflow-item">
+
+                <div class="workflow-card">
+
+                    <div class="step-number">05</div>
+
+                    <div class="workflow-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+
+                    <h5>Hire Candidate</h5>
+
+                    <p>
+                        Recruiters review the ranked candidates and hire the best match.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- ===================== WHY CHOOSE CVISION ===================== -->
+
+<section id="why" class="why-section py-5">
+
+    <div class="container">
+
+        <div class="section-title text-center mb-5">
+
+            <small>WHY CHOOSE CVISION</small>
+
+            <h2>Built for Smarter Recruitment</h2>
+
+            <p>
+                Everything recruiters need to simplify hiring while providing
+                the best experience for applicants.
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="why-card">
+
+                    <div class="why-icon">
+
+                        <i class="bi bi-lightning-charge-fill"></i>
+
+                    </div>
+
+                    <h4>Lightning Fast</h4>
+
+                    <p>
+
+                        Screen hundreds of resumes in seconds instead of hours.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="why-card">
+
+                    <div class="why-icon">
+
+                        <i class="bi bi-cpu-fill"></i>
+
+                    </div>
+
+                    <h4>AI Powered</h4>
+
+                    <p>
+
+                        TensorFlow Lite intelligently predicts the most suitable applicants.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="why-card">
+
+                    <div class="why-icon">
+
+                        <i class="bi bi-bar-chart-line-fill"></i>
+
+                    </div>
+
+                    <h4>Smart Ranking</h4>
+
+                    <p>
+
+                        Candidates are automatically ranked according to job requirements.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="why-card">
+
+                    <div class="why-icon">
+
+                        <i class="bi bi-shield-lock-fill"></i>
+
+                    </div>
+
+                    <h4>Secure Platform</h4>
+
+                    <p>
+
+                        Password encryption and secure authentication protect every account.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="why-card">
+
+                    <div class="why-icon">
+
+                        <i class="bi bi-clock-history"></i>
+
+                    </div>
+
+                    <h4>Save Time</h4>
+
+                    <p>
+
+                        Reduce manual recruitment work by more than 80%.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+
+                <div class="why-card">
+
+                    <div class="why-icon">
+
+                        <i class="bi bi-cloud-check-fill"></i>
+
+                    </div>
+
+                    <h4>Anywhere Access</h4>
+
+                    <p>
+
+                        Manage recruitment securely from any modern web browser.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- ===================== FAQ ===================== -->
+
+<section id="faq" class="faq-section py-5">
+
+    <div class="container">
+
+        <div class="section-title text-center mb-5">
+
+            <small>FAQ</small>
+
+            <h2>Frequently Asked Questions</h2>
+
+            <p>
+                Everything you need to know about CVision.
+            </p>
+
+        </div>
+
+        <div class="faq-wrapper">
+
+            <!-- 1 -->
+
+            <div class="accordion custom-accordion" id="faqAccordion">
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq1">
+
+                            <i class="bi bi-cpu me-3"></i>
+
+                            How does CVision screen resumes?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq1"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            CVision uses Artificial Intelligence to analyze resumes, extract skills, education, projects, experience and compare them with job requirements before generating a candidate score.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 2 -->
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq2">
+
+                            <i class="bi bi-person-workspace me-3"></i>
+
+                            Can recruiters manually review resumes?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq2"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            Yes. Recruiters always have complete control over candidate selection. AI only assists with recommendations.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 3 -->
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq3">
+
+                            <i class="bi bi-shield-lock me-3"></i>
+
+                            Is my information secure?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq3"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            Yes. Passwords are encrypted and candidate information is securely stored using industry-standard security practices.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 4 -->
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq4">
+
+                            <i class="bi bi-file-earmark-pdf me-3"></i>
+
+                            Which resume formats are supported?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq4"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            Currently CVision accepts PDF resumes for the most accurate AI analysis.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 5 -->
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq5">
+
+                            <i class="bi bi-bar-chart me-3"></i>
+
+                            How accurate is the AI ranking?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq5"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            CVision provides highly accurate recommendations based on trained machine learning models. Final hiring decisions always remain with recruiters.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 6 -->
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq6">
+
+                            <i class="bi bi-clock-history me-3"></i>
+
+                            Does AI really save hiring time?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq6"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            Yes. CVision can analyze hundreds of resumes within seconds, reducing manual screening time by more than 80%.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 7 -->
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq7">
+
+                            <i class="bi bi-cash-coin me-3"></i>
+
+                            Is CVision free?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq7"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            Applicants can use CVision free of charge. Premium recruiter features may be introduced in future versions.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 8 -->
+
+                <div class="accordion-item">
+
+                    <h2 class="accordion-header">
+
+                        <button class="accordion-button collapsed"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#faq8">
+
+                            <i class="bi bi-people me-3"></i>
+
+                            Who can use CVision?
+
+                        </button>
+
+                    </h2>
+
+                    <div id="faq8"
+                         class="accordion-collapse collapse"
+                         data-bs-parent="#faqAccordion">
+
+                        <div class="accordion-body">
+
+                            CVision is designed for Applicants, Recruiters and Administrators looking for a faster AI-powered hiring experience.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+<!-- ===================== CTA ===================== -->
+
+<section class="cta-section">
+
+    <div class="container">
+
+        <div class="cta-box">
+
+            <div class="cta-shape shape-1"></div>
+            <div class="cta-shape shape-2"></div>
+            <div class="cta-shape shape-3"></div>
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-8">
+
+                    <span class="cta-badge">
+
+                        <i class="bi bi-stars"></i>
+
+                        Ready to Hire?
+
+                    </span>
+
+                    <h2>
+
+                        Transform Your Recruitment with AI
+
+                    </h2>
+
+                    <p>
+
+                        Screen resumes faster, identify top talent instantly, and make smarter hiring decisions with CVision's AI-powered recruitment platform.
+
+                    </p>
+
+                </div>
+
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+
+                    <a href="{{ url_for('auth.register') }}"
+                       class="btn cta-btn-primary">
+
+                        Get Started
+
+                    </a>
+
+                    <a href="#contact"
+                       class="btn cta-btn-secondary">
+
+                        Contact Us
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+
+<section id="contact" class="contact-section">
+
+    <div class="container">
+
+        <div class="section-title text-center mb-5">
+
+            <small>CONTACT</small>
+
+            <h2>Let's Build Better Hiring Together</h2>
+
+            <p>
+                We'd love to hear from you. Feel free to contact us anytime.
+            </p>
+
+        </div>
+
+        <div class="row g-4">
+
+            <!-- Contact Information -->
+
+            <div class="col-lg-6">
+
+                <div class="contact-card">
+
+                    <div class="contact-item">
+
+                        <div class="contact-icon">
+
+                            <i class="bi bi-envelope-fill"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h5>Email</h5>
+
+                            <p>cvision190@gmail.com</p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="contact-item">
+
+                        <div class="contact-icon">
+
+                            <i class="bi bi-telephone-fill"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h5>Phone</h5>
+
+                            <p>+880 18XX-XXXXXX</p>
+
+                        </div>
+
+                    </div>
+
+                    <div class="contact-item">
+
+                        <div class="contact-icon">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h5>Location</h5>
+
+                            <p>Chattogram, Bangladesh</p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Developer -->
+
+            <div class="col-lg-6">
+
+                <div class="developer-card">
+
+                    <div class="developer-avatar">
+
+                        <i class="bi bi-person-circle"></i>
+
+                    </div>
+
+                    <h4>Developed By</h4>
+
+                    <h3>Ramish Jahra Binte Hossain</h3>
+
+                    <p>
+
+                        Department of Computer Science & Engineering
+
+                    </p>
+
+                    <span>
+
+                        AI Resume Screening Platform • CVision
+
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+
+<footer class="footer">
+
+    <div class="container">
+
+        <div class="row gy-5">
+
+            <div class="col-lg-4">
+
+                <h3 class="footer-logo">
+
+                    CVision
+
+                </h3>
+
+                <p>
+
+                    AI-powered resume screening platform helping recruiters hire smarter and applicants get noticed faster.
+
+                </p>
+
+            </div>
+
+            <div class="col-lg-2">
+
+                <h5>Navigation</h5>
+
+                <ul>
+
+                    <li><a href="#">Home</a></li>
+
+                    <li><a href="#features">Features</a></li>
+
+                    <li><a href="#workflow">Workflow</a></li>
+
+                    <li><a href="#faq">FAQ</a></li>
+
+                </ul>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <h5>Resources</h5>
+
+                <ul>
+
+                    <li><a href="#">Documentation</a></li>
+
+                    <li><a href="#">Privacy Policy</a></li>
+
+                    <li><a href="#">Terms of Service</a></li>
+
+                    <li><a href="#contact">Support</a></li>
+
+                </ul>
+
+            </div>
+
+            <div class="col-lg-3">
+
+                <h5>Follow Us</h5>
+
+                <div class="social-links">
+
+                    <a href="#"><i class="bi bi-facebook"></i></a>
+
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+
+                    <a href="#"><i class="bi bi-github"></i></a>
+
+                    <a href="#"><i class="bi bi-twitter-x"></i></a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <hr>
+
+        <div class="footer-bottom">
+
+            <p>
+
+                © 2026 CVision. All Rights Reserved.
+
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+   document.addEventListener("DOMContentLoaded", () => {
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Refresh after everything loads
+    window.addEventListener("load", () => {
+        ScrollTrigger.refresh();
+    });
+    
+    // ===============================
+    // HERO
+    // ===============================
+    gsap.from(".hero-content", {
+        opacity: 0,
+        y: 50,
+        duration: 1,
+        ease: "power3.out"
+    });
+
+    gsap.from(".dashboard", {
+        opacity: 0,
+        x: 60,
+        duration: 1,
+        delay: 0.3,
+        ease: "power3.out"
+    });
+
+    // ===============================
+    // SECTION TITLES
+    // ===============================
+    gsap.utils.toArray(".section-title").forEach(section => {
+
+        gsap.from(section, {
+            scrollTrigger: {
+                trigger: section,
+                start: "top 85%",
+                toggleActions: "play none none none"
+            },
+            opacity: 0,
+            y: 40,
+            duration: 0.8,
+            ease: "power2.out"
+        });
+
+    });
+
+    // ===============================
+    // FEATURES
+    // ===============================
+  ScrollTrigger.batch(".feature-card", {
+
+        start: "top 85%",
+
+        onEnter: batch => {
+            gsap.from(batch, {
+                opacity: 0,
+                y: 60,
+                scale: 0.9,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "back.out(1.5)"
+            });
+        },
+
+        once: true
+
+    });
+
+    // ===============================
+    // WHY
+    // ===============================
+    ScrollTrigger.batch(".why-card", {
+
+        start: "top 85%",
+
+        onEnter: batch => {
+            gsap.from(batch, {
+                opacity: 0,
+                y: 60,
+                scale: 0.9,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: "back.out(1.5)"
+            });
+        },
+
+        once: true
+
+    });
+
+    // ===============================
+    // FAQ
+    // ===============================
+    ScrollTrigger.batch(".accordion-item", {
+
+        start: "top 90%",
+
+        onEnter: batch => {
+            gsap.from(batch, {
+                opacity: 0,
+                x: -40,
+                duration: 0.6,
+                stagger: 0.1,
+                ease: "power2.out"
+            });
+        },
+
+        once: true
+
+    });
+// ===============================
+// WORKFLOW
+// ===============================
+
+const workflowTl = gsap.timeline({
+    scrollTrigger: {
+        trigger: "#workflow",
+        start: "top 70%",
+        toggleActions: "play none none none",
+        once: true
+    }
+});
+
+// Cards
+workflowTl.from(".workflow-card", {
+    opacity: 0,
+    y: 80,
+    scale: 0.85,
+    rotateX: 20,
+    transformOrigin: "center bottom",
+    duration: 0.8,
+    stagger: 0.25,
+    ease: "back.out(1.6)"
+});
+
+// Arrows
+workflowTl.from(".workflow-arrow", {
+    opacity: 0,
+    scale: 0,
+    x: -20,
+    duration: 0.4,
+    stagger: 0.25,
+    ease: "elastic.out(1,0.5)"
+}, "-=1.8");
+
+// Icons
+workflowTl.from(".workflow-icon", {
+    scale: 0,
+    rotation: 180,
+    duration: 0.5,
+    stagger: 0.25,
+    ease: "back.out(2)"
+}, "-=2");
+
+// Numbers
+workflowTl.from(".step-number", {
+    opacity: 0,
+    x: 20,
+    duration: 0.35,
+    stagger: 0.25,
+    ease: "power2.out"
+}, "-=2");
+gsap.to(".workflow-card", {
+    y: -5,
+    duration: 1,
+    ease: "sine.inOut",
+    yoyo: true,
+    repeat: -1,
+    stagger: {
+        each: 0.2,
+        from: "start"
+    }
+});
+    // ===============================
+    // CTA
+    // ===============================
+    gsap.from(".cta-box", {
+
+        scrollTrigger: {
+            trigger: ".cta-section",
+            start: "top 85%",
+            toggleActions: "play none none none"
+        },
+
+        opacity: 0,
+        scale: 0.95,
+        y: 40,
+        duration: 1,
+        ease: "power3.out"
+
+    });
+
+    // ===============================
+    // CONTACT
+    // ===============================
+    ScrollTrigger.batch(".contact-card, .developer-card", {
+
+        start: "top 85%",
+
+        onEnter: batch => {
+            gsap.from(batch, {
+                opacity: 0,
+                y: 50,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "power3.out"
+            });
+        },
+
+        once: true
+
+    });
+
+    // ===============================
+    // FOOTER
+    // ===============================
+    ScrollTrigger.batch(".footer .col-lg-4, .footer .col-lg-3, .footer .col-lg-2", {
+
+        start: "top 95%",
+
+        onEnter: batch => {
+            gsap.from(batch, {
+                opacity: 0,
+                y: 30,
+                duration: 0.7,
+                stagger: 0.15,
+                ease: "power2.out"
+            });
+        },
+
+        once: true
+
+    });
+
+});
+
+</script>
 {% endblock %}
