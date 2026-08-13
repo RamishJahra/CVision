@@ -1,0 +1,466 @@
+{% extends "layouts/base.html" %}
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <h2 class="mb-4">
+                        Applicant Profile
+                    </h2>
+                    <!-- Profile Picture -->
+
+<div class="text-center mb-4">
+
+    <img
+        src="{{ url_for('static', filename='uploads/profile/' + current_user.profile_image) }}"
+        alt="Profile Picture"
+        class="rounded-circle border"
+        width="130"
+        height="130"
+        style="object-fit: cover;"
+    >
+
+    <h5 class="mt-3">
+        {{ current_user.full_name }}
+    </h5>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('applicant.profile_picture') }}"
+        enctype="multipart/form-data"
+        class="mt-3"
+    >
+
+        <div class="mb-3">
+
+            <input
+                type="file"
+                name="profile_image"
+                class="form-control"
+                accept=".jpg,.jpeg,.png,.webp"
+                required
+            >
+
+        </div>
+
+
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
+            Upload Profile Picture
+        </button>
+
+    </form>
+
+</div>
+
+<hr class="my-4">
+                    <form
+                        method="POST"
+                        action="{{ url_for('applicant.profile') }}"
+                    >
+
+                        <!-- ==========================
+                             Personal Information
+                        =========================== -->
+
+                        <h5 class="mb-3">
+                            Personal Information
+                        </h5>
+
+                        <div class="row">
+
+                            <!-- Full Name -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Full Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="full_name"
+                                    class="form-control"
+                                    value="{{ current_user.full_name }}"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Username -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Username
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="username"
+                                    class="form-control"
+                                    value="{{ current_user.username }}"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Email -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Email
+                                </label>
+
+                                <input
+                                    type="email"
+                                    class="form-control"
+                                    value="{{ current_user.email }}"
+                                    readonly
+                                >
+
+                                <small class="text-muted">
+                                    Email cannot be changed here.
+                                </small>
+
+                            </div>
+
+
+                            <!-- Phone -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Phone
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    id="phone"
+                                    class="form-control"
+                                    value="{{ current_user.phone }}"
+                                    maxlength="11"
+                                    required
+                                >
+
+                                <small
+                                    id="phoneMessage"
+                                    class="form-text"
+                                ></small>
+
+                            </div>
+
+
+                            <!-- Date of Birth -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Date of Birth
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="date_of_birth"
+                                    class="form-control"
+                                    value="{{ current_user.date_of_birth }}"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- District -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    District
+                                </label>
+
+                                <select
+                                    name="district_id"
+                                    id="district"
+                                    class="form-select"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select District
+                                    </option>
+
+                                    {% for district in districts %}
+
+                                        <option
+                                            value="{{ district.id }}"
+                                            {% if current_user.district_id == district.id %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ district.name }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Area -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Area
+                                </label>
+
+                                <select
+                                    name="area_id"
+                                    id="area"
+                                    class="form-select"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select Area
+                                    </option>
+
+                                    {% for area in areas %}
+
+                                        <option
+                                            value="{{ area.id }}"
+                                            {% if current_user.area_id == area.id %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ area.name }}
+                                        </option>
+
+                                    {% endfor %}
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <hr class="my-4">
+
+
+                        <!-- ==========================
+                             Professional Profile
+                        =========================== -->
+
+                        <h5 class="mb-3">
+                            Professional Profile
+                        </h5>
+
+
+                        <!-- Bio -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                About Me
+                            </label>
+
+                            <textarea
+                                name="bio"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Tell us about yourself..."
+                            >{{ profile.bio or "" }}</textarea>
+
+                        </div>
+
+
+                        <!-- Address -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+                                Address
+                            </label>
+
+                            <input
+                                type="text"
+                                name="address"
+                                class="form-control"
+                                value="{{ profile.address or '' }}"
+                                placeholder="Enter your address"
+                            >
+
+                        </div>
+
+
+                        <div class="row">
+
+                            <!-- LinkedIn -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    LinkedIn
+                                </label>
+
+                                <input
+                                    type="url"
+                                    name="linkedin_url"
+                                    class="form-control"
+                                    value="{{ profile.linkedin_url or '' }}"
+                                    placeholder="https://linkedin.com/in/..."
+                                >
+
+                            </div>
+
+
+                            <!-- GitHub -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    GitHub
+                                </label>
+
+                                <input
+                                    type="url"
+                                    name="github_url"
+                                    class="form-control"
+                                    value="{{ profile.github_url or '' }}"
+                                    placeholder="https://github.com/..."
+                                >
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Portfolio -->
+
+                        <div class="mb-4">
+
+                            <label class="form-label">
+                                Portfolio Website
+                            </label>
+
+                            <input
+                                type="url"
+                                name="portfolio_url"
+                                class="form-control"
+                                value="{{ profile.portfolio_url or '' }}"
+                                placeholder="https://yourportfolio.com"
+                            >
+
+                        </div>
+
+
+                        <!-- Save Button -->
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Save Changes
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================
+     District → Area AJAX
+=========================== -->
+
+<script>
+
+document.getElementById("district").addEventListener(
+    "change",
+    function () {
+
+        const districtId = this.value;
+
+        const areaSelect = document.getElementById("area");
+
+        areaSelect.innerHTML =
+            '<option value="">Loading...</option>';
+
+
+        if (!districtId) {
+
+            areaSelect.innerHTML =
+                '<option value="">Select Area</option>';
+
+            return;
+        }
+
+
+        fetch(
+            "/get_areas/" + districtId
+        )
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            areaSelect.innerHTML =
+                '<option value="">Select Area</option>';
+
+
+            data.forEach(area => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = area.id;
+
+                option.textContent = area.name;
+
+                areaSelect.appendChild(option);
+
+            });
+
+        })
+
+        .catch(error => {
+
+            console.error(
+                "Error loading areas:",
+                error
+            );
+
+            areaSelect.innerHTML =
+                '<option value="">Unable to load areas</option>';
+
+        });
+
+    }
+);
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,371 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <h2 class="mb-4">
+                Work Experience
+            </h2>
+
+
+            <!-- ==========================
+                 Add Experience
+            =========================== -->
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+                        Add Work Experience
+                    </h5>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('applicant.add_experience') }}"
+                    >
+
+                        <div class="row">
+
+                            <!-- Job Title -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Job Title
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="job_title"
+                                    class="form-control"
+                                    placeholder="Software Engineer"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Company -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Company Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="company_name"
+                                    class="form-control"
+                                    placeholder="ABC Technologies"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Employment Type -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Employment Type
+                                </label>
+
+                                <select
+                                    name="employment_type"
+                                    class="form-select"
+                                >
+
+                                    <option value="">
+                                        Select Employment Type
+                                    </option>
+
+                                    <option value="Full-time">
+                                        Full-time
+                                    </option>
+
+                                    <option value="Part-time">
+                                        Part-time
+                                    </option>
+
+                                    <option value="Internship">
+                                        Internship
+                                    </option>
+
+                                    <option value="Freelance">
+                                        Freelance
+                                    </option>
+
+                                    <option value="Contract">
+                                        Contract
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Location -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Location
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="location"
+                                    class="form-control"
+                                    placeholder="Chattogram, Bangladesh"
+                                >
+
+                            </div>
+
+
+                            <!-- Start Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Start Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="start_date"
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <!-- End Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    End Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="end_date"
+                                    id="endDate"
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <!-- Currently Working -->
+
+                            <div class="col-12 mb-3">
+
+                                <div class="form-check">
+
+                                    <input
+                                        type="checkbox"
+                                        name="currently_working"
+                                        id="currentlyWorking"
+                                        class="form-check-input"
+                                    >
+
+                                    <label
+                                        class="form-check-label"
+                                        for="currentlyWorking"
+                                    >
+                                        I currently work here
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            <div class="col-12 mb-3">
+
+                                <label class="form-label">
+                                    Description
+                                </label>
+
+                                <textarea
+                                    name="description"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Describe your responsibilities, achievements, technologies used, etc."
+                                ></textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Add Experience
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==========================
+                 Existing Experience
+            =========================== -->
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+                        My Work Experience
+                    </h5>
+
+
+                    {% if experiences %}
+
+                        {% for experience in experiences %}
+
+                            <div class="border rounded p-3 mb-3">
+
+                                <div class="d-flex justify-content-between align-items-start">
+
+                                    <div>
+
+                                        <h5 class="mb-1">
+                                            {{ experience.job_title }}
+                                        </h5>
+
+                                        <h6 class="text-muted mb-2">
+                                            {{ experience.company_name }}
+                                        </h6>
+
+                                    </div>
+
+                                </div>
+
+
+                                {% if experience.employment_type %}
+
+                                    <span class="badge bg-secondary mb-2">
+                                        {{ experience.employment_type }}
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if experience.location %}
+
+                                    <p class="mb-1">
+                                        <strong>Location:</strong>
+                                        {{ experience.location }}
+                                    </p>
+
+                                {% endif %}
+
+
+                                <p class="text-muted mb-2">
+
+                                    {% if experience.start_date %}
+
+                                        {{ experience.start_date.strftime('%B %Y') }}
+
+                                    {% endif %}
+
+                                    -
+
+                                    {% if experience.currently_working %}
+
+                                        Present
+
+                                    {% elif experience.end_date %}
+
+                                        {{ experience.end_date.strftime('%B %Y') }}
+
+                                    {% else %}
+
+                                        Not specified
+
+                                    {% endif %}
+
+                                </p>
+
+
+                                {% if experience.description %}
+
+                                    <p class="mb-0">
+                                        {{ experience.description }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-muted">
+                            No work experience added yet.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================
+     Currently Working Script
+=========================== -->
+
+<script>
+
+document.getElementById("currentlyWorking").addEventListener(
+    "change",
+    function () {
+
+        const endDate =
+            document.getElementById("endDate");
+
+        if (this.checked) {
+
+            endDate.value = "";
+
+            endDate.disabled = true;
+
+        } else {
+
+            endDate.disabled = false;
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

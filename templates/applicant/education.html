@@ -1,0 +1,258 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <h2 class="mb-4">
+                Education
+            </h2>
+
+
+            <!-- Add Education -->
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+                        Add Education
+                    </h5>
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('applicant.add_education') }}"
+                    >
+
+                        <div class="row">
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Degree
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="degree"
+                                    class="form-control"
+                                    placeholder="B.Sc. in Computer Science"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Institution
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="institution"
+                                    class="form-control"
+                                    placeholder="University name"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Field of Study
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="field_of_study"
+                                    class="form-control"
+                                    placeholder="Computer Science"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    Start Year
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="start_year"
+                                    class="form-control"
+                                    min="1950"
+                                    max="2100"
+                                    placeholder="2023"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-3 mb-3">
+
+                                <label class="form-label">
+                                    End Year
+                                </label>
+
+                                <input
+                                    type="number"
+                                    name="end_year"
+                                    class="form-control"
+                                    min="1950"
+                                    max="2100"
+                                    placeholder="2027"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-4 mb-3">
+
+                                <label class="form-label">
+                                    CGPA / GPA
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="cgpa"
+                                    class="form-control"
+                                    placeholder="3.75"
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-8 mb-3">
+
+                                <label class="form-label">
+                                    Description
+                                </label>
+
+                                <textarea
+                                    name="description"
+                                    class="form-control"
+                                    rows="2"
+                                    placeholder="Additional information..."
+                                ></textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Add Education
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- Education List -->
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+                        My Education
+                    </h5>
+
+
+                    {% if educations %}
+
+                        {% for education in educations %}
+
+                            <div class="border rounded p-3 mb-3">
+
+                                <h5>
+                                    {{ education.degree }}
+                                </h5>
+
+                                <h6 class="text-muted">
+                                    {{ education.institution }}
+                                </h6>
+
+                                {% if education.field_of_study %}
+
+                                    <p class="mb-1">
+                                        {{ education.field_of_study }}
+                                    </p>
+
+                                {% endif %}
+
+
+                                <p class="text-muted mb-1">
+
+                                    {% if education.start_year %}
+                                        {{ education.start_year }}
+                                    {% endif %}
+
+                                    -
+
+                                    {% if education.end_year %}
+                                        {{ education.end_year }}
+                                    {% else %}
+                                        Present
+                                    {% endif %}
+
+                                </p>
+
+
+                                {% if education.cgpa %}
+
+                                    <p class="mb-1">
+                                        <strong>CGPA/GPA:</strong>
+                                        {{ education.cgpa }}
+                                    </p>
+
+                                {% endif %}
+
+
+                                {% if education.description %}
+
+                                    <p class="mb-0">
+                                        {{ education.description }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-muted">
+                            No education information added yet.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

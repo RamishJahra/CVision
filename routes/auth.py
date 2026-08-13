@@ -14,7 +14,7 @@ import re
 from models import db, mail
 
 from models.user import User
-
+from models.profile import ApplicantProfile, RecruiterProfile
 from flask_login import login_user, logout_user, login_required
 
 
@@ -97,7 +97,18 @@ def register():
             return redirect(
                 url_for("auth.register")
             )
+        # Phone duplicate check
 
+        if User.query.filter_by(phone=phone).first():
+
+            flash(
+                "Phone number already exists.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("auth.register")
+            )
 
 
         # Password match check
@@ -160,7 +171,27 @@ def register():
         db.session.add(user)
 
         db.session.commit()
+        # Create role-specific profile
 
+        if role == "Applicant":
+
+            applicant_profile = ApplicantProfile(
+                user_id=user.id
+            )
+
+            db.session.add(applicant_profile)
+
+
+        elif role == "Recruiter":
+
+            recruiter_profile = RecruiterProfile(
+                user_id=user.id
+            )
+
+            db.session.add(recruiter_profile)
+
+
+        db.session.commit()
 
 
         # Send OTP Email
@@ -550,7 +581,49 @@ def check_email():
     })
 
 
+# ==========================
+# Check Phone AJAX
+# ==========================
 
+@auth.route("/check_phone", methods=["POST"])
+def check_phone():
+
+    phone = request.form.get(
+        "phone",
+        ""
+    ).strip()
+
+    if phone == "":
+
+        return jsonify({
+
+            "available": False,
+
+            "message": ""
+
+        })
+
+    user = User.query.filter_by(
+        phone=phone
+    ).first()
+
+    if user:
+
+        return jsonify({
+
+            "available": False,
+
+            "message": "❌ Phone number already registered"
+
+        })
+
+    return jsonify({
+
+        "available": True,
+
+        "message": "✅ Phone number available"
+
+    })
 # ==========================
 # Get Districts
 # ==========================

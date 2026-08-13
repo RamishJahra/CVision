@@ -1,0 +1,288 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <h2 class="mb-4">
+                Certifications
+            </h2>
+
+
+            <!-- ==========================
+                 Add Certification
+            =========================== -->
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+                        Add Certification
+                    </h5>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('applicant.add_certification') }}"
+                    >
+
+                        <div class="row">
+
+                            <!-- Certification Name -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Certification Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="certification_name"
+                                    class="form-control"
+                                    placeholder="AWS Certified Cloud Practitioner"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Issuing Organization -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Issuing Organization
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="issuing_organization"
+                                    class="form-control"
+                                    placeholder="Amazon Web Services"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Issue Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Issue Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="issue_date"
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <!-- Expiry Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Expiry Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="expiry_date"
+                                    class="form-control"
+                                >
+
+                            </div>
+
+
+                            <!-- Credential ID -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Credential ID
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="credential_id"
+                                    class="form-control"
+                                    placeholder="ABC123456"
+                                >
+
+                            </div>
+
+
+                            <!-- Credential URL -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Credential URL
+                                </label>
+
+                                <input
+                                    type="url"
+                                    name="credential_url"
+                                    class="form-control"
+                                    placeholder="https://..."
+                                >
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            <div class="col-12 mb-3">
+
+                                <label class="form-label">
+                                    Description
+                                </label>
+
+                                <textarea
+                                    name="description"
+                                    class="form-control"
+                                    rows="3"
+                                    placeholder="Additional information about this certification..."
+                                ></textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            Add Certification
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==========================
+                 Existing Certifications
+            =========================== -->
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+                        My Certifications
+                    </h5>
+
+
+                    {% if certifications %}
+
+                        {% for certification in certifications %}
+
+                            <div class="border rounded p-3 mb-3">
+
+                                <h5 class="mb-1">
+                                    {{ certification.certification_name }}
+                                </h5>
+
+                                <h6 class="text-muted mb-2">
+                                    {{ certification.issuing_organization }}
+                                </h6>
+
+
+                                {% if certification.issue_date %}
+
+                                    <p class="text-muted mb-2">
+
+                                        Issued:
+                                        {{ certification.issue_date.strftime('%B %Y') }}
+
+                                        {% if certification.expiry_date %}
+
+                                            —
+                                            Expires:
+                                            {{ certification.expiry_date.strftime('%B %Y') }}
+
+                                        {% endif %}
+
+                                    </p>
+
+                                {% endif %}
+
+
+                                {% if certification.credential_id %}
+
+                                    <p class="mb-1">
+
+                                        <strong>
+                                            Credential ID:
+                                        </strong>
+
+                                        {{ certification.credential_id }}
+
+                                    </p>
+
+                                {% endif %}
+
+
+                                {% if certification.credential_url %}
+
+                                    <p class="mb-2">
+
+                                        <a
+                                            href="{{ certification.credential_url }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            View Credential
+                                        </a>
+
+                                    </p>
+
+                                {% endif %}
+
+
+                                {% if certification.description %}
+
+                                    <p class="mb-0">
+                                        {{ certification.description }}
+                                    </p>
+
+                                {% endif %}
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-muted">
+                            No certifications added yet.
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
