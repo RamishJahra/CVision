@@ -21,6 +21,7 @@ from routes.auth import auth
 from routes.dashboard import dashboard
 from routes.applicant import applicant
 from routes.recruiter import recruiter
+from routes.admin import admin
 
 from werkzeug.security import generate_password_hash
 
@@ -86,6 +87,8 @@ app.register_blueprint(dashboard)
 app.register_blueprint(applicant)
 
 app.register_blueprint(recruiter)
+
+app.register_blueprint(admin)
 
 
 # ==========================

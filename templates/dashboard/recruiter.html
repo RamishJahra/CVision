@@ -2,35 +2,225 @@
 
 
 {% block title %}
-Recruiter Dashboard
+Recruiter Dashboard | CVision
 {% endblock %}
 
 
 {% block content %}
 
-
 <div class="container mt-5 pt-5">
 
-<h1>
-Welcome, Recruiter
-</h1>
+
+    <!-- ==========================
+         Welcome
+    =========================== -->
+
+    <div class="mb-4">
+
+        <h1>
+            Welcome, {{ current_user.full_name }}
+        </h1>
+
+        <p class="text-muted">
+            Manage your company profile, job postings and candidates from here.
+        </p>
+
+    </div>
 
 
-<div class="card shadow p-4 mt-4">
+    <!-- ==========================
+         Dashboard Cards
+    =========================== -->
 
-Create Job Posts
+    <div class="row g-4">
+
+
+        <!-- Recruiter Profile -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Recruiter Profile
+                </h4>
+
+                <p class="text-muted">
+                    Manage your recruiter and company information.
+                </p>
+
+                <a
+                    href="{{ url_for('recruiter.profile') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    View Profile
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Company Information -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Company Information
+                </h4>
+
+                <p class="text-muted">
+                    Manage your company details and description.
+                </p>
+
+                <a
+                    href="{{ url_for('recruiter.profile') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Company
+                </a>
+
+            </div>
+
+        </div>
+
+
+       
+
+        <!-- Create Job Posts -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Create Job Posts
+                </h4>
+
+                <p class="text-muted">
+                    Create and publish new job opportunities.
+                </p>
+
+                <a
+                    href="#"
+                    class="btn btn-primary mt-auto"
+                >
+                    Create Job
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Manage Jobs -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Manage Jobs
+                </h4>
+
+                <p class="text-muted">
+                    View, edit and manage your posted jobs.
+                </p>
+
+                <a
+                    href="#"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Jobs
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Candidates -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    View Candidates
+                </h4>
+
+                <p class="text-muted">
+                    View applicants who applied for your jobs.
+                </p>
+
+                <a
+                    href="#"
+                    class="btn btn-primary mt-auto"
+                >
+                    View Candidates
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- AI Ranking -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    AI Candidate Ranking
+                </h4>
+
+                <p class="text-muted">
+                    Rank candidates using CVision's AI screening system.
+                </p>
+
+                <a
+                    href="#"
+                    class="btn btn-primary mt-auto"
+                >
+                    AI Ranking
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Account Settings -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Account Settings
+                </h4>
+
+                <p class="text-muted">
+                    Change your password or email address.
+                </p>
+
+                <a
+                    href="{{ url_for('recruiter.settings') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Account Settings
+                </a>
+
+            </div>
+
+        </div>
+
+
+    </div>
 
 </div>
-
-
-<div class="card shadow p-4 mt-4">
-
-View Candidates
-
-</div>
-
-
-</div>
-
 
 {% endblock %}

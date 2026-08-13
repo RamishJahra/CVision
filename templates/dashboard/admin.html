@@ -2,29 +2,656 @@
 
 
 {% block title %}
-Admin Dashboard
+Admin Dashboard | CVision
 {% endblock %}
 
 
 {% block content %}
 
-
-<div class="container mt-5 pt-5">
-
-
-<h1>
-Welcome Admin
-</h1>
+<div class="container-fluid px-4 px-lg-5 py-5 mt-5">
 
 
-<div class="card shadow p-4 mt-4">
+    <!-- ==========================
+         Header
+    =========================== -->
 
-Manage Users
+    <div
+        class="mb-5"
+        data-aos="fade-up"
+    >
+
+        <p class="text-primary fw-semibold mb-2">
+            CVISION ADMINISTRATION
+        </p>
+
+        <h1 class="display-6 fw-bold mb-2">
+
+            Welcome back,
+            {{ current_user.full_name }}
+
+        </h1>
+
+        <p class="text-muted mb-0">
+
+            Monitor and manage the CVision recruitment platform
+            from one place.
+
+        </p>
+
+    </div>
+
+
+
+    <!-- ==========================
+         Statistics
+    =========================== -->
+
+    <div class="row g-4 mb-5">
+
+
+        <!-- Total Users -->
+
+        <div
+            class="col-xl-3 col-md-6"
+            data-aos="fade-up"
+            data-aos-delay="100"
+        >
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <p class="text-muted mb-2">
+                                Total Users
+                            </p>
+
+                            <h2
+                                class="fw-bold mb-0 counter"
+                                data-target="{{ total_users }}"
+                            >
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div
+                            class="d-flex align-items-center justify-content-center
+                                   rounded-4 bg-primary bg-opacity-10
+                                   text-primary"
+                            style="width:55px;height:55px;"
+                        >
+
+                            <i class="bi bi-people-fill fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Applicants -->
+
+        <div
+            class="col-xl-3 col-md-6"
+            data-aos="fade-up"
+            data-aos-delay="200"
+        >
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <p class="text-muted mb-2">
+                                Applicants
+                            </p>
+
+                            <h2
+                                class="fw-bold mb-0 counter"
+                                data-target="{{ total_applicants }}"
+                            >
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div
+                            class="d-flex align-items-center justify-content-center
+                                   rounded-4 bg-info bg-opacity-10
+                                   text-info"
+                            style="width:55px;height:55px;"
+                        >
+
+                            <i class="bi bi-person-badge-fill fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Recruiters -->
+
+        <div
+            class="col-xl-3 col-md-6"
+            data-aos="fade-up"
+            data-aos-delay="300"
+        >
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <p class="text-muted mb-2">
+                                Recruiters
+                            </p>
+
+                            <h2
+                                class="fw-bold mb-0 counter"
+                                data-target="{{ total_recruiters }}"
+                            >
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div
+                            class="d-flex align-items-center justify-content-center
+                                   rounded-4 bg-success bg-opacity-10
+                                   text-success"
+                            style="width:55px;height:55px;"
+                        >
+
+                            <i class="bi bi-building-fill fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Verified -->
+
+        <div
+            class="col-xl-3 col-md-6"
+            data-aos="fade-up"
+            data-aos-delay="400"
+        >
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="d-flex justify-content-between">
+
+                        <div>
+
+                            <p class="text-muted mb-2">
+                                Verified Users
+                            </p>
+
+                            <h2
+                                class="fw-bold mb-0 counter"
+                                data-target="{{ verified_users }}"
+                            >
+                                0
+                            </h2>
+
+                        </div>
+
+
+                        <div
+                            class="d-flex align-items-center justify-content-center
+                                   rounded-4 bg-warning bg-opacity-10
+                                   text-warning"
+                            style="width:55px;height:55px;"
+                        >
+
+                            <i class="bi bi-patch-check-fill fs-4"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================
+         Charts
+    =========================== -->
+
+    <div class="row g-4">
+
+
+        <!-- User Distribution -->
+
+        <div
+            class="col-lg-7"
+            data-aos="fade-right"
+        >
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+
+                        <h5 class="fw-bold mb-1">
+                            User Distribution
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Applicant and recruiter population
+                        </p>
+
+                    </div>
+
+
+                    <div style="height:320px;">
+
+                        <canvas id="userDistributionChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- Verification -->
+
+        <div
+            class="col-lg-5"
+            data-aos="fade-left"
+        >
+
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+
+                <div class="card-body p-4">
+
+                    <div class="mb-4">
+
+                        <h5 class="fw-bold mb-1">
+                            Account Verification
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Current account verification status
+                        </p>
+
+                    </div>
+
+
+                    <div
+                        class="d-flex justify-content-center"
+                        style="height:320px;"
+                    >
+
+                        <canvas id="verificationChart"></canvas>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================
+         Platform Overview
+    =========================== -->
+
+    <div
+        class="card border-0 shadow-sm rounded-4 mt-4"
+        data-aos="fade-up"
+    >
+
+        <div class="card-body p-4">
+
+            <div class="row align-items-center">
+
+                <div class="col-lg-8">
+
+                    <p class="text-primary fw-semibold mb-2">
+                        CVISION PLATFORM
+                    </p>
+
+                    <h4 class="fw-bold">
+                        Everything under control.
+                    </h4>
+
+                    <p class="text-muted mb-0">
+
+                        Use the navigation bar to manage users,
+                        applicants, recruiters, job postings and
+                        platform reports.
+
+                    </p>
+
+                </div>
+
+
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+
+                    <i
+                        class="bi bi-bar-chart-line-fill text-primary"
+                        style="font-size:70px;"
+                    ></i>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
 </div>
 
+{% endblock %}
 
-</div>
 
+
+{% block extra_js %}
+
+<!-- Chart.js -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ==========================
+           Counter Animation
+        =========================== */
+
+        const counters =
+            document.querySelectorAll(".counter");
+
+
+        counters.forEach(
+            counter => {
+
+                const target =
+                    parseInt(
+                        counter.dataset.target
+                    ) || 0;
+
+                let current = 0;
+
+                const duration = 1200;
+
+                const increment =
+                    target /
+                    (duration / 16);
+
+
+                function updateCounter() {
+
+                    current += increment;
+
+
+                    if (current >= target) {
+
+                        counter.textContent =
+                            target;
+
+                        return;
+
+                    }
+
+
+                    counter.textContent =
+                        Math.floor(current);
+
+
+                    requestAnimationFrame(
+                        updateCounter
+                    );
+
+                }
+
+
+                updateCounter();
+
+            }
+        );
+
+
+
+        /* ==========================
+           User Distribution Chart
+        =========================== */
+
+        const userChart =
+            document.getElementById(
+                "userDistributionChart"
+            );
+
+
+        new Chart(
+            userChart,
+            {
+
+                type: "bar",
+
+                data: {
+
+                    labels: [
+                        "Applicants",
+                        "Recruiters"
+                    ],
+
+                    datasets: [
+
+                        {
+
+                            label: "Users",
+
+                            data: [
+                                {{ total_applicants }},
+                                {{ total_recruiters }}
+                            ],
+
+                            borderRadius: 10,
+
+                            borderWidth: 0
+
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    animation: {
+
+                        duration: 1600,
+
+                        easing: "easeOutQuart"
+
+                    },
+
+                    plugins: {
+
+                        legend: {
+
+                            display: false
+
+                        }
+
+                    },
+
+                    scales: {
+
+                        y: {
+
+                            beginAtZero: true,
+
+                            ticks: {
+
+                                precision: 0
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+        );
+
+
+
+        /* ==========================
+           Verification Chart
+        =========================== */
+
+        const verificationChart =
+            document.getElementById(
+                "verificationChart"
+            );
+
+
+        const totalUsers =
+            {{ total_users }};
+
+        const verifiedUsers =
+            {{ verified_users }};
+
+        const unverifiedUsers =
+            Math.max(
+                totalUsers - verifiedUsers,
+                0
+            );
+
+
+        new Chart(
+            verificationChart,
+            {
+
+                type: "doughnut",
+
+                data: {
+
+                    labels: [
+                        "Verified",
+                        "Unverified"
+                    ],
+
+                    datasets: [
+
+                        {
+
+                            data: [
+                                verifiedUsers,
+                                unverifiedUsers
+                            ],
+
+                            borderWidth: 0
+
+                        }
+
+                    ]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    cutout: "72%",
+
+                    animation: {
+
+                        animateRotate: true,
+
+                        duration: 1600
+
+                    },
+
+                    plugins: {
+
+                        legend: {
+
+                            position: "bottom"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        );
+
+    }
+
+);
+
+</script>
 
 {% endblock %}

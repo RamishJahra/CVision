@@ -8,76 +8,267 @@ Applicant Dashboard | CVision
 
 {% block content %}
 
-
 <div class="container mt-5 pt-5">
 
+    <!-- ==========================
+         Welcome
+    =========================== -->
 
-<h1>
-Welcome, Applicant
-</h1>
+    <div class="mb-4">
+
+        <h1>
+            Welcome, {{ current_user.full_name }}
+        </h1>
+
+        <p class="text-muted">
+            Manage your profile, resume and job applications from here.
+        </p>
+
+    </div>
 
 
-<div class="row mt-4">
+    <!-- ==========================
+         Dashboard Cards
+    =========================== -->
+
+    <div class="row g-4">
 
 
-<div class="col-md-4">
+        <!-- Profile -->
 
-<div class="card p-4 shadow">
+        <div class="col-md-4">
 
-<h4>
-Profile
-</h4>
+            <div class="card p-4 shadow-sm border-0 h-100">
 
-<p>
-Complete your CV profile
-</p>
+                <h4>
+                    Profile
+                </h4>
+
+                <p class="text-muted">
+                    Manage your personal and professional information.
+                </p>
+
+                <a
+                    href="{{ url_for('applicant.profile') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    View Profile
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Resume -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Resume
+                </h4>
+
+                <p class="text-muted">
+                    Upload and manage your resume.
+                </p>
+
+                <a
+                    href="#"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Resume
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Jobs -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Jobs
+                </h4>
+
+                <p class="text-muted">
+                    Find jobs that match your profile.
+                </p>
+
+                <a
+                    href="#"
+                    class="btn btn-primary mt-auto"
+                >
+                    Browse Jobs
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Education -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Education
+                </h4>
+
+                <p class="text-muted">
+                    Add and manage your educational qualifications.
+                </p>
+
+                <a
+                    href="{{ url_for('applicant.education') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Education
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Experience -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Work Experience
+                </h4>
+
+                <p class="text-muted">
+                    Manage your professional experience.
+                </p>
+
+                <a
+                    href="{{ url_for('applicant.experience') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Experience
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Skills -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Skills
+                </h4>
+
+                <p class="text-muted">
+                    Add and manage your professional skills.
+                </p>
+
+                <a
+                    href="{{ url_for('applicant.skills') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Skills
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Certifications -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Certifications
+                </h4>
+
+                <p class="text-muted">
+                    Manage your certifications and achievements.
+                </p>
+
+                <a
+                    href="{{ url_for('applicant.certifications') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Certifications
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Projects -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Projects & Portfolio
+                </h4>
+
+                <p class="text-muted">
+                    Manage your projects and portfolio information.
+                </p>
+
+                <a
+                    href="{{ url_for('applicant.projects') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Manage Projects
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- Account Settings -->
+
+        <div class="col-md-4">
+
+            <div class="card p-4 shadow-sm border-0 h-100">
+
+                <h4>
+                    Account Settings
+                </h4>
+
+                <p class="text-muted">
+                    Change your password or email address.
+                </p>
+
+                <a
+                    href="{{ url_for('applicant.settings') }}"
+                    class="btn btn-primary mt-auto"
+                >
+                    Account Settings
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
-
-</div>
-
-
-
-<div class="col-md-4">
-
-<div class="card p-4 shadow">
-
-<h4>
-Resume
-</h4>
-
-<p>
-Upload your resume
-</p>
-
-</div>
-
-</div>
-
-
-
-
-<div class="col-md-4">
-
-<div class="card p-4 shadow">
-
-<h4>
-Jobs
-</h4>
-
-<p>
-Find suitable jobs
-</p>
-
-</div>
-
-</div>
-
-
-</div>
-
-
-</div>
-
 
 {% endblock %}
