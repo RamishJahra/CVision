@@ -34,6 +34,11 @@ class User(UserMixin, db.Model):
         db.Boolean,
         default=False
     )
+    is_banned = db.Column(
+    db.Boolean,
+    default=False,
+    nullable=False
+    )
     verification_code = db.Column(
         db.String(6)
     )

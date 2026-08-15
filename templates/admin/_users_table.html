@@ -1,0 +1,292 @@
+<tbody>
+
+    {% for user in users %}
+
+    <tr class="user-row">
+
+
+        <!-- Number -->
+
+        <td>
+
+            <span
+                class="text-muted fw-semibold"
+            >
+
+                {{ loop.index }}
+
+            </span>
+
+        </td>
+
+
+        <!-- User -->
+
+        <td>
+
+            <div
+                class="d-flex
+                       align-items-center
+                       gap-3"
+            >
+
+                <div class="user-avatar">
+
+                    {{ user.full_name[0]|upper }}
+
+                </div>
+
+
+                <div>
+
+                    <div class="fw-semibold">
+
+                        {{ user.full_name }}
+
+                    </div>
+
+
+                    <div class="username-text">
+
+                        @{{ user.username }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </td>
+
+
+        <!-- Email -->
+
+        <td>
+
+            {{ user.email }}
+
+        </td>
+
+
+        <!-- Phone -->
+
+        <td>
+
+            {{ user.phone }}
+
+        </td>
+
+
+        <!-- Role -->
+
+        <td>
+
+            {% if user.role == "Applicant" %}
+
+                <span
+                    class="role-badge role-applicant"
+                >
+
+                    <i class="bi bi-person me-1"></i>
+
+                    Applicant
+
+                </span>
+
+
+            {% elif user.role == "Recruiter" %}
+
+                <span
+                    class="role-badge role-recruiter"
+                >
+
+                    <i class="bi bi-building me-1"></i>
+
+                    Recruiter
+
+                </span>
+
+            {% endif %}
+
+        </td>
+
+
+        <!-- Status -->
+
+        <td>
+
+            {% if user.is_banned %}
+
+                <span
+                    class="status-badge"
+                    style="
+                        color:#dc3545;
+                        background:rgba(220,53,69,0.10);
+                    "
+                >
+
+                    <i class="bi bi-slash-circle-fill me-1"></i>
+
+                    Banned
+
+                </span>
+
+
+            {% elif user.is_verified %}
+
+                <span
+                    class="status-badge status-verified"
+                >
+
+                    <i
+                        class="bi bi-check-circle-fill me-1"
+                    ></i>
+
+                    Verified
+
+                </span>
+
+
+            {% else %}
+
+                <span
+                    class="status-badge status-unverified"
+                >
+
+                    <i
+                        class="bi bi-clock-fill me-1"
+                    ></i>
+
+                    Pending
+
+                </span>
+
+            {% endif %}
+
+        </td>
+
+
+        <!-- Registered -->
+
+        <td>
+
+            {% if user.created_at %}
+
+                <span class="text-muted">
+
+                    {{
+                        user.created_at.strftime(
+                            "%d %b %Y"
+                        )
+                    }}
+
+                </span>
+
+            {% else %}
+
+                —
+
+            {% endif %}
+
+        </td>
+
+
+        <!-- Actions -->
+
+        <td>
+
+            <div
+                class="d-flex
+                       justify-content-end
+                       gap-2"
+            >
+
+
+                <!-- Ban / Unban -->
+
+                <button
+                    type="button"
+                    class="user-action-btn ban-btn ban-user-btn"
+                    data-user-id="{{ user.id }}"
+                    data-user-name="{{ user.full_name }}"
+                    data-banned="{{ 'true' if user.is_banned else 'false' }}"
+                    title="{% if user.is_banned %}Unban User{% else %}Ban User{% endif %}"
+                >
+
+                    <i
+                        class="
+                        {% if user.is_banned %}
+                            bi bi-unlock
+                        {% else %}
+                            bi bi-slash-circle
+                        {% endif %}
+                        "
+                    ></i>
+
+                </button>
+
+
+                <!-- Delete -->
+
+                <button
+                    type="button"
+                    class="user-action-btn delete-btn delete-user-btn"
+                    data-user-id="{{ user.id }}"
+                    data-user-name="{{ user.full_name }}"
+                    title="Delete User"
+                >
+
+                    <i class="bi bi-trash3"></i>
+
+                </button>
+
+
+            </div>
+
+        </td>
+
+
+    </tr>
+
+
+    {% else %}
+
+
+    <!-- Empty State -->
+
+    <tr>
+
+        <td
+            colspan="8"
+            class="empty-state"
+        >
+
+            <div class="empty-icon mb-3">
+
+                <i class="bi bi-people"></i>
+
+            </div>
+
+
+            <h5 class="fw-bold">
+
+                No users found
+
+            </h5>
+
+
+            <p class="text-muted mb-0">
+
+                Try changing your search
+                or filter.
+
+            </p>
+
+        </td>
+
+    </tr>
+
+
+    {% endfor %}
+
+</tbody>

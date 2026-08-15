@@ -62,14 +62,13 @@
 
         <!-- CVision -->
 
-        <a class="navbar-brand fw-bold"
-           href="{{ url_for('dashboard.home') }}">
+        <!-- CVision -->
 
-            <span class="text-primary">
-                CVision
-            </span>
+<a class="navbar-brand logo"
+   href="{{ url_for('dashboard.home') }}">74
+    <span class="cvision-c">C</span><span class="cvision-vision">Vision</span>
+</a>
 
-        </a>
 
 
         <!-- Mobile Toggle -->
@@ -458,7 +457,15 @@
 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
+<style>
+    .cvision-c {
+        color: #111111;
+    }
 
+    .cvision-vision {
+        color: #0d6efd;
+    }
+</style>
 {% block extra_js %}
 {% endblock %}
 

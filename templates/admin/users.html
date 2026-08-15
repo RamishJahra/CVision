@@ -167,16 +167,6 @@ User Management | CVision
     }
 
 
-    .filter-btn {
-        height: 48px;
-
-        border-radius: 14px;
-
-        padding-left: 22px;
-        padding-right: 22px;
-    }
-
-
     /* ==========================
        Users Card
     =========================== */
@@ -202,10 +192,10 @@ User Management | CVision
     =========================== */
 
     .users-table-wrapper {
-    overflow: visible !important;
+        overflow: visible !important;
 
-    border-radius: 0 0 24px 24px;
-}
+        border-radius: 0 0 24px 24px;
+    }
 
 
     .users-table {
@@ -336,15 +326,6 @@ User Management | CVision
     }
 
 
-    .role-admin {
-
-        color: #6f42c1;
-
-        background:
-            rgba(111, 66, 193, 0.1);
-    }
-
-
     /* ==========================
        Verification Status
     =========================== */
@@ -368,132 +349,83 @@ User Management | CVision
 
 
     /* ==========================
-       Action Button
+       User Action Buttons
     =========================== */
 
-    .action-btn {
+    .user-action-btn {
 
         width: 38px;
         height: 38px;
 
-        display: flex;
+        display: inline-flex;
 
         align-items: center;
         justify-content: center;
 
-        border-radius: 12px;
+        border-radius: 11px;
+
+        text-decoration: none;
 
         border: 1px solid #e5e7eb;
 
         background: white;
 
-        transition: all 0.25s ease;
+        transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            background 0.25s ease;
+
+        cursor: pointer;
     }
 
 
-    .action-btn:hover {
+    .user-action-btn:hover {
 
-        background: #f8f9fa;
+        transform: translateY(-3px);
 
-        transform: translateY(-2px);
+        box-shadow:
+            0 6px 15px rgba(0, 0, 0, 0.08);
+
     }
 
 
-    /* ==========================
-   User Action Buttons
-========================== */
+    /* Ban */
 
-.user-action-btn {
+    .ban-btn {
 
-    width: 38px;
-    height: 38px;
+        color: #b58105;
 
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 11px;
-
-    text-decoration: none;
-
-    border: 1px solid #e5e7eb;
-
-    background: white;
-
-    transition:
-        transform 0.25s ease,
-        box-shadow 0.25s ease,
-        background 0.25s ease;
-
-}
+    }
 
 
-.user-action-btn:hover {
+    .ban-btn:hover {
 
-    transform: translateY(-3px);
+        color: #b58105;
 
-    box-shadow:
-        0 6px 15px rgba(0, 0, 0, 0.08);
+        background:
+            rgba(255, 193, 7, 0.12);
 
-}
-
-
-/* Edit */
-
-.edit-btn {
-
-    color: #0d6efd;
-
-}
+    }
 
 
-.edit-btn:hover {
+    /* Delete */
 
-    color: #0d6efd;
+    .delete-btn {
 
-    background:
-        rgba(13, 110, 253, 0.08);
+        color: #dc3545;
 
-}
-
-
-/* Ban */
-
-.ban-btn {
-
-    color: #b58105;
-
-}
+    }
 
 
-.ban-btn:hover {
+    .delete-btn:hover {
 
-    color: #b58105;
+        color: #dc3545;
 
-    background:
-        rgba(255, 193, 7, 0.12);
+        background:
+            rgba(220, 53, 69, 0.08);
 
-}
+    }
 
-
-/* Delete */
-
-.delete-btn {
-
-    color: #dc3545;
-
-}
-
-
-.delete-btn:hover {
-
-    color: #dc3545;
-
-    background:
-        rgba(220, 53, 69, 0.08);
-
-}
 
     /* ==========================
        Empty State
@@ -527,6 +459,21 @@ User Management | CVision
         color: #0d6efd;
 
         font-size: 32px;
+    }
+
+
+    /* ==========================
+       Loading
+    =========================== */
+
+    .table-loading {
+
+        opacity: 0.55;
+
+        pointer-events: none;
+
+        transition: opacity 0.2s ease;
+
     }
 
 
@@ -590,8 +537,8 @@ User Management | CVision
 
             <p class="text-muted mb-0">
 
-                Manage all registered applicants,
-                recruiters and administrators.
+                Manage all registered applicants
+                and recruiters.
 
             </p>
 
@@ -634,7 +581,7 @@ User Management | CVision
 
                             <h3 class="fw-bold mb-0">
 
-                                {{ users|length }}
+                                {{ total_users }}
 
                             </h3>
 
@@ -688,16 +635,7 @@ User Management | CVision
 
                             <h3 class="fw-bold mb-0">
 
-                                {{
-                                    users
-                                    | selectattr(
-                                        "role",
-                                        "equalto",
-                                        "Applicant"
-                                    )
-                                    | list
-                                    | length
-                                }}
+                                {{ total_applicants }}
 
                             </h3>
 
@@ -753,16 +691,7 @@ User Management | CVision
 
                             <h3 class="fw-bold mb-0">
 
-                                {{
-                                    users
-                                    | selectattr(
-                                        "role",
-                                        "equalto",
-                                        "Recruiter"
-                                    )
-                                    | list
-                                    | length
-                                }}
+                                {{ total_recruiters }}
 
                             </h3>
 
@@ -818,12 +747,7 @@ User Management | CVision
 
                             <h3 class="fw-bold mb-0">
 
-                                {{
-                                    users
-                                    | selectattr("is_verified")
-                                    | list
-                                    | length
-                                }}
+                                {{ verified_users }}
 
                             </h3>
 
@@ -856,7 +780,7 @@ User Management | CVision
 
 
     <!-- ==========================
-         Filters
+         Search / Filter
     =========================== -->
 
     <div
@@ -868,8 +792,7 @@ User Management | CVision
         <div class="card-body p-4">
 
             <form
-                method="GET"
-                action="{{ url_for('admin.users') }}"
+                id="userFilterForm"
             >
 
                 <div class="row g-3 align-items-end">
@@ -877,7 +800,7 @@ User Management | CVision
 
                     <!-- Search -->
 
-                    <div class="col-lg-6">
+                    <div class="col-lg-8">
 
                         <label
                             class="form-label fw-semibold"
@@ -897,10 +820,10 @@ User Management | CVision
 
                             <input
                                 type="text"
-                                name="search"
+                                id="userSearch"
                                 class="form-control search-input"
                                 placeholder="Search by name, username or email..."
-                                value="{{ search }}"
+                                autocomplete="off"
                             >
 
                         </div>
@@ -911,7 +834,7 @@ User Management | CVision
 
                     <!-- Role -->
 
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
 
                         <label
                             class="form-label fw-semibold"
@@ -923,73 +846,25 @@ User Management | CVision
 
 
                         <select
-                            name="role"
+                            id="roleFilter"
                             class="form-select filter-select"
                         >
 
                             <option value="">
-                                All Roles
+                                All Users
                             </option>
 
 
-                            <option
-                                value="Applicant"
-                                {% if selected_role == "Applicant" %}
-                                selected
-                                {% endif %}
-                            >
-
+                            <option value="Applicant">
                                 Applicant
-
                             </option>
 
 
-                            <option
-                                value="Recruiter"
-                                {% if selected_role == "Recruiter" %}
-                                selected
-                                {% endif %}
-                            >
-
+                            <option value="Recruiter">
                                 Recruiter
-
-                            </option>
-
-
-                            <option
-                                value="Admin"
-                                {% if selected_role == "Admin" %}
-                                selected
-                                {% endif %}
-                            >
-
-                                Admin
-
                             </option>
 
                         </select>
-
-                    </div>
-
-
-
-                    <!-- Filter Button -->
-
-                    <div class="col-lg-3">
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary
-                                   filter-btn w-100"
-                        >
-
-                            <i
-                                class="bi bi-funnel-fill me-2"
-                            ></i>
-
-                            Apply Filters
-
-                        </button>
 
                     </div>
 
@@ -1032,7 +907,10 @@ User Management | CVision
                 </h5>
 
 
-                <p class="text-muted mb-0">
+                <p
+                    class="text-muted mb-0"
+                    id="userCount"
+                >
 
                     {{ users|length }}
                     registered user(s)
@@ -1056,7 +934,10 @@ User Management | CVision
 
         <!-- Table Wrapper -->
 
-        <div class="table-responsive users-table-wrapper">
+        <div
+            class="table-responsive users-table-wrapper"
+            id="usersTableContainer"
+        >
 
             <table class="table users-table">
 
@@ -1101,319 +982,7 @@ User Management | CVision
                 </thead>
 
 
-                <tbody>
-
-
-                    {% for user in users %}
-
-
-                    <tr
-                        class="user-row"
-                        data-aos="fade-up"
-                        data-aos-delay="{{ loop.index * 40 }}"
-                    >
-
-
-                        <!-- Number -->
-
-                        <td>
-
-                            <span
-                                class="text-muted
-                                       fw-semibold"
-                            >
-
-                                {{ loop.index }}
-
-                            </span>
-
-                        </td>
-
-
-
-                        <!-- User -->
-
-                        <td>
-
-                            <div
-                                class="d-flex
-                                       align-items-center
-                                       gap-3"
-                            >
-
-                                <div class="user-avatar">
-
-                                    {{ user.full_name[0]|upper }}
-
-                                </div>
-
-
-                                <div>
-
-                                    <div class="fw-semibold">
-
-                                        {{ user.full_name }}
-
-                                    </div>
-
-
-                                    <div
-                                        class="username-text"
-                                    >
-
-                                        @{{ user.username }}
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-                        </td>
-
-
-
-                        <!-- Email -->
-
-                        <td>
-
-                            {{ user.email }}
-
-                        </td>
-
-
-
-                        <!-- Phone -->
-
-                        <td>
-
-                            {{ user.phone }}
-
-                        </td>
-
-
-
-                        <!-- Role -->
-
-                        <td>
-
-
-                            {% if user.role == "Applicant" %}
-
-                                <span
-                                    class="role-badge
-                                           role-applicant"
-                                >
-
-                                    <i
-                                        class="bi bi-person me-1"
-                                    ></i>
-
-                                    Applicant
-
-                                </span>
-
-
-                            {% elif user.role == "Recruiter" %}
-
-                                <span
-                                    class="role-badge
-                                           role-recruiter"
-                                >
-
-                                    <i
-                                        class="bi bi-building me-1"
-                                    ></i>
-
-                                    Recruiter
-
-                                </span>
-
-
-                            {% else %}
-
-                                <span
-                                    class="role-badge
-                                           role-admin"
-                                >
-
-                                    <i
-                                        class="bi bi-shield-check me-1"
-                                    ></i>
-
-                                    Admin
-
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-
-                        <!-- Status -->
-
-                        <td>
-
-
-                            {% if user.is_verified %}
-
-                                <span
-                                    class="status-badge
-                                           status-verified"
-                                >
-
-                                    <i
-                                        class="bi bi-check-circle-fill me-1"
-                                    ></i>
-
-                                    Verified
-
-                                </span>
-
-
-                            {% else %}
-
-                                <span
-                                    class="status-badge
-                                           status-unverified"
-                                >
-
-                                    <i
-                                        class="bi bi-clock-fill me-1"
-                                    ></i>
-
-                                    Pending
-
-                                </span>
-
-                            {% endif %}
-
-                        </td>
-
-
-
-                        <!-- Registered Date -->
-
-                        <td>
-
-                            {% if user.created_at %}
-
-                                <span class="text-muted">
-
-                                    {{
-                                        user.created_at.strftime(
-                                            "%d %b %Y"
-                                        )
-                                    }}
-
-                                </span>
-
-                            {% else %}
-
-                                —
-
-                            {% endif %}
-
-                        </td>
-
-
-
-                        <!-- Actions -->
-
-                        <td>
-
-    <div class="d-flex justify-content-end gap-2">
-
-        <!-- Edit -->
-
-        <a
-            href="#"
-            class="user-action-btn edit-btn"
-            title="Edit User"
-        >
-
-            <i class="bi bi-pencil"></i>
-
-        </a>
-
-
-        <!-- Ban -->
-
-        <a
-            href="#"
-            class="user-action-btn ban-btn"
-            title="Ban User"
-        >
-
-            <i class="bi bi-slash-circle"></i>
-
-        </a>
-
-
-        <!-- Delete -->
-
-        <a
-            href="#"
-            class="user-action-btn delete-btn"
-            title="Delete User"
-        >
-
-            <i class="bi bi-trash3"></i>
-
-        </a>
-
-    </div>
-
-</td>
-
-                    </tr>
-
-
-                    {% else %}
-
-
-                    <!-- Empty State -->
-
-                    <tr>
-
-                        <td
-                            colspan="8"
-                            class="empty-state"
-                        >
-
-                            <div class="empty-icon mb-3">
-
-                                <i
-                                    class="bi bi-people"
-                                ></i>
-
-                            </div>
-
-
-                            <h5 class="fw-bold">
-
-                                No users found
-
-                            </h5>
-
-
-                            <p class="text-muted mb-0">
-
-                                Try changing your search
-                                or filter.
-
-                            </p>
-
-                        </td>
-
-                    </tr>
-
-
-                    {% endfor %}
-
-
-                </tbody>
+                {% include "admin/_users_table.html" %}
 
             </table>
 
@@ -1424,5 +993,417 @@ User Management | CVision
 
 </div>
 
+
+{% endblock %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const searchInput =
+            document.getElementById(
+                "userSearch"
+            );
+
+
+        const roleFilter =
+            document.getElementById(
+                "roleFilter"
+            );
+
+
+        const tableContainer =
+            document.getElementById(
+                "usersTableContainer"
+            );
+
+
+        const userCount =
+            document.getElementById(
+                "userCount"
+            );
+
+
+        let searchTimeout;
+
+
+
+        /* ==================================================
+           AJAX FILTER
+           Page does NOT reload.
+        ================================================== */
+
+        function filterUsers() {
+
+            const search =
+                searchInput.value.trim();
+
+
+            const role =
+                roleFilter.value;
+
+
+            const params =
+                new URLSearchParams();
+
+
+            if (search) {
+
+                params.append(
+                    "search",
+                    search
+                );
+
+            }
+
+
+            if (role) {
+
+                params.append(
+                    "role",
+                    role
+                );
+
+            }
+
+
+            tableContainer.classList.add(
+                "table-loading"
+            );
+
+
+            fetch(
+                "{{ url_for('admin.filter_users') }}?" +
+                params.toString(),
+                {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With":
+                            "XMLHttpRequest"
+                    }
+                }
+            )
+
+            .then(
+                response => {
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Unable to filter users."
+                        );
+
+                    }
+
+                    return response.text();
+
+                }
+            )
+
+            .then(
+                html => {
+
+                    tableContainer
+                        .querySelector("table")
+                        .querySelector("tbody")
+                        ?.remove();
+
+
+                    tableContainer
+                        .querySelector("table")
+                        .insertAdjacentHTML(
+                            "beforeend",
+                            html
+                        );
+
+
+                    const rows =
+                        tableContainer.querySelectorAll(
+                            "tbody .user-row"
+                        );
+
+
+                    userCount.textContent =
+                        rows.length +
+                        " registered user(s)";
+
+
+                    tableContainer.classList.remove(
+                        "table-loading"
+                    );
+
+                }
+            )
+
+            .catch(
+                error => {
+
+                    console.error(error);
+
+                    tableContainer.classList.remove(
+                        "table-loading"
+                    );
+
+                }
+            );
+
+        }
+
+
+
+        /* ==================================================
+           Search
+           ENTER only.
+        ================================================== */
+
+        searchInput.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    filterUsers();
+
+                }
+
+            }
+        );
+
+
+
+        /* ==================================================
+           Role
+           ENTER only.
+        ================================================== */
+
+        roleFilter.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Enter"
+                ) {
+
+                    event.preventDefault();
+
+                    filterUsers();
+
+                }
+
+            }
+        );
+
+
+
+        /* ==================================================
+           Ban / Unban
+        ================================================== */
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+
+                const button =
+                    event.target.closest(
+                        ".ban-user-btn"
+                    );
+
+
+                if (!button) {
+
+                    return;
+
+                }
+
+
+                const userId =
+                    button.dataset.userId;
+
+
+                const userName =
+                    button.dataset.userName;
+
+
+                const isBanned =
+                    button.dataset.banned ===
+                    "true";
+
+
+                const action =
+                    isBanned
+                        ? "unban"
+                        : "ban";
+
+
+                const confirmation =
+                    isBanned
+                        ? `Unban ${userName}?`
+                        : `Ban ${userName}?`;
+
+
+                if (
+                    !confirm(
+                        confirmation
+                    )
+                ) {
+
+                    return;
+
+                }
+
+
+                fetch(
+                    `/admin/users/${userId}/toggle-ban`,
+                    {
+                        method: "POST"
+                    }
+                )
+
+                .then(
+                    response =>
+                        response.json()
+                )
+
+                .then(
+                    data => {
+
+                        if (!data.success) {
+
+                            alert(
+                                data.message
+                            );
+
+                            return;
+
+                        }
+
+
+                        filterUsers();
+
+                    }
+                )
+
+                .catch(
+                    error => {
+
+                        console.error(error);
+
+                        alert(
+                            "Something went wrong."
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        /* ==================================================
+           Delete
+        ================================================== */
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+
+                const button =
+                    event.target.closest(
+                        ".delete-user-btn"
+                    );
+
+
+                if (!button) {
+
+                    return;
+
+                }
+
+
+                const userId =
+                    button.dataset.userId;
+
+
+                const userName =
+                    button.dataset.userName;
+
+
+                const confirmation =
+                    confirm(
+                        `Delete ${userName} permanently?`
+                    );
+
+
+                if (!confirmation) {
+
+                    return;
+
+                }
+
+
+                fetch(
+                    `/admin/users/${userId}/delete`,
+                    {
+                        method: "POST"
+                    }
+                )
+
+                .then(
+                    response =>
+                        response.json()
+                )
+
+                .then(
+                    data => {
+
+                        if (!data.success) {
+
+                            alert(
+                                data.message
+                            );
+
+                            return;
+
+                        }
+
+
+                        filterUsers();
+
+                    }
+                )
+
+                .catch(
+                    error => {
+
+                        console.error(error);
+
+                        alert(
+                            "Something went wrong."
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
 
 {% endblock %}
