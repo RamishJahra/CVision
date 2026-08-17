@@ -1,12 +1,12 @@
-{% extends "layouts/base.html" %}
+{% extends "layouts/recruiter_settings_base.html" %}
 
-{% block content %}
+{% block recruiter_account_content %}
 
 <div class="container py-5">
 
     <div class="row justify-content-center">
 
-        <div class="col-lg-9">
+        <div class="col-lg-10">
 
             <h2 class="mb-4">
                 Account Settings
@@ -25,10 +25,14 @@
                         Change Password
                     </h5>
 
+
                     <form
                         method="POST"
                         action="{{ url_for('recruiter.change_password') }}"
                     >
+
+
+                        <!-- Current Password -->
 
                         <div class="mb-3">
 
@@ -45,6 +49,8 @@
 
                         </div>
 
+
+                        <!-- New Password -->
 
                         <div class="mb-3">
 
@@ -66,6 +72,8 @@
 
                         </div>
 
+
+                        <!-- Confirm Password -->
 
                         <div class="mb-4">
 
@@ -91,11 +99,13 @@
                             Change Password
                         </button>
 
+
                     </form>
 
                 </div>
 
             </div>
+
 
 
             <!-- ==========================
@@ -110,6 +120,8 @@
                         Change Email Address
                     </h5>
 
+
+                    <!-- Current Email -->
 
                     <div class="mb-3">
 
@@ -126,6 +138,8 @@
 
                     </div>
 
+
+                    <!-- New Email -->
 
                     <form
                         method="POST"
@@ -161,6 +175,7 @@
                 </div>
 
             </div>
+
 
         </div>
 
