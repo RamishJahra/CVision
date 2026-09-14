@@ -123,6 +123,19 @@
 
                     </a>
 
+                    <a href="{{ url_for('applicant.resumes') }}"
+                       class="settings-sidebar-link
+                       {% if request.endpoint == 'applicant.resumes' %}
+                       active
+                       {% endif %}">
+
+                        <i class="bi bi-tools"></i>
+
+                        <span>
+                            Resumes
+                        </span>
+
+                    </a>
 
                     <hr class="my-3">
 

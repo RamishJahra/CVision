@@ -12,9 +12,10 @@ from models.profile import (
     WorkExperience,
     Skill,
     Certification,
-    Project 
+    Project
 )
 from models.location import District, Area
+from models.resume import Resume
 
 from routes.public import public
 from routes.auth import auth
@@ -27,6 +28,11 @@ from werkzeug.security import generate_password_hash
 
 
 app = Flask(__name__)
+
+# ==========================
+# Upload Folders
+# ==========================
+
 app.config["UPLOAD_FOLDER"] = os.path.join(
     app.root_path,
     "static",
@@ -34,10 +40,24 @@ app.config["UPLOAD_FOLDER"] = os.path.join(
     "profile"
 )
 
+app.config["RESUME_UPLOAD_FOLDER"] = os.path.join(
+    app.root_path,
+    "static",
+    "uploads",
+    "resumes"
+)
+
 os.makedirs(
     app.config["UPLOAD_FOLDER"],
     exist_ok=True
 )
+
+os.makedirs(
+    app.config["RESUME_UPLOAD_FOLDER"],
+    exist_ok=True
+)
+
+
 # ==========================
 # Load Configuration
 # ==========================
@@ -99,7 +119,6 @@ with app.app_context():
 
     db.create_all()
 
-
     # ==========================
     # Create Default Admin
     # ==========================
@@ -107,7 +126,6 @@ with app.app_context():
     admin = User.query.filter_by(
         role="Admin"
     ).first()
-
 
     if not admin:
 
@@ -133,11 +151,9 @@ with app.app_context():
 
         )
 
-
         db.session.add(admin)
 
         db.session.commit()
-
 
     # ==========================
     # Create Missing Applicant Profiles
@@ -147,13 +163,11 @@ with app.app_context():
         role="Applicant"
     ).all()
 
-
     for user in applicants:
 
         profile = ApplicantProfile.query.filter_by(
             user_id=user.id
         ).first()
-
 
         if not profile:
 
@@ -163,7 +177,6 @@ with app.app_context():
 
             db.session.add(profile)
 
-
     # ==========================
     # Create Missing Recruiter Profiles
     # ==========================
@@ -172,13 +185,11 @@ with app.app_context():
         role="Recruiter"
     ).all()
 
-
     for user in recruiters:
 
         profile = RecruiterProfile.query.filter_by(
             user_id=user.id
         ).first()
-
 
         if not profile:
 
@@ -188,8 +199,9 @@ with app.app_context():
 
             db.session.add(profile)
 
-
+    # ==========================
     # Save Profile Changes
+    # ==========================
 
     db.session.commit()
 

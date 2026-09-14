@@ -1,0 +1,681 @@
+```html
+{% extends "layouts/account_settings_base.html" %}
+
+{% block title %}
+Resume Analysis - CVision
+{% endblock %}
+
+{% block account_content %}
+
+<div class="container-fluid py-4">
+
+    <!-- ==========================
+         Header
+    =========================== -->
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+                Resume Analysis
+            </h2>
+
+            <p class="text-muted mb-0">
+                Review the information extracted from your resume.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('applicant.resumes') }}"
+            class="btn btn-outline-secondary mt-3 mt-md-0"
+        >
+
+            <i class="bi bi-arrow-left me-1"></i>
+
+            Back to Resumes
+
+        </a>
+
+    </div>
+
+
+    <!-- ==========================
+         Resume Information
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="d-flex align-items-center">
+
+                <div class="resume-icon me-3">
+
+                    {% if resume.file_type == "pdf" %}
+
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+
+                    {% else %}
+
+                        <i class="bi bi-file-earmark-word-fill"></i>
+
+                    {% endif %}
+
+                </div>
+
+                <div>
+
+                    <h5 class="fw-bold mb-1">
+                        {{ resume.file_name }}
+                    </h5>
+
+                    <small class="text-muted">
+
+                        {{ resume.file_type|upper }}
+
+                        {% if resume.uploaded_at %}
+
+                            ·
+
+                            {{ resume.uploaded_at.strftime("%d %b %Y, %I:%M %p") }}
+
+                        {% endif %}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Contact Information
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-person-vcard me-2 text-primary"></i>
+
+                Contact Information
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+
+                    <small class="text-muted d-block">
+                        Name
+                    </small>
+
+                    <div class="fw-semibold">
+
+                        {{ parsed_data.name or "Not detected" }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <small class="text-muted d-block">
+                        Email
+                    </small>
+
+                    <div class="fw-semibold text-break">
+
+                        {{ parsed_data.email or "Not detected" }}
+
+                    </div>
+
+                </div>
+
+
+                <div class="col-md-4">
+
+                    <small class="text-muted d-block">
+                        Phone
+                    </small>
+
+                    <div class="fw-semibold">
+
+                        {{ parsed_data.phone or "Not detected" }}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Skills
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-lightning-charge me-2 text-warning"></i>
+
+                Skills
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            {% if parsed_data.skills %}
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    {% for skill in parsed_data.skills %}
+
+                        <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+
+                            {{ skill }}
+
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+
+                    No skills detected.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Education
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-mortarboard me-2 text-success"></i>
+
+                Education
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            {% if parsed_data.education %}
+
+                {% for education in parsed_data.education %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        {% if education.degree %}
+
+                            <div class="fw-bold mb-1">
+
+                                {{ education.degree }}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if education.institution %}
+
+                            <div class="text-muted mb-1">
+
+                                <i class="bi bi-building me-1"></i>
+
+                                {{ education.institution }}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if education.year %}
+
+                            <div class="small text-muted">
+
+                                <i class="bi bi-calendar3 me-1"></i>
+
+                                {{ education.year }}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if education.details %}
+
+                            <div class="mt-2">
+
+                                {% for detail in education.details %}
+
+                                    <div class="small text-muted">
+
+                                        {{ detail }}
+
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+
+                    No education information detected.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Experience
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-briefcase me-2 text-info"></i>
+
+                Work Experience
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            {% if parsed_data.experience %}
+
+                {% for experience in parsed_data.experience %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        {% if experience.title %}
+
+                            <div class="fw-bold mb-1">
+
+                                {{ experience.title }}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if experience.company %}
+
+                            <div class="text-muted mb-1">
+
+                                <i class="bi bi-building me-1"></i>
+
+                                {{ experience.company }}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if experience.duration %}
+
+                            <div class="small text-muted mb-2">
+
+                                <i class="bi bi-calendar3 me-1"></i>
+
+                                {{ experience.duration }}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if experience.details %}
+
+                            <div class="mt-2">
+
+                                {% for detail in experience.details %}
+
+                                    <div class="small text-muted mb-1">
+
+                                        {{ detail }}
+
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+
+                    No work experience detected.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Projects
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-code-square me-2 text-primary"></i>
+
+                Projects
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            {% if parsed_data.projects %}
+
+                {% for project in parsed_data.projects %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        {% if project.name %}
+
+                            <div class="fw-bold mb-1">
+
+                                {{ project.name }}
+
+                            </div>
+
+                        {% endif %}
+
+
+                        {% if project.details %}
+
+                            <div class="mt-2">
+
+                                {% for detail in project.details %}
+
+                                    <div class="small text-muted mb-1">
+
+                                        {{ detail }}
+
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+
+                    No projects detected.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Certifications
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-award me-2 text-warning"></i>
+
+                Certifications
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            {% if parsed_data.certifications %}
+
+                {% for certification in parsed_data.certifications %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        <div class="fw-semibold">
+
+                            {{ certification }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+
+                    No certifications detected.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Achievements
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-trophy me-2 text-warning"></i>
+
+                Achievements
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            {% if parsed_data.achievements %}
+
+                {% for achievement in parsed_data.achievements %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        <div class="d-flex align-items-start">
+
+                            <i class="bi bi-award-fill text-warning me-3 mt-1"></i>
+
+                            <div class="fw-semibold">
+
+                                {{ achievement }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+
+                    No achievements detected.
+
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Raw Extracted Text
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <h5 class="fw-bold mb-0">
+
+                <i class="bi bi-file-text me-2 text-secondary"></i>
+
+                Extracted Resume Text
+
+            </h5>
+
+        </div>
+
+        <div class="card-body px-4">
+
+            <pre class="extracted-text">{{ resume.extracted_text }}</pre>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.resume-icon {
+
+    width: 52px;
+    height: 52px;
+
+    border-radius: 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(13, 110, 253, 0.1);
+
+    color: #0d6efd;
+
+    font-size: 1.6rem;
+
+}
+
+
+.extracted-text {
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+
+    background: #f8f9fa;
+
+    border-radius: 10px;
+
+    padding: 20px;
+
+    max-height: 500px;
+
+    overflow-y: auto;
+
+    font-family: inherit;
+
+    font-size: 0.9rem;
+
+    line-height: 1.7;
+
+}
+
+</style>
+
+
+{% endblock %}

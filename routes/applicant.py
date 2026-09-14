@@ -1,6 +1,8 @@
 
 import os
 import uuid
+import fitz
+from docx import Document
 from flask import (
     Blueprint,
     render_template,
@@ -10,7 +12,12 @@ from flask import (
     flash,
     current_app
 )
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import (
+    check_password_hash,
+    generate_password_hash
+)
+
+from werkzeug.utils import secure_filename
 from flask_login import login_required, current_user
 from flask_mail import Message
 import random
@@ -29,7 +36,8 @@ from models.profile import (
     Certification,
     Project 
 )
-
+from models.resume import Resume
+from services.resume_parser import parse_resume
 import re
 
 
@@ -1424,4 +1432,692 @@ def verify_new_email():
     return render_template(
         "applicant/verify_new_email.html",
         pending_email=pending_email
+    )
+# ============================================================
+# Resume Text Extraction
+# ============================================================
+
+def extract_text_from_pdf(file_path):
+
+    text = ""
+
+    try:
+
+        document = fitz.open(file_path)
+
+        for page in document:
+
+            text += page.get_text()
+
+            text += "\n"
+
+        document.close()
+
+    except Exception as e:
+
+        print(
+            "PDF text extraction error:",
+            repr(e)
+        )
+
+        return None
+
+    return text.strip()
+
+
+def extract_text_from_docx(file_path):
+
+    text = ""
+
+    try:
+
+        document = Document(file_path)
+
+        for paragraph in document.paragraphs:
+
+            if paragraph.text.strip():
+
+                text += paragraph.text
+
+                text += "\n"
+
+        # Extract text from tables as well
+
+        for table in document.tables:
+
+            for row in table.rows:
+
+                row_text = []
+
+                for cell in row.cells:
+
+                    cell_text = cell.text.strip()
+
+                    if cell_text:
+
+                        row_text.append(
+                            cell_text
+                        )
+
+                if row_text:
+
+                    text += " | ".join(
+                        row_text
+                    )
+
+                    text += "\n"
+
+    except Exception as e:
+
+        print(
+            "DOCX text extraction error:",
+            repr(e)
+        )
+
+        return None
+
+    return text.strip()
+
+
+def extract_resume_text(
+    file_path,
+    file_type
+):
+
+    if file_type == "pdf":
+
+        return extract_text_from_pdf(
+            file_path
+        )
+
+    if file_type == "docx":
+
+        return extract_text_from_docx(
+            file_path
+        )
+
+    return None
+# ============================================================
+# Resume Management
+# ============================================================
+
+ALLOWED_RESUME_EXTENSIONS = {
+    "pdf",
+    "docx"
+}
+
+MAX_RESUME_SIZE = 5 * 1024 * 1024
+
+
+def allowed_resume_file(filename):
+
+    if not filename or "." not in filename:
+        return False
+
+    extension = filename.rsplit(
+        ".",
+        1
+    )[1].lower()
+
+    return extension in ALLOWED_RESUME_EXTENSIONS
+
+
+# ============================================================
+# Resume Management Page
+# ============================================================
+
+@applicant.route("/resumes")
+@login_required
+def resumes():
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    resumes = Resume.query.filter_by(
+        user_id=current_user.id
+    ).order_by(
+        Resume.uploaded_at.desc()
+    ).all()
+
+    return render_template(
+        "applicant/resumes.html",
+        resumes=resumes
+    )
+
+
+# ============================================================
+# Upload Resume
+# ============================================================
+
+@applicant.route(
+    "/resumes/upload",
+    methods=["POST"]
+)
+@login_required
+def upload_resume():
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    file = request.files.get(
+        "resume"
+    )
+
+    # --------------------------------------------
+    # Check file
+    # --------------------------------------------
+
+    if not file or file.filename == "":
+
+        flash(
+            "Please select a resume to upload.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # --------------------------------------------
+    # Check extension
+    # --------------------------------------------
+
+    if not allowed_resume_file(
+        file.filename
+    ):
+
+        flash(
+            "Only PDF and DOCX resume files are allowed.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # --------------------------------------------
+    # Check file size
+    # --------------------------------------------
+
+    file.seek(
+        0,
+        os.SEEK_END
+    )
+
+    file_size = file.tell()
+
+    file.seek(
+        0
+    )
+
+    if file_size > MAX_RESUME_SIZE:
+
+        flash(
+            "Resume file size must not exceed 5 MB.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # --------------------------------------------
+    # Secure original filename
+    # --------------------------------------------
+
+    original_filename = secure_filename(
+        file.filename
+    )
+
+    extension = original_filename.rsplit(
+        ".",
+        1
+    )[1].lower()
+
+    # --------------------------------------------
+    # Generate unique filename
+    # --------------------------------------------
+
+    unique_filename = (
+        str(uuid.uuid4())
+        + "."
+        + extension
+    )
+
+    # --------------------------------------------
+    # Resume upload folder
+    # --------------------------------------------
+
+    upload_folder = current_app.config[
+        "RESUME_UPLOAD_FOLDER"
+    ]
+
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
+
+    file_path = os.path.join(
+        upload_folder,
+        unique_filename
+    )
+
+    # --------------------------------------------
+    # Save file
+    # --------------------------------------------
+
+    try:
+
+        file.save(
+            file_path
+        )
+
+    except Exception as e:
+
+        print(
+            "Resume upload error:",
+            repr(e)
+        )
+
+        flash(
+            "Unable to upload the resume. Please try again.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # --------------------------------------------
+    # Check whether applicant already has
+    # an active resume
+    # --------------------------------------------
+
+    active_resume = Resume.query.filter_by(
+        user_id=current_user.id,
+        status="active"
+    ).first()
+
+    # --------------------------------------------
+    # First resume becomes active automatically
+    # --------------------------------------------
+
+    resume_status = "active"
+
+    if active_resume:
+
+        resume_status = "inactive"
+
+
+
+   # --------------------------------------------
+# Extract resume text
+# --------------------------------------------
+
+    extracted_text = extract_resume_text(
+        file_path,
+        extension
+    )
+
+    if extracted_text is None:
+
+        # Remove uploaded file if extraction failed
+
+        if os.path.exists(file_path):
+
+            try:
+
+                os.remove(file_path)
+
+            except Exception as e:
+
+                print(
+                    "Uploaded resume cleanup error:",
+                    repr(e)
+                )
+
+        flash(
+            "Unable to read the resume. Please make sure the file is a valid PDF or DOCX.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+
+    # --------------------------------------------
+    # Create database record
+    # --------------------------------------------
+
+    resume = Resume(
+
+        user_id=current_user.id,
+
+        file_name=original_filename,
+
+        file_path=unique_filename,
+
+        file_type=extension,
+
+        extracted_text=extracted_text,
+
+        status=resume_status
+    )
+
+    db.session.add(
+        resume
+    )
+
+    db.session.commit()
+
+    flash(
+        "Resume uploaded successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("applicant.resumes")
+    )
+
+
+# ============================================================
+# View / Download Resume
+# ============================================================
+
+@applicant.route(
+    "/resumes/view/<int:resume_id>"
+)
+@login_required
+def view_resume(resume_id):
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    resume = Resume.query.filter_by(
+        id=resume_id,
+        user_id=current_user.id
+    ).first()
+
+    if not resume:
+
+        flash(
+            "Resume not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    upload_folder = current_app.config[
+        "RESUME_UPLOAD_FOLDER"
+    ]
+
+    file_path = os.path.join(
+        upload_folder,
+        resume.file_path
+    )
+
+    if not os.path.exists(file_path):
+
+        flash(
+            "Resume file could not be found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    from flask import send_from_directory
+
+    return send_from_directory(
+        upload_folder,
+        resume.file_path,
+        as_attachment=False
+    )
+
+
+# ============================================================
+# Set Active Resume
+# ============================================================
+
+@applicant.route(
+    "/resumes/set-active/<int:resume_id>",
+    methods=["POST"]
+)
+@login_required
+def set_active_resume(resume_id):
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    resume = Resume.query.filter_by(
+        id=resume_id,
+        user_id=current_user.id
+    ).first()
+
+    if not resume:
+
+        flash(
+            "Resume not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # --------------------------------------------
+    # Make all applicant resumes inactive
+    # --------------------------------------------
+
+    Resume.query.filter_by(
+        user_id=current_user.id
+    ).update(
+        {
+            "status": "inactive"
+        }
+    )
+
+    # --------------------------------------------
+    # Make selected resume active
+    # --------------------------------------------
+
+    resume.status = "active"
+
+    db.session.commit()
+
+    flash(
+        "Active resume updated successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("applicant.resumes")
+    )
+
+
+# ============================================================
+# Delete Resume
+# ============================================================
+
+@applicant.route(
+    "/resumes/delete/<int:resume_id>",
+    methods=["POST"]
+)
+@login_required
+def delete_resume(resume_id):
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    resume = Resume.query.filter_by(
+        id=resume_id,
+        user_id=current_user.id
+    ).first()
+
+    if not resume:
+
+        flash(
+            "Resume not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # --------------------------------------------
+    # Store file path before deleting database row
+    # --------------------------------------------
+
+    upload_folder = current_app.config[
+        "RESUME_UPLOAD_FOLDER"
+    ]
+
+    file_path = os.path.join(
+        upload_folder,
+        resume.file_path
+    )
+
+    was_active = (
+        resume.status == "active"
+    )
+
+    # --------------------------------------------
+    # Delete physical file
+    # --------------------------------------------
+
+    if os.path.exists(file_path):
+
+        try:
+
+            os.remove(
+                file_path
+            )
+
+        except Exception as e:
+
+            print(
+                "Resume file deletion error:",
+                repr(e)
+            )
+
+    # --------------------------------------------
+    # Delete database record
+    # --------------------------------------------
+
+    db.session.delete(
+        resume
+    )
+
+    db.session.commit()
+
+    # --------------------------------------------
+    # If active resume was deleted,
+    # automatically activate the newest remaining one
+    # --------------------------------------------
+
+    if was_active:
+
+        remaining_resume = Resume.query.filter_by(
+            user_id=current_user.id
+        ).order_by(
+            Resume.uploaded_at.desc()
+        ).first()
+
+        if remaining_resume:
+
+            Resume.query.filter_by(
+                user_id=current_user.id
+            ).update(
+                {
+                    "status": "inactive"
+                }
+            )
+
+            remaining_resume.status = "active"
+
+            db.session.commit()
+
+    flash(
+        "Resume deleted successfully.",
+        "success"
+    )
+
+    return redirect(
+        url_for("applicant.resumes")
+    )
+# ============================================================
+# Analyze Resume
+# ============================================================
+
+@applicant.route(
+    "/resumes/analyze/<int:resume_id>"
+)
+@login_required
+def analyze_resume(resume_id):
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    resume = Resume.query.filter_by(
+        id=resume_id,
+        user_id=current_user.id
+    ).first()
+
+    if not resume:
+
+        flash(
+            "Resume not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    if not resume.extracted_text:
+
+        flash(
+            "No extracted text is available for this resume.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # --------------------------------------------------------
+    # Parse extracted resume text
+    # --------------------------------------------------------
+
+    parsed_data = parse_resume(
+        resume.extracted_text
+    )
+
+    return render_template(
+        "applicant/resume_analysis.html",
+        resume=resume,
+        parsed_data=parsed_data
     )
