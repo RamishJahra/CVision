@@ -38,6 +38,7 @@ from models.profile import (
 )
 from models.resume import Resume
 from services.resume_parser import parse_resume
+from services.resume_scorer import calculate_resume_score
 import re
 
 
@@ -2076,7 +2077,6 @@ def delete_resume(resume_id):
 def analyze_resume(resume_id):
 
     if current_user.role != "Applicant":
-
         return redirect(
             url_for("dashboard.home")
         )
@@ -2087,7 +2087,6 @@ def analyze_resume(resume_id):
     ).first()
 
     if not resume:
-
         flash(
             "Resume not found.",
             "danger"
@@ -2098,7 +2097,6 @@ def analyze_resume(resume_id):
         )
 
     if not resume.extracted_text:
-
         flash(
             "No extracted text is available for this resume.",
             "danger"
@@ -2108,16 +2106,574 @@ def analyze_resume(resume_id):
             url_for("applicant.resumes")
         )
 
-    # --------------------------------------------------------
-    # Parse extracted resume text
-    # --------------------------------------------------------
-
+    # Parse resume
     parsed_data = parse_resume(
         resume.extracted_text
+    )
+
+    # Calculate ATS-readiness score
+    score_data = calculate_resume_score(
+        parsed_data
     )
 
     return render_template(
         "applicant/resume_analysis.html",
         resume=resume,
+        parsed_data=parsed_data,
+        score_data=score_data
+    )
+
+# ==========================================================
+# RESUME REVIEW & PROFILE IMPORT
+# ==========================================================
+
+@applicant.route(
+    "/resumes/review-import/<int:resume_id>",
+    methods=["GET", "POST"]
+)
+@login_required
+def review_resume_import(resume_id):
+
+    if current_user.role != "Applicant":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    resume = Resume.query.filter_by(
+        id=resume_id,
+        user_id=current_user.id
+    ).first()
+
+    if not resume:
+        flash(
+            "Resume not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    if not resume.extracted_text:
+        flash(
+            "No extracted text is available for this resume.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    # ------------------------------------------------------
+    # Parse resume again on the server
+    # ------------------------------------------------------
+
+    parsed_data = parse_resume(
+        resume.extracted_text
+    )
+
+    # ------------------------------------------------------
+    # POST = Confirm Import
+    # ------------------------------------------------------
+
+    if request.method == "POST":
+
+        selected_sections = request.form.getlist(
+            "sections"
+        )
+
+        if not selected_sections:
+
+            flash(
+                "Please select at least one section to import.",
+                "warning"
+            )
+
+            return render_template(
+                "applicant/resume_import_review.html",
+                resume=resume,
+                parsed_data=parsed_data
+            )
+
+        imported_counts = {
+            "skills": 0,
+            "education": 0,
+            "experience": 0,
+            "certifications": 0,
+            "projects": 0
+        }
+
+        skipped_counts = {
+            "skills": 0,
+            "education": 0,
+            "experience": 0,
+            "certifications": 0,
+            "projects": 0
+        }
+
+        # ==================================================
+        # SKILLS
+        # ==================================================
+
+        if "skills" in selected_sections:
+
+            resume_skills = parsed_data.get(
+                "skills",
+                []
+            )
+
+            existing_skills = Skill.query.filter_by(
+                user_id=current_user.id
+            ).all()
+
+            existing_skill_names = {
+                skill.skill_name.strip().lower()
+                for skill in existing_skills
+                if skill.skill_name
+            }
+
+            for skill_name in resume_skills:
+
+                if not skill_name:
+                    continue
+
+                clean_skill = skill_name.strip()
+
+                if not clean_skill:
+                    continue
+
+                if clean_skill.lower() in existing_skill_names:
+
+                    skipped_counts["skills"] += 1
+                    continue
+
+                new_skill = Skill(
+                    user_id=current_user.id,
+                    skill_name=clean_skill
+                )
+
+                db.session.add(
+                    new_skill
+                )
+
+                existing_skill_names.add(
+                    clean_skill.lower()
+                )
+
+                imported_counts["skills"] += 1
+
+        # ==================================================
+        # EDUCATION
+        # ==================================================
+
+        if "education" in selected_sections:
+
+            resume_education = parsed_data.get(
+                "education",
+                []
+            )
+
+            existing_education = Education.query.filter_by(
+                user_id=current_user.id
+            ).all()
+
+            existing_education_keys = {
+                (
+                    (education.degree or "").strip().lower(),
+                    (education.institution or "").strip().lower()
+                )
+                for education in existing_education
+            }
+
+            for education_data in resume_education:
+
+                degree = (
+                    education_data.get("degree")
+                    or ""
+                ).strip()
+
+                institution = (
+                    education_data.get("institution")
+                    or ""
+                ).strip()
+
+                if not degree or not institution:
+                    continue
+
+                duplicate_key = (
+                    degree.lower(),
+                    institution.lower()
+                )
+
+                if duplicate_key in existing_education_keys:
+
+                    skipped_counts["education"] += 1
+                    continue
+
+                start_year = None
+                end_year = None
+
+                year_text = (
+                    education_data.get("year")
+                    or ""
+                ).strip()
+
+                year_matches = re.findall(
+                    r"\b(19\d{2}|20\d{2})\b",
+                    year_text
+                )
+
+                if len(year_matches) >= 2:
+
+                    start_year = int(
+                        year_matches[0]
+                    )
+
+                    end_year = int(
+                        year_matches[1]
+                    )
+
+                elif len(year_matches) == 1:
+
+                    end_year = int(
+                        year_matches[0]
+                    )
+
+                details = education_data.get(
+                    "details",
+                    []
+                )
+
+                description = "\n".join(
+                    detail.strip()
+                    for detail in details
+                    if detail and detail.strip()
+                )
+
+                new_education = Education(
+                    user_id=current_user.id,
+                    degree=degree,
+                    institution=institution,
+                    start_year=start_year,
+                    end_year=end_year,
+                    description=description or None
+                )
+
+                db.session.add(
+                    new_education
+                )
+
+                existing_education_keys.add(
+                    duplicate_key
+                )
+
+                imported_counts["education"] += 1
+
+        # ==================================================
+        # WORK EXPERIENCE
+        # ==================================================
+
+        if "experience" in selected_sections:
+
+            resume_experience = parsed_data.get(
+                "experience",
+                []
+            )
+
+            existing_experience = WorkExperience.query.filter_by(
+                user_id=current_user.id
+            ).all()
+
+            existing_experience_keys = {
+                (
+                    (experience.job_title or "").strip().lower(),
+                    (experience.company_name or "").strip().lower()
+                )
+                for experience in existing_experience
+            }
+
+            for experience_data in resume_experience:
+
+                job_title = (
+                    experience_data.get("title")
+                    or ""
+                ).strip()
+
+                company_name = (
+                    experience_data.get("company")
+                    or ""
+                ).strip()
+
+                if not job_title or not company_name:
+                    continue
+
+                duplicate_key = (
+                    job_title.lower(),
+                    company_name.lower()
+                )
+
+                if duplicate_key in existing_experience_keys:
+
+                    skipped_counts["experience"] += 1
+                    continue
+
+                details = experience_data.get(
+                    "details",
+                    []
+                )
+
+                description = "\n".join(
+                    detail.strip()
+                    for detail in details
+                    if detail and detail.strip()
+                )
+
+                new_experience = WorkExperience(
+                    user_id=current_user.id,
+                    job_title=job_title,
+                    company_name=company_name,
+                    description=description or None
+                )
+
+                db.session.add(
+                    new_experience
+                )
+
+                existing_experience_keys.add(
+                    duplicate_key
+                )
+
+                imported_counts["experience"] += 1
+
+        # ==================================================
+        # CERTIFICATIONS
+        # ==================================================
+
+        if "certifications" in selected_sections:
+
+            resume_certifications = parsed_data.get(
+                "certifications",
+                []
+            )
+
+            existing_certifications = Certification.query.filter_by(
+                user_id=current_user.id
+            ).all()
+
+            existing_certification_names = {
+                certification.certification_name.strip().lower()
+                for certification in existing_certifications
+                if certification.certification_name
+            }
+
+            for certification_name in resume_certifications:
+
+                if not certification_name:
+                    continue
+
+                clean_certification = (
+                    certification_name.strip()
+                )
+
+                if not clean_certification:
+                    continue
+
+                if (
+                    clean_certification.lower()
+                    in existing_certification_names
+                ):
+
+                    skipped_counts["certifications"] += 1
+                    continue
+
+                new_certification = Certification(
+                    user_id=current_user.id,
+                    certification_name=clean_certification,
+                    issuing_organization="Not specified"
+                )
+
+                db.session.add(
+                    new_certification
+                )
+
+                existing_certification_names.add(
+                    clean_certification.lower()
+                )
+
+                imported_counts["certifications"] += 1
+
+        # ==================================================
+        # PROJECTS
+        # ==================================================
+
+        if "projects" in selected_sections:
+
+            resume_projects = parsed_data.get(
+                "projects",
+                []
+            )
+
+            existing_projects = Project.query.filter_by(
+                user_id=current_user.id
+            ).all()
+
+            existing_project_titles = {
+                project.project_title.strip().lower()
+                for project in existing_projects
+                if project.project_title
+            }
+
+            for project_data in resume_projects:
+
+                project_title = (
+                    project_data.get("name")
+                    or ""
+                ).strip()
+
+                if not project_title:
+                    continue
+
+                if (
+                    project_title.lower()
+                    in existing_project_titles
+                ):
+
+                    skipped_counts["projects"] += 1
+                    continue
+
+                details = project_data.get(
+                    "details",
+                    []
+                )
+
+                description = "\n".join(
+                    detail.strip()
+                    for detail in details
+                    if detail and detail.strip()
+                )
+
+                new_project = Project(
+                    user_id=current_user.id,
+                    project_title=project_title,
+                    description=description or None
+                )
+
+                db.session.add(
+                    new_project
+                )
+
+                existing_project_titles.add(
+                    project_title.lower()
+                )
+
+                imported_counts["projects"] += 1
+
+        # ==================================================
+        # SAVE ALL CHANGES
+        # ==================================================
+
+        try:
+
+            db.session.commit()
+
+        except Exception as e:
+
+            db.session.rollback()
+
+            print(
+                "Resume profile import error:",
+                repr(e)
+            )
+
+            flash(
+                "Something went wrong while importing your resume data.",
+                "danger"
+            )
+
+            return render_template(
+                "applicant/resume_import_review.html",
+                resume=resume,
+                parsed_data=parsed_data
+            )
+
+        # ==================================================
+        # IMPORT SUMMARY
+        # ==================================================
+
+        total_imported = sum(
+            imported_counts.values()
+        )
+
+        total_skipped = sum(
+            skipped_counts.values()
+        )
+
+        if total_imported > 0:
+
+            flash(
+                f"Resume information imported successfully. "
+                f"{total_imported} new item(s) added"
+                + (
+                    f" and {total_skipped} duplicate item(s) skipped."
+                    if total_skipped > 0
+                    else "."
+                ),
+                "success"
+            )
+
+        else:
+
+            flash(
+                "No new information was imported. "
+                "Existing profile information was preserved.",
+                "info"
+            )
+
+        return redirect(
+            url_for(
+                "applicant.resume_import_success",
+                resume_id=resume.id
+            )
+        )
+
+    # ------------------------------------------------------
+    # GET = Show Review Page
+    # ------------------------------------------------------
+
+    return render_template(
+        "applicant/resume_import_review.html",
+        resume=resume,
         parsed_data=parsed_data
     )
+
+
+# ==========================================================
+# RESUME IMPORT SUCCESS
+# ==========================================================
+
+@applicant.route(
+    "/resumes/import-success/<int:resume_id>"
+)
+@login_required
+def resume_import_success(resume_id):
+
+    if current_user.role != "Applicant":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    resume = Resume.query.filter_by(
+        id=resume_id,
+        user_id=current_user.id
+    ).first()
+
+    if not resume:
+        return redirect(
+            url_for("applicant.resumes")
+        )
+
+    return render_template(
+        "applicant/resume_import_success.html",
+        resume=resume
+    )
+

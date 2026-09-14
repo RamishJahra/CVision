@@ -1,0 +1,713 @@
+{% extends "layouts/account_settings_base.html" %}
+
+{% block title %}
+Review Resume Import - CVision
+{% endblock %}
+
+{% block account_content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+                Review & Import Resume
+            </h2>
+
+            <p class="text-muted mb-0">
+                Review the information extracted from your resume before adding it to your profile.
+            </p>
+
+        </div>
+
+        <a
+            href="{{ url_for('applicant.analyze_resume', resume_id=resume.id) }}"
+            class="btn btn-outline-secondary mt-3 mt-md-0"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Analysis
+        </a>
+
+    </div>
+
+
+    <!-- Important Notice -->
+
+    <div class="alert alert-info border-0 shadow-sm mb-4">
+
+        <div class="d-flex">
+
+            <i class="bi bi-info-circle-fill fs-5 me-3"></i>
+
+            <div>
+
+                <strong>Review before importing</strong>
+
+                <p class="mb-0 mt-1">
+                    Your existing profile information will not be deleted or overwritten.
+                    Duplicate entries will automatically be skipped.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="POST"
+        action="{{ url_for('applicant.review_resume_import', resume_id=resume.id) }}"
+    >
+
+        <!-- ==================================================
+             SECTION SELECTION
+        =================================================== -->
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            Select Information to Import
+                        </h5>
+
+                        <p class="text-muted small mb-0">
+                            Choose the sections you want to add to your profile.
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            id="selectAllBtn"
+                        >
+                            Select All
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="card-body px-4">
+
+                <!-- Skills -->
+
+                <div class="form-check import-option">
+
+                    <input
+                        class="form-check-input section-checkbox"
+                        type="checkbox"
+                        name="sections"
+                        value="skills"
+                        id="skillsSection"
+                        {% if parsed_data.skills %}checked{% endif %}
+                    >
+
+                    <label
+                        class="form-check-label w-100"
+                        for="skillsSection"
+                    >
+
+                        <div class="d-flex justify-content-between">
+
+                            <div>
+
+                                <strong>
+                                    <i class="bi bi-lightning-charge text-warning me-2"></i>
+                                    Skills
+                                </strong>
+
+                                <div class="small text-muted">
+                                    {{ parsed_data.skills|length }} detected
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- Education -->
+
+                <div class="form-check import-option">
+
+                    <input
+                        class="form-check-input section-checkbox"
+                        type="checkbox"
+                        name="sections"
+                        value="education"
+                        id="educationSection"
+                        {% if parsed_data.education %}checked{% endif %}
+                    >
+
+                    <label
+                        class="form-check-label w-100"
+                        for="educationSection"
+                    >
+
+                        <strong>
+                            <i class="bi bi-mortarboard text-success me-2"></i>
+                            Education
+                        </strong>
+
+                        <div class="small text-muted">
+                            {{ parsed_data.education|length }} detected
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- Experience -->
+
+                <div class="form-check import-option">
+
+                    <input
+                        class="form-check-input section-checkbox"
+                        type="checkbox"
+                        name="sections"
+                        value="experience"
+                        id="experienceSection"
+                        {% if parsed_data.experience %}checked{% endif %}
+                    >
+
+                    <label
+                        class="form-check-label w-100"
+                        for="experienceSection"
+                    >
+
+                        <strong>
+                            <i class="bi bi-briefcase text-info me-2"></i>
+                            Work Experience
+                        </strong>
+
+                        <div class="small text-muted">
+                            {{ parsed_data.experience|length }} detected
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- Certifications -->
+
+                <div class="form-check import-option">
+
+                    <input
+                        class="form-check-input section-checkbox"
+                        type="checkbox"
+                        name="sections"
+                        value="certifications"
+                        id="certificationsSection"
+                        {% if parsed_data.certifications %}checked{% endif %}
+                    >
+
+                    <label
+                        class="form-check-label w-100"
+                        for="certificationsSection"
+                    >
+
+                        <strong>
+                            <i class="bi bi-award text-warning me-2"></i>
+                            Certifications
+                        </strong>
+
+                        <div class="small text-muted">
+                            {{ parsed_data.certifications|length }} detected
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- Projects -->
+
+                <div class="form-check import-option">
+
+                    <input
+                        class="form-check-input section-checkbox"
+                        type="checkbox"
+                        name="sections"
+                        value="projects"
+                        id="projectsSection"
+                        {% if parsed_data.projects %}checked{% endif %}
+                    >
+
+                    <label
+                        class="form-check-label w-100"
+                        for="projectsSection"
+                    >
+
+                        <strong>
+                            <i class="bi bi-code-square text-primary me-2"></i>
+                            Projects
+                        </strong>
+
+                        <div class="small text-muted">
+                            {{ parsed_data.projects|length }} detected
+                        </div>
+
+                    </label>
+
+                </div>
+
+
+                <!-- Achievements -->
+
+                <div class="form-check import-option disabled-option">
+
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        disabled
+                    >
+
+                    <label class="form-check-label">
+
+                        <strong>
+                            <i class="bi bi-trophy text-warning me-2"></i>
+                            Achievements
+                        </strong>
+
+                        <div class="small text-muted">
+                            Detected, but profile storage is not available yet.
+                        </div>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================================
+             SKILLS PREVIEW
+        =================================================== -->
+
+        {% if parsed_data.skills %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-lightning-charge text-warning me-2"></i>
+                    Detected Skills
+                </h5>
+
+            </div>
+
+            <div class="card-body px-4">
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    {% for skill in parsed_data.skills %}
+
+                        <span class="badge rounded-pill bg-primary-subtle text-primary px-3 py-2">
+                            {{ skill }}
+                        </span>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             EDUCATION PREVIEW
+        =================================================== -->
+
+        {% if parsed_data.education %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-mortarboard text-success me-2"></i>
+                    Detected Education
+                </h5>
+
+            </div>
+
+            <div class="card-body px-4">
+
+                {% for education in parsed_data.education %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        {% if education.degree %}
+
+                            <div class="fw-bold">
+                                {{ education.degree }}
+                            </div>
+
+                        {% endif %}
+
+                        {% if education.institution %}
+
+                            <div class="text-muted mt-1">
+
+                                <i class="bi bi-building me-1"></i>
+
+                                {{ education.institution }}
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if education.year %}
+
+                            <div class="small text-muted mt-1">
+
+                                <i class="bi bi-calendar3 me-1"></i>
+
+                                {{ education.year }}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             EXPERIENCE PREVIEW
+        =================================================== -->
+
+        {% if parsed_data.experience %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-briefcase text-info me-2"></i>
+                    Detected Work Experience
+                </h5>
+
+            </div>
+
+            <div class="card-body px-4">
+
+                {% for experience in parsed_data.experience %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        {% if experience.title %}
+
+                            <div class="fw-bold">
+                                {{ experience.title }}
+                            </div>
+
+                        {% endif %}
+
+                        {% if experience.company %}
+
+                            <div class="text-muted mt-1">
+
+                                <i class="bi bi-building me-1"></i>
+
+                                {{ experience.company }}
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if experience.duration %}
+
+                            <div class="small text-muted mt-1">
+
+                                <i class="bi bi-calendar3 me-1"></i>
+
+                                {{ experience.duration }}
+
+                            </div>
+
+                        {% endif %}
+
+                        {% if experience.details %}
+
+                            <div class="mt-2">
+
+                                {% for detail in experience.details %}
+
+                                    <div class="small text-muted mb-1">
+                                        {{ detail }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             CERTIFICATION PREVIEW
+        =================================================== -->
+
+        {% if parsed_data.certifications %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-award text-warning me-2"></i>
+                    Detected Certifications
+                </h5>
+
+            </div>
+
+            <div class="card-body px-4">
+
+                {% for certification in parsed_data.certifications %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        <i class="bi bi-patch-check text-warning me-2"></i>
+
+                        {{ certification }}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             PROJECT PREVIEW
+        =================================================== -->
+
+        {% if parsed_data.projects %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <h5 class="fw-bold mb-0">
+                    <i class="bi bi-code-square text-primary me-2"></i>
+                    Detected Projects
+                </h5>
+
+            </div>
+
+            <div class="card-body px-4">
+
+                {% for project in parsed_data.projects %}
+
+                    <div class="border rounded p-3 mb-3">
+
+                        {% if project.name %}
+
+                            <div class="fw-bold">
+                                {{ project.name }}
+                            </div>
+
+                        {% endif %}
+
+                        {% if project.details %}
+
+                            <div class="mt-2">
+
+                                {% for detail in project.details %}
+
+                                    <div class="small text-muted mb-1">
+                                        {{ detail }}
+                                    </div>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
+             CONFIRM
+        =================================================== -->
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+
+                    <div>
+
+                        <h5 class="fw-bold mb-1">
+                            Ready to import?
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Your existing profile information will remain unchanged.
+                        </p>
+
+                    </div>
+
+                    <div class="d-flex gap-2">
+
+                        <a
+                            href="{{ url_for('applicant.analyze_resume', resume_id=resume.id) }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            Cancel
+                        </a>
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
+                        >
+                            <i class="bi bi-cloud-arrow-down me-1"></i>
+                            Confirm Import
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<style>
+
+.import-option {
+    padding: 16px;
+    margin-bottom: 10px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    transition: 0.2s ease;
+}
+
+.import-option:hover {
+    background: #f8f9fa;
+    border-color: #cfe2ff;
+}
+
+.import-option .form-check-input {
+    margin-top: 5px;
+}
+
+.import-option .form-check-label {
+    cursor: pointer;
+    padding-left: 8px;
+}
+
+.disabled-option {
+    opacity: 0.65;
+    background: #f8f9fa;
+}
+
+</style>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const selectAllBtn =
+            document.getElementById("selectAllBtn");
+
+        const checkboxes =
+            document.querySelectorAll(
+                ".section-checkbox"
+            );
+
+        let allSelected = false;
+
+        selectAllBtn.addEventListener(
+            "click",
+            function () {
+
+                allSelected = !allSelected;
+
+                checkboxes.forEach(
+                    function (checkbox) {
+                        checkbox.checked = allSelected;
+                    }
+                );
+
+                selectAllBtn.textContent =
+                    allSelected
+                        ? "Deselect All"
+                        : "Select All";
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

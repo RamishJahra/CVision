@@ -267,6 +267,7 @@ def extract_phone(text):
         r"01[3-9]\d{8}",
         r"\+880\s*1[3-9]\s*\d{4}\s*\d{4}",
         r"01[3-9][\s-]\d{4}[\s-]\d{4}",
+        r"^\+880\s?1[3-9]\s?\d{4}[-\s]?\d{4}$"
     ]
 
     for pattern in patterns:

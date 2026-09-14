@@ -27,16 +27,25 @@ Resume Analysis - CVision
 
         </div>
 
-        <a
-            href="{{ url_for('applicant.resumes') }}"
-            class="btn btn-outline-secondary mt-3 mt-md-0"
-        >
+        <div class="d-flex gap-2 mt-3 mt-md-0">
 
-            <i class="bi bi-arrow-left me-1"></i>
+            <a
+                href="{{ url_for('applicant.resumes') }}"
+                class="btn btn-outline-secondary"
+            >
+                <i class="bi bi-arrow-left me-1"></i>
+                Back to Resumes
+            </a>
 
-            Back to Resumes
+            <a
+                href="{{ url_for('applicant.review_resume_import', resume_id=resume.id) }}"
+                class="btn btn-primary"
+            >
+                <i class="bi bi-cloud-arrow-down me-1"></i>
+                Review & Import
+            </a>
 
-        </a>
+        </div>
 
     </div>
 
@@ -92,6 +101,204 @@ Resume Analysis - CVision
         </div>
 
     </div>
+
+
+    <!-- ==========================
+         ATS Resume Score
+    =========================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-header bg-white border-0 pt-4 px-4">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <div>
+
+                    <h5 class="fw-bold mb-1">
+
+                        <i class="bi bi-speedometer2 me-2 text-primary"></i>
+
+                        ATS Resume Score
+
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+
+                        An assessment of how well your resume is prepared
+                        for automated screening.
+
+                    </p>
+
+                </div>
+
+                <span class="badge bg-primary-subtle text-primary px-3 py-2">
+
+                    {{ score_data.label }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body px-4">
+
+            <div class="row g-4 align-items-center">
+
+                <!-- ==========================
+                     Score Circle
+                =========================== -->
+
+                <div class="col-md-4 text-center">
+
+                    <div class="ats-score-circle">
+
+                        <div>
+
+                            <div class="ats-score-number">
+
+                                {{ score_data.total_score }}
+
+                            </div>
+
+                            <div class="ats-score-label">
+
+                                / 100
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="fw-semibold mt-3">
+
+                        {{ score_data.label }}
+
+                    </div>
+
+                </div>
+
+
+                <!-- ==========================
+                     Score Breakdown
+                =========================== -->
+
+                <div class="col-md-8">
+
+                    {% if score_data.breakdown %}
+
+                        {% for item in score_data.breakdown %}
+
+                            <div class="mb-3">
+
+                                <div class="d-flex justify-content-between mb-1">
+
+                                    <span class="small fw-semibold">
+
+                                        {{ item.name }}
+
+                                    </span>
+
+                                    <span class="small text-muted">
+
+                                        {{ item.score }}/{{ item.max_score }}
+
+                                    </span>
+
+                                </div>
+
+
+                                <div
+                                    class="progress ats-progress"
+                                    role="progressbar"
+                                    aria-label="{{ item.name }}"
+                                    aria-valuenow="{{ item.score }}"
+                                    aria-valuemin="0"
+                                    aria-valuemax="{{ item.max_score }}"
+                                >
+
+                                    <div
+                                        class="progress-bar ats-progress-bar"
+                                        data-score="{{ item.score }}"
+                                        data-max-score="{{ item.max_score }}"
+                                    ></div>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% else %}
+
+                        <p class="text-muted mb-0">
+
+                            No score breakdown is available.
+
+                        </p>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Resume Improvement Suggestions
+    =========================== -->
+
+    {% if score_data.recommendations %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <h5 class="fw-bold mb-0">
+
+                    <i class="bi bi-lightbulb me-2 text-warning"></i>
+
+                    Resume Improvement Suggestions
+
+                </h5>
+
+            </div>
+
+
+            <div class="card-body px-4">
+
+                {% for recommendation in score_data.recommendations %}
+
+                    <div class="d-flex align-items-start mb-3">
+
+                        <div class="recommendation-icon me-3">
+
+                            <i class="bi bi-check2"></i>
+
+                        </div>
+
+                        <div class="small">
+
+                            {{ recommendation }}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    {% endif %}
 
 
     <!-- ==========================
@@ -319,7 +526,7 @@ Resume Analysis - CVision
 
 
     <!-- ==========================
-         Experience
+         Work Experience
     =========================== -->
 
     <div class="card border-0 shadow-sm mb-4">
@@ -629,7 +836,15 @@ Resume Analysis - CVision
 </div>
 
 
+<!-- ==========================
+     Page Styles
+=========================== -->
+
 <style>
+
+/* ==================================================
+   Resume File Icon
+================================================== */
 
 .resume-icon {
 
@@ -650,6 +865,114 @@ Resume Analysis - CVision
 
 }
 
+
+/* ==================================================
+   ATS Score Circle
+================================================== */
+
+.ats-score-circle {
+
+    width: 150px;
+    height: 150px;
+
+    margin: 0 auto;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #f8f9fa;
+
+    border: 10px solid rgba(13, 110, 253, 0.12);
+
+}
+
+
+.ats-score-number {
+
+    font-size: 2.5rem;
+
+    font-weight: 700;
+
+    line-height: 1;
+
+    color: #0d6efd;
+
+}
+
+
+.ats-score-label {
+
+    font-size: 0.85rem;
+
+    color: #6c757d;
+
+    text-align: center;
+
+    margin-top: 4px;
+
+}
+
+
+/* ==================================================
+   ATS Progress Bars
+================================================== */
+
+.ats-progress {
+
+    height: 8px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background-color: #e9ecef;
+
+}
+
+
+.ats-progress-bar {
+
+    height: 100%;
+
+    width: 0;
+
+    border-radius: 10px;
+
+    transition: width 0.6s ease;
+
+}
+
+
+/* ==================================================
+   Recommendation Icon
+================================================== */
+
+.recommendation-icon {
+
+    width: 30px;
+    height: 30px;
+
+    min-width: 30px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 193, 7, 0.12);
+
+    color: #ffc107;
+
+}
+
+
+/* ==================================================
+   Extracted Resume Text
+================================================== */
 
 .extracted-text {
 
@@ -678,4 +1001,79 @@ Resume Analysis - CVision
 </style>
 
 
+<!-- ==========================
+     ATS Progress Bar Script
+=========================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const progressBars =
+            document.querySelectorAll(
+                ".ats-progress-bar"
+            );
+
+
+        progressBars.forEach(
+            function (bar) {
+
+                const score =
+                    parseFloat(
+                        bar.getAttribute(
+                            "data-score"
+                        )
+                    );
+
+
+                const maxScore =
+                    parseFloat(
+                        bar.getAttribute(
+                            "data-max-score"
+                        )
+                    );
+
+
+                if (
+                    !isNaN(score) &&
+                    !isNaN(maxScore) &&
+                    maxScore > 0
+                ) {
+
+                    let percentage =
+                        (score / maxScore) * 100;
+
+
+                    /*
+                     * Keep the percentage
+                     * between 0 and 100.
+                     */
+
+                    percentage =
+                        Math.max(
+                            0,
+                            Math.min(
+                                100,
+                                percentage
+                            )
+                        );
+
+
+                    bar.style.width =
+                        percentage + "%";
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+
 {% endblock %}
+```
