@@ -369,9 +369,13 @@ class Project(db.Model):
 
     
 class RecruiterProfile(db.Model):
+
     __tablename__ = "recruiter_profiles"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     user_id = db.Column(
         db.Integer,
@@ -380,10 +384,28 @@ class RecruiterProfile(db.Model):
         nullable=False
     )
 
+    # ==========================
+    # Recruiter Information
+    # ==========================
+
     job_title = db.Column(
         db.String(100),
         nullable=True
     )
+
+    linkedin_url = db.Column(
+        db.String(255),
+        nullable=True
+    )
+
+    bio = db.Column(
+        db.Text,
+        nullable=True
+    )
+
+    # ==========================
+    # Company Information
+    # ==========================
 
     company_name = db.Column(
         db.String(150),
@@ -415,13 +437,8 @@ class RecruiterProfile(db.Model):
         nullable=True
     )
 
-    linkedin_url = db.Column(
+    company_logo = db.Column(
         db.String(255),
-        nullable=True
-    )
-
-    bio = db.Column(
-        db.Text,
         nullable=True
     )
 
@@ -434,5 +451,5 @@ class RecruiterProfile(db.Model):
     )
 
     def __repr__(self):
-        return f"<RecruiterProfile {self.user_id}>"
 
+        return f"<RecruiterProfile {self.user_id}>"

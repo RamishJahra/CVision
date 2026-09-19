@@ -1,7 +1,6 @@
 import os
 import uuid
 
-
 from flask import (
     Blueprint,
     render_template,
@@ -21,13 +20,14 @@ from werkzeug.security import (
     generate_password_hash
 )
 
-from models import db,mail
+from models import db, mail
 from models.user import User
 from models.profile import RecruiterProfile
 
 import random
 
 from datetime import datetime, timedelta
+
 
 recruiter = Blueprint(
     "recruiter",
@@ -36,29 +36,29 @@ recruiter = Blueprint(
 )
 
 
-# ==========================
+# ==========================================================
 # Recruiter Profile
-# ==========================
+# ==========================================================
 
-@recruiter.route("/profile", methods=["GET", "POST"])
+@recruiter.route(
+    "/profile",
+    methods=["GET", "POST"]
+)
 @login_required
 def profile():
 
-    # Only Recruiter can access
+    # Only Recruiters can access
     if current_user.role != "Recruiter":
 
         return redirect(
             url_for("dashboard.home")
         )
 
-
-    # Find recruiter profile
     profile = RecruiterProfile.query.filter_by(
         user_id=current_user.id
     ).first()
 
-
-    # Safety check
+    # Create profile if it does not exist
     if not profile:
 
         profile = RecruiterProfile(
@@ -66,75 +66,49 @@ def profile():
         )
 
         db.session.add(profile)
-
         db.session.commit()
 
-
-    # ==========================
-    # Update Profile
-    # ==========================
+    # ======================================================
+    # Update Recruiter Information
+    # ======================================================
 
     if request.method == "POST":
 
         profile.job_title = request.form.get(
-            "job_title"
-        )
-
-        profile.company_name = request.form.get(
-            "company_name"
-        )
-
-        profile.company_description = request.form.get(
-            "company_description"
-        )
-
-        profile.company_website = request.form.get(
-            "company_website"
-        )
-
-        profile.industry = request.form.get(
-            "industry"
-        )
-
-        profile.company_size = request.form.get(
-            "company_size"
-        )
-
-        profile.company_location = request.form.get(
-            "company_location"
-        )
+            "job_title",
+            ""
+        ).strip()
 
         profile.linkedin_url = request.form.get(
-            "linkedin_url"
-        )
+            "linkedin_url",
+            ""
+        ).strip()
 
         profile.bio = request.form.get(
-            "bio"
-        )
-
+            "bio",
+            ""
+        ).strip()
 
         db.session.commit()
-
 
         flash(
             "Recruiter profile updated successfully!",
             "success"
         )
 
-
         return redirect(
             url_for("recruiter.profile")
         )
-
 
     return render_template(
         "recruiter/profile.html",
         profile=profile
     )
 
-# ==========================
+
+# ==========================================================
 # Recruiter Profile Picture
-# ==========================
+# ==========================================================
 
 @recruiter.route(
     "/profile-picture",
@@ -149,11 +123,9 @@ def profile_picture():
             url_for("dashboard.home")
         )
 
-
     file = request.files.get(
         "profile_image"
     )
-
 
     if not file or file.filename == "":
 
@@ -166,7 +138,6 @@ def profile_picture():
             url_for("recruiter.profile")
         )
 
-
     allowed_extensions = {
         "jpg",
         "jpeg",
@@ -174,14 +145,12 @@ def profile_picture():
         "webp"
     }
 
-
     filename = file.filename
 
     extension = filename.rsplit(
         ".",
         1
     )[-1].lower()
-
 
     if extension not in allowed_extensions:
 
@@ -194,30 +163,29 @@ def profile_picture():
             url_for("recruiter.profile")
         )
 
-
     new_filename = (
         str(uuid.uuid4())
         + "."
         + extension
     )
 
-
     upload_folder = current_app.config[
         "UPLOAD_FOLDER"
     ]
 
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
 
     file_path = os.path.join(
         upload_folder,
         new_filename
     )
 
-
     file.save(file_path)
 
-
-    # Delete old custom image
-
+    # Delete previous custom recruiter image
     old_image = current_user.profile_image
 
     if old_image and old_image != "default.png":
@@ -231,25 +199,228 @@ def profile_picture():
 
             os.remove(old_path)
 
-
     current_user.profile_image = new_filename
 
     db.session.commit()
-
 
     flash(
         "Profile picture updated successfully!",
         "success"
     )
 
-
     return redirect(
         url_for("recruiter.profile")
     )
 
-# ==========================
+
+# ==========================================================
+# Company Profile
+# ==========================================================
+
+@recruiter.route(
+    "/company-profile",
+    methods=["GET", "POST"]
+)
+@login_required
+def company_profile():
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    profile = RecruiterProfile.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    # Create profile if it does not exist
+    if not profile:
+
+        profile = RecruiterProfile(
+            user_id=current_user.id
+        )
+
+        db.session.add(profile)
+        db.session.commit()
+
+    # ======================================================
+    # Update Company Information
+    # ======================================================
+
+    if request.method == "POST":
+
+        profile.company_name = request.form.get(
+            "company_name",
+            ""
+        ).strip()
+
+        profile.industry = request.form.get(
+            "industry",
+            ""
+        ).strip()
+
+        profile.company_size = request.form.get(
+            "company_size",
+            ""
+        ).strip()
+
+        profile.company_website = request.form.get(
+            "company_website",
+            ""
+        ).strip()
+
+        profile.company_location = request.form.get(
+            "company_location",
+            ""
+        ).strip()
+
+        profile.company_description = request.form.get(
+            "company_description",
+            ""
+        ).strip()
+
+        db.session.commit()
+
+        flash(
+            "Company profile updated successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for("recruiter.company_profile")
+        )
+
+    return render_template(
+        "recruiter/company_profile.html",
+        profile=profile
+    )
+
+
+# ==========================================================
+# Company Logo
+# ==========================================================
+
+@recruiter.route(
+    "/company-logo",
+    methods=["POST"]
+)
+@login_required
+def company_logo():
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    profile = RecruiterProfile.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    if not profile:
+
+        profile = RecruiterProfile(
+            user_id=current_user.id
+        )
+
+        db.session.add(profile)
+        db.session.commit()
+
+    file = request.files.get(
+        "company_logo"
+    )
+
+    if not file or file.filename == "":
+
+        flash(
+            "Please select a company logo.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.company_profile")
+        )
+
+    allowed_extensions = {
+        "jpg",
+        "jpeg",
+        "png",
+        "webp"
+    }
+
+    filename = file.filename
+
+    extension = filename.rsplit(
+        ".",
+        1
+    )[-1].lower()
+
+    if extension not in allowed_extensions:
+
+        flash(
+            "Only JPG, JPEG, PNG and WEBP images are allowed.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.company_profile")
+        )
+
+    new_filename = (
+        "company_"
+        + str(uuid.uuid4())
+        + "."
+        + extension
+    )
+
+    upload_folder = current_app.config[
+        "UPLOAD_FOLDER"
+    ]
+
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
+
+    file_path = os.path.join(
+        upload_folder,
+        new_filename
+    )
+
+    file.save(file_path)
+
+    # Delete previous company logo
+    old_logo = profile.company_logo
+
+    if old_logo:
+
+        old_logo_path = os.path.join(
+            upload_folder,
+            old_logo
+        )
+
+        if os.path.exists(old_logo_path):
+
+            os.remove(old_logo_path)
+
+    profile.company_logo = new_filename
+
+    db.session.commit()
+
+    flash(
+        "Company logo updated successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("recruiter.company_profile")
+    )
+
+
+# ==========================================================
 # Recruiter Settings
-# ==========================
+# ==========================================================
 
 @recruiter.route(
     "/settings",
@@ -268,9 +439,10 @@ def settings():
         "recruiter/settings.html"
     )
 
-# ==========================
+
+# ==========================================================
 # Change Password
-# ==========================
+# ==========================================================
 
 @recruiter.route(
     "/settings/change-password",
@@ -284,7 +456,6 @@ def change_password():
         return redirect(
             url_for("dashboard.home")
         )
-
 
     current_password = request.form.get(
         "current_password",
@@ -301,9 +472,7 @@ def change_password():
         ""
     )
 
-
     # Check current password
-
     if not check_password_hash(
         current_user.password,
         current_password
@@ -318,9 +487,7 @@ def change_password():
             url_for("recruiter.settings")
         )
 
-
     # Password length
-
     if len(new_password) < 8:
 
         flash(
@@ -332,9 +499,7 @@ def change_password():
             url_for("recruiter.settings")
         )
 
-
     # Confirm password
-
     if new_password != confirm_password:
 
         flash(
@@ -346,9 +511,7 @@ def change_password():
             url_for("recruiter.settings")
         )
 
-
     # Prevent same password
-
     if check_password_hash(
         current_user.password,
         new_password
@@ -363,27 +526,25 @@ def change_password():
             url_for("recruiter.settings")
         )
 
-
     current_user.password = generate_password_hash(
         new_password
     )
 
     db.session.commit()
 
-
     flash(
         "Password changed successfully!",
         "success"
     )
 
-
     return redirect(
         url_for("recruiter.settings")
     )
 
-# ==========================
+
+# ==========================================================
 # Change Email
-# ==========================
+# ==========================================================
 
 @recruiter.route(
     "/settings/change-email",
@@ -398,12 +559,10 @@ def change_email():
             url_for("dashboard.home")
         )
 
-
     new_email = request.form.get(
         "new_email",
         ""
     ).strip().lower()
-
 
     if not new_email:
 
@@ -416,14 +575,11 @@ def change_email():
             url_for("recruiter.settings")
         )
 
-
     # Duplicate email check
-
     existing_email = User.query.filter(
         User.email == new_email,
         User.id != current_user.id
     ).first()
-
 
     if existing_email:
 
@@ -436,9 +592,7 @@ def change_email():
             url_for("recruiter.settings")
         )
 
-
     # Same email check
-
     if new_email == current_user.email.lower():
 
         flash(
@@ -450,13 +604,13 @@ def change_email():
             url_for("recruiter.settings")
         )
 
-
     # Generate verification code
-
     verification_code = str(
-        random.randint(100000, 999999)
+        random.randint(
+            100000,
+            999999
+        )
     )
-
 
     current_user.verification_code = (
         verification_code
@@ -467,14 +621,11 @@ def change_email():
         + timedelta(minutes=10)
     )
 
-
     session["pending_email"] = new_email
 
     db.session.commit()
 
-
     # Send email
-
     try:
 
         msg = Message(
@@ -484,7 +635,6 @@ def change_email():
             ],
             recipients=[new_email]
         )
-
 
         msg.body = f"""
 Hello {current_user.full_name},
@@ -503,9 +653,7 @@ Regards,
 CVision Team
 """
 
-
         mail.send(msg)
-
 
     except Exception as e:
 
@@ -513,7 +661,6 @@ CVision Team
         print("RECRUITER EMAIL SENDING ERROR:")
         print(repr(e))
         print("=" * 60)
-
 
         current_user.verification_code = None
 
@@ -526,7 +673,6 @@ CVision Team
 
         db.session.commit()
 
-
         flash(
             "Unable to send verification email. Please try again.",
             "danger"
@@ -536,20 +682,19 @@ CVision Team
             url_for("recruiter.settings")
         )
 
-
     flash(
         "A verification code has been sent to your new email address.",
         "success"
     )
 
-
     return redirect(
         url_for("recruiter.verify_new_email")
     )
 
-# ==========================
+
+# ==========================================================
 # Verify New Email
-# ==========================
+# ==========================================================
 
 @recruiter.route(
     "/settings/verify-email",
@@ -564,11 +709,9 @@ def verify_new_email():
             url_for("dashboard.home")
         )
 
-
     pending_email = session.get(
         "pending_email"
     )
-
 
     if not pending_email:
 
@@ -581,7 +724,6 @@ def verify_new_email():
             url_for("recruiter.settings")
         )
 
-
     if request.method == "POST":
 
         code = request.form.get(
@@ -589,9 +731,7 @@ def verify_new_email():
             ""
         ).strip()
 
-
         # Check code
-
         if code != current_user.verification_code:
 
             flash(
@@ -603,9 +743,7 @@ def verify_new_email():
                 url_for("recruiter.verify_new_email")
             )
 
-
         # Check expiry
-
         if (
             not current_user.verification_expiry
             or
@@ -622,9 +760,7 @@ def verify_new_email():
                 url_for("recruiter.settings")
             )
 
-
         # Update email
-
         current_user.email = pending_email
 
         current_user.verification_code = None
@@ -633,26 +769,21 @@ def verify_new_email():
 
         current_user.is_verified = True
 
-
         session.pop(
             "pending_email",
             None
         )
 
-
         db.session.commit()
-
 
         flash(
             "Email address changed successfully!",
             "success"
         )
 
-
         return redirect(
             url_for("recruiter.settings")
         )
-
 
     return render_template(
         "recruiter/verify_email.html"

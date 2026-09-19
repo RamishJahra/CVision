@@ -1,437 +1,285 @@
+
 {% extends "layouts/recruiter_settings_base.html" %}
 
 {% block recruiter_account_content %}
 
-<div class="container py-5">
+<div class="container py-4">
 
-    <div class="row justify-content-center">
+    <div class="card shadow-sm border-0">
 
-        <div class="col-lg-10">
+        <div class="card-body p-4">
 
-            <div class="card shadow-sm border-0">
+            <!-- ==========================
+                 Header
+            =========================== -->
 
-                <div class="card-body p-4">
+            <div class="mb-4">
 
-                    <h2 class="mb-4">
-                        Recruiter Profile
-                    </h2>
+                <h2 class="fw-bold mb-1">
+                    Recruiter Profile
+                </h2>
 
-                  <!-- ==========================
-     Profile Picture / Company Logo
-=========================== -->
+                <p class="text-muted mb-0">
+                    Manage your personal recruiter information.
+                </p>
 
-<div class="text-center mb-4">
-
-    <img
-        src="{{ url_for('static', filename='uploads/profile/' + current_user.profile_image) }}"
-        alt="Recruiter Profile"
-        class="rounded-circle border"
-        width="130"
-        height="130"
-        style="object-fit: cover;"
-    >
-
-    <h5 class="mt-3">
-        {{ current_user.full_name }}
-    </h5>
+            </div>
 
 
-    <p class="text-muted mb-3">
-        Recruiter / Company Profile
-    </p>
+            <!-- ==========================
+                 Profile Picture
+            =========================== -->
+
+            <div class="text-center mb-4">
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='uploads/profile/' + current_user.profile_image
+                    ) }}"
+                    alt="Recruiter Profile"
+                    class="rounded-circle border"
+                    width="130"
+                    height="130"
+                    style="object-fit: cover;"
+                >
+
+                <h5 class="mt-3 mb-1">
+                    {{ current_user.full_name }}
+                </h5>
+
+                <p class="text-muted mb-3">
+                    Recruiter
+                </p>
 
 
-    <form
-        method="POST"
-        action="{{ url_for('recruiter.profile_picture') }}"
-        enctype="multipart/form-data"
-    >
+                <form
+                    method="POST"
+                    action="{{ url_for('recruiter.profile_picture') }}"
+                    enctype="multipart/form-data"
+                >
 
-        <div class="mb-3">
+                    <div class="mb-3">
 
-            <input
-                type="file"
-                name="profile_image"
-                class="form-control"
-                accept=".jpg,.jpeg,.png,.webp"
-                required
-            >
-
-        </div>
-
-
-        <button
-            type="submit"
-            class="btn btn-primary"
-        >
-            Upload Profile / Company Logo
-        </button>
-
-    </form>
-
-</div>
-
-<hr class="my-4">
-                    <!-- ==========================
-                         Personal Information
-                    =========================== -->
-
-                    <h5 class="mb-3">
-                        Personal Information
-                    </h5>
-
-                    <div class="row">
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Full Name
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ current_user.full_name }}"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Username
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ current_user.username }}"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Email
-                            </label>
-
-                            <input
-                                type="email"
-                                class="form-control"
-                                value="{{ current_user.email }}"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Phone
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ current_user.phone }}"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                District
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ current_user.district.name if current_user.district else 'Not added' }}"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-                                Area
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ current_user.area.name if current_user.area else 'Not added' }}"
-                                readonly
-                            >
-
-                        </div>
+                        <input
+                            type="file"
+                            name="profile_image"
+                            class="form-control"
+                            accept=".jpg,.jpeg,.png,.webp"
+                            required
+                        >
 
                     </div>
 
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-camera me-1"></i>
+                        Update Profile Picture
+                    </button>
 
-                    <hr class="my-4">
+                </form>
+
+            </div>
 
 
-                    <!-- ==========================
-                         Recruiter Information
-                    =========================== -->
+            <hr class="my-4">
 
-                    <h5 class="mb-3">
-                        Recruiter Information
-                    </h5>
 
-                    <form
-                        method="POST"
-                        action="{{ url_for('recruiter.profile') }}"
+            <!-- ==========================
+                 Personal Information
+            =========================== -->
+
+            <h5 class="fw-bold mb-3">
+                Personal Information
+            </h5>
+
+            <div class="row">
+
+                <div class="col-md-6 mb-3">
+
+                    <label class="form-label">
+                        Full Name
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="{{ current_user.full_name }}"
+                        readonly
                     >
 
-                        <div class="row">
+                </div>
 
-                            <!-- Job Title -->
 
-                            <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3">
 
-                                <label class="form-label">
-                                    Job Title
-                                </label>
+                    <label class="form-label">
+                        Username
+                    </label>
 
-                                <input
-                                    type="text"
-                                    name="job_title"
-                                    class="form-control"
-                                    value="{{ profile.job_title or '' }}"
-                                    placeholder="e.g. HR Manager"
-                                >
-
-                            </div>
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="{{ current_user.username }}"
+                        readonly
+                    >
 
+                </div>
 
-                            <!-- Industry -->
 
-                            <div class="col-md-6 mb-3">
+                <div class="col-md-6 mb-3">
 
-                                <label class="form-label">
-                                    Industry
-                                </label>
+                    <label class="form-label">
+                        Email
+                    </label>
 
-                                <input
-                                    type="text"
-                                    name="industry"
-                                    class="form-control"
-                                    value="{{ profile.industry or '' }}"
-                                    placeholder="e.g. Software & Technology"
-                                >
+                    <input
+                        type="email"
+                        class="form-control"
+                        value="{{ current_user.email }}"
+                        readonly
+                    >
 
-                            </div>
+                </div>
 
 
-                            <!-- Company Name -->
+                <div class="col-md-6 mb-3">
 
-                            <div class="col-md-6 mb-3">
+                    <label class="form-label">
+                        Phone
+                    </label>
 
-                                <label class="form-label">
-                                    Company Name
-                                </label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="{{ current_user.phone }}"
+                        readonly
+                    >
 
-                                <input
-                                    type="text"
-                                    name="company_name"
-                                    class="form-control"
-                                    value="{{ profile.company_name or '' }}"
-                                    placeholder="Enter company name"
-                                >
+                </div>
 
-                            </div>
 
+                <div class="col-md-6 mb-3">
 
-                            <!-- Company Size -->
+                    <label class="form-label">
+                        District
+                    </label>
 
-                            <div class="col-md-6 mb-3">
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="{{ current_user.district.name if current_user.district else 'Not added' }}"
+                        readonly
+                    >
 
-                                <label class="form-label">
-                                    Company Size
-                                </label>
+                </div>
 
-                                <select
-                                    name="company_size"
-                                    class="form-select"
-                                >
 
-                                    <option value="">
-                                        Select company size
-                                    </option>
+                <div class="col-md-6 mb-3">
 
-                                    <option
-                                        value="1-10"
-                                        {% if profile.company_size == "1-10" %}selected{% endif %}
-                                    >
-                                        1-10 employees
-                                    </option>
+                    <label class="form-label">
+                        Area
+                    </label>
 
-                                    <option
-                                        value="11-50"
-                                        {% if profile.company_size == "11-50" %}selected{% endif %}
-                                    >
-                                        11-50 employees
-                                    </option>
-
-                                    <option
-                                        value="51-200"
-                                        {% if profile.company_size == "51-200" %}selected{% endif %}
-                                    >
-                                        51-200 employees
-                                    </option>
-
-                                    <option
-                                        value="201-500"
-                                        {% if profile.company_size == "201-500" %}selected{% endif %}
-                                    >
-                                        201-500 employees
-                                    </option>
-
-                                    <option
-                                        value="501-1000"
-                                        {% if profile.company_size == "501-1000" %}selected{% endif %}
-                                    >
-                                        501-1000 employees
-                                    </option>
-
-                                    <option
-                                        value="1000+"
-                                        {% if profile.company_size == "1000+" %}selected{% endif %}
-                                    >
-                                        1000+ employees
-                                    </option>
-
-                                </select>
-
-                            </div>
-
-
-                            <!-- Company Website -->
-
-                            <div class="col-md-6 mb-3">
-
-                                <label class="form-label">
-                                    Company Website
-                                </label>
-
-                                <input
-                                    type="url"
-                                    name="company_website"
-                                    class="form-control"
-                                    value="{{ profile.company_website or '' }}"
-                                    placeholder="https://example.com"
-                                >
-
-                            </div>
-
-
-                            <!-- Company Location -->
-
-                            <div class="col-md-6 mb-3">
-
-                                <label class="form-label">
-                                    Company Location
-                                </label>
-
-                                <input
-                                    type="text"
-                                    name="company_location"
-                                    class="form-control"
-                                    value="{{ profile.company_location or '' }}"
-                                    placeholder="Enter company location"
-                                >
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- Company Description -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                Company Description
-                            </label>
-
-                            <textarea
-                                name="company_description"
-                                class="form-control"
-                                rows="4"
-                                placeholder="Describe your company..."
-                            >{{ profile.company_description or "" }}</textarea>
-
-                        </div>
-
-
-                        <!-- Recruiter Bio -->
-
-                        <div class="mb-3">
-
-                            <label class="form-label">
-                                About Me
-                            </label>
-
-                            <textarea
-                                name="bio"
-                                class="form-control"
-                                rows="4"
-                                placeholder="Tell us about yourself and your recruitment experience..."
-                            >{{ profile.bio or "" }}</textarea>
-
-                        </div>
-
-
-                        <div class="row">
-
-                            <!-- LinkedIn -->
-
-                            <div class="col-md-6 mb-4">
-
-                                <label class="form-label">
-                                    LinkedIn
-                                </label>
-
-                                <input
-                                    type="url"
-                                    name="linkedin_url"
-                                    class="form-control"
-                                    value="{{ profile.linkedin_url or '' }}"
-                                    placeholder="https://linkedin.com/in/..."
-                                >
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- Save -->
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary"
-                        >
-                            Save Changes
-                        </button>
-
-                    </form>
+                    <input
+                        type="text"
+                        class="form-control"
+                        value="{{ current_user.area.name if current_user.area else 'Not added' }}"
+                        readonly
+                    >
 
                 </div>
 
             </div>
+
+
+            <hr class="my-4">
+
+
+            <!-- ==========================
+                 Recruiter Information
+            =========================== -->
+
+            <h5 class="fw-bold mb-3">
+                Recruiter Information
+            </h5>
+
+            <form
+                method="POST"
+                action="{{ url_for('recruiter.profile') }}"
+            >
+
+                <div class="row">
+
+                    <!-- Job Title -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+                            Job Title
+                        </label>
+
+                        <input
+                            type="text"
+                            name="job_title"
+                            class="form-control"
+                            value="{{ profile.job_title or '' }}"
+                            placeholder="e.g. HR Manager"
+                        >
+
+                    </div>
+
+
+                    <!-- LinkedIn -->
+
+                    <div class="col-md-6 mb-3">
+
+                        <label class="form-label">
+                            LinkedIn
+                        </label>
+
+                        <input
+                            type="url"
+                            name="linkedin_url"
+                            class="form-control"
+                            value="{{ profile.linkedin_url or '' }}"
+                            placeholder="https://linkedin.com/in/..."
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- About Me -->
+
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        About Me
+                    </label>
+
+                    <textarea
+                        name="bio"
+                        class="form-control"
+                        rows="5"
+                        placeholder="Tell us about yourself and your recruitment experience..."
+                    >{{ profile.bio or "" }}</textarea>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    <i class="bi bi-check-lg me-1"></i>
+                    Save Recruiter Profile
+                </button>
+
+            </form>
 
         </div>
 
