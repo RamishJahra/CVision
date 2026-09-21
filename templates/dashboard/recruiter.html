@@ -76,7 +76,7 @@ Recruiter Dashboard | CVision
                 </p>
 
                 <a
-                    href="{{ url_for('recruiter.profile') }}"
+                    href="{{ url_for('recruiter.company_profile') }}"
                     class="btn btn-primary mt-auto"
                 >
                     Manage Company
@@ -104,7 +104,7 @@ Recruiter Dashboard | CVision
                 </p>
 
                 <a
-                    href="#"
+                    href="{{ url_for('recruiter.create_job') }}"
                     class="btn btn-primary mt-auto"
                 >
                     Create Job
@@ -130,7 +130,7 @@ Recruiter Dashboard | CVision
                 </p>
 
                 <a
-                    href="#"
+                    href="{{ url_for('recruiter.jobs') }}"
                     class="btn btn-primary mt-auto"
                 >
                     Manage Jobs

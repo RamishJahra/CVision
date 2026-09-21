@@ -1,0 +1,161 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+{{ job.job_title }} | CVision
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5 pt-5">
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+
+        <div>
+            <h1>{{ job.job_title }}</h1>
+
+            <p class="text-muted">
+                {{ job.job_type }}
+
+                {% if job.location %}
+                    · {{ job.location }}
+                {% endif %}
+            </p>
+        </div>
+
+        {% if job.status == "Published" %}
+
+            <span class="badge bg-success fs-6">
+                Published
+            </span>
+
+        {% elif job.status == "Closed" %}
+
+            <span class="badge bg-secondary fs-6">
+                Closed
+            </span>
+
+        {% else %}
+
+            <span class="badge bg-warning text-dark fs-6">
+                Draft
+            </span>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+
+        <h4>Job Description</h4>
+
+        <p style="white-space: pre-line;">
+            {{ job.description }}
+        </p>
+
+    </div>
+
+
+    <div class="card border-0 shadow-sm p-4 mb-4">
+
+        <h4 class="mb-3">Requirements</h4>
+
+        {% if job.experience_required %}
+        <p>
+            <strong>Experience:</strong>
+            {{ job.experience_required }}
+        </p>
+        {% endif %}
+
+        {% if job.education_required %}
+        <p>
+            <strong>Education:</strong>
+            {{ job.education_required }}
+        </p>
+        {% endif %}
+
+        {% if job.skills_required %}
+        <p style="white-space: pre-line;">
+            <strong>Skills:</strong>
+            {{ job.skills_required }}
+        </p>
+        {% endif %}
+
+        {% if job.salary %}
+        <p>
+            <strong>Salary:</strong>
+            {{ job.salary }}
+        </p>
+        {% endif %}
+
+        {% if job.application_deadline %}
+        <p>
+            <strong>Application Deadline:</strong>
+            {{ job.application_deadline.strftime("%d %B %Y") }}
+        </p>
+        {% endif %}
+
+    </div>
+
+
+    <div class="d-flex gap-2 flex-wrap">
+
+        <a
+            href="{{ url_for('recruiter.edit_job', job_id=job.id) }}"
+            class="btn btn-primary"
+        >
+            Edit
+        </a>
+
+
+        {% if job.status != "Published" %}
+
+        <form
+            method="POST"
+            action="{{ url_for('recruiter.publish_job', job_id=job.id) }}"
+        >
+            <button class="btn btn-success">
+                Publish
+            </button>
+        </form>
+
+        {% endif %}
+
+
+        {% if job.status == "Published" %}
+
+        <form
+            method="POST"
+            action="{{ url_for('recruiter.close_job', job_id=job.id) }}"
+        >
+            <button class="btn btn-warning">
+                Close Job
+            </button>
+        </form>
+
+        {% endif %}
+
+
+        <form
+            method="POST"
+            action="{{ url_for('recruiter.delete_job', job_id=job.id) }}"
+            onsubmit="return confirm('Are you sure you want to delete this job?');"
+        >
+            <button class="btn btn-danger">
+                Delete
+            </button>
+        </form>
+
+
+        <a
+            href="{{ url_for('recruiter.jobs') }}"
+            class="btn btn-light"
+        >
+            Back
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Create Job | CVision
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5 pt-5">
+
+    <div class="mb-4">
+        <h1>Create Job</h1>
+        <p class="text-muted">
+            Create a new job opportunity for applicants.
+        </p>
+    </div>
+
+    <div class="card border-0 shadow-sm p-4">
+
+        <form method="POST">
+
+            <div class="row g-3">
+
+                <div class="col-md-8">
+                    <label class="form-label">Job Title *</label>
+                    <input
+                        type="text"
+                        name="job_title"
+                        class="form-control"
+                        placeholder="e.g. Software Engineer"
+                        required
+                    >
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label">Job Type *</label>
+
+                    <select
+                        name="job_type"
+                        class="form-select"
+                        required
+                    >
+                        <option value="">Select</option>
+                        <option value="Full Time">Full Time</option>
+                        <option value="Part Time">Part Time</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Internship">Internship</option>
+                        <option value="Remote">Remote</option>
+                    </select>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Job Description *</label>
+
+                    <textarea
+                        name="description"
+                        class="form-control"
+                        rows="7"
+                        placeholder="Describe the job responsibilities and requirements..."
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Experience Required
+                    </label>
+
+                    <input
+                        type="text"
+                        name="experience_required"
+                        class="form-control"
+                        placeholder="e.g. 2-3 years"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Education Required
+                    </label>
+
+                    <input
+                        type="text"
+                        name="education_required"
+                        class="form-control"
+                        placeholder="e.g. BSc in CSE"
+                    >
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">
+                        Required Skills
+                    </label>
+
+                    <textarea
+                        name="skills_required"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Python, Flask, MySQL, JavaScript..."
+                    ></textarea>
+
+                    <small class="text-muted">
+                        Separate skills using commas.
+                    </small>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        name="location"
+                        class="form-control"
+                        placeholder="e.g. Dhaka, Bangladesh"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Salary
+                    </label>
+
+                    <input
+                        type="text"
+                        name="salary"
+                        class="form-control"
+                        placeholder="e.g. ৳40,000 - ৳60,000"
+                    >
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">
+                        Application Deadline
+                    </label>
+
+                    <input
+                        type="date"
+                        name="application_deadline"
+                        class="form-control"
+                    >
+                </div>
+
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                >
+                    Create Job
+                </button>
+
+                <a
+                    href="{{ url_for('recruiter.jobs') }}"
+                    class="btn btn-light"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

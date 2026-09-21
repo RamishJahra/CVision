@@ -23,6 +23,7 @@ from werkzeug.security import (
 from models import db, mail
 from models.user import User
 from models.profile import RecruiterProfile
+from models.job import Job
 
 import random
 
@@ -417,7 +418,458 @@ def company_logo():
         url_for("recruiter.company_profile")
     )
 
+# ==========================================================
+# Job Management
+# ==========================================================
 
+@recruiter.route(
+    "/jobs",
+    methods=["GET"]
+)
+@login_required
+def jobs():
+
+    if current_user.role != "Recruiter":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    jobs = Job.query.filter_by(
+        recruiter_id=current_user.id
+    ).order_by(
+        Job.created_at.desc()
+    ).all()
+
+    return render_template(
+        "recruiter/jobs.html",
+        jobs=jobs
+    )
+
+
+# ==========================================================
+# Create Job
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/create",
+    methods=["GET", "POST"]
+)
+@login_required
+def create_job():
+
+    if current_user.role != "Recruiter":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    if request.method == "POST":
+
+        job_title = request.form.get(
+            "job_title",
+            ""
+        ).strip()
+
+        description = request.form.get(
+            "description",
+            ""
+        ).strip()
+
+        job_type = request.form.get(
+            "job_type",
+            ""
+        ).strip()
+
+        experience_required = request.form.get(
+            "experience_required",
+            ""
+        ).strip()
+
+        education_required = request.form.get(
+            "education_required",
+            ""
+        ).strip()
+
+        skills_required = request.form.get(
+            "skills_required",
+            ""
+        ).strip()
+
+        location = request.form.get(
+            "location",
+            ""
+        ).strip()
+
+        salary = request.form.get(
+            "salary",
+            ""
+        ).strip()
+
+        deadline_text = request.form.get(
+            "application_deadline",
+            ""
+        ).strip()
+
+        if not job_title or not description or not job_type:
+
+            flash(
+                "Job title, description and job type are required.",
+                "danger"
+            )
+
+            return redirect(
+                url_for("recruiter.create_job")
+            )
+
+        application_deadline = None
+
+        if deadline_text:
+
+            try:
+                application_deadline = datetime.strptime(
+                    deadline_text,
+                    "%Y-%m-%d"
+                ).date()
+
+            except ValueError:
+
+                flash(
+                    "Invalid application deadline.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for("recruiter.create_job")
+                )
+
+        job = Job(
+            recruiter_id=current_user.id,
+            job_title=job_title,
+            description=description,
+            job_type=job_type,
+            experience_required=experience_required,
+            education_required=education_required,
+            skills_required=skills_required,
+            location=location,
+            salary=salary,
+            application_deadline=application_deadline,
+            status="Published"
+        )
+
+        db.session.add(job)
+        db.session.commit()
+
+        flash(
+            "Job created successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    return render_template(
+        "recruiter/create_job.html"
+    )
+
+
+# ==========================================================
+# Job Details
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/<int:job_id>",
+    methods=["GET"]
+)
+@login_required
+def job_detail(job_id):
+
+    if current_user.role != "Recruiter":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    job = Job.query.filter_by(
+        id=job_id,
+        recruiter_id=current_user.id
+    ).first()
+
+    if not job:
+
+        flash(
+            "Job not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    return render_template(
+        "recruiter/job_detail.html",
+        job=job
+    )
+
+
+# ==========================================================
+# Edit Job
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/<int:job_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_job(job_id):
+
+    if current_user.role != "Recruiter":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    job = Job.query.filter_by(
+        id=job_id,
+        recruiter_id=current_user.id
+    ).first()
+
+    if not job:
+
+        flash(
+            "Job not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    if request.method == "POST":
+
+        job.job_title = request.form.get(
+            "job_title",
+            ""
+        ).strip()
+
+        job.description = request.form.get(
+            "description",
+            ""
+        ).strip()
+
+        job.job_type = request.form.get(
+            "job_type",
+            ""
+        ).strip()
+
+        job.experience_required = request.form.get(
+            "experience_required",
+            ""
+        ).strip()
+
+        job.education_required = request.form.get(
+            "education_required",
+            ""
+        ).strip()
+
+        job.skills_required = request.form.get(
+            "skills_required",
+            ""
+        ).strip()
+
+        job.location = request.form.get(
+            "location",
+            ""
+        ).strip()
+
+        job.salary = request.form.get(
+            "salary",
+            ""
+        ).strip()
+
+        deadline_text = request.form.get(
+            "application_deadline",
+            ""
+        ).strip()
+
+        if deadline_text:
+
+            try:
+                job.application_deadline = datetime.strptime(
+                    deadline_text,
+                    "%Y-%m-%d"
+                ).date()
+
+            except ValueError:
+
+                flash(
+                    "Invalid application deadline.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "recruiter.edit_job",
+                        job_id=job.id
+                    )
+                )
+
+        else:
+
+            job.application_deadline = None
+
+        db.session.commit()
+
+        flash(
+            "Job updated successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.job_detail",
+                job_id=job.id
+            )
+        )
+
+    return render_template(
+        "recruiter/edit_job.html",
+        job=job
+    )
+
+
+# ==========================================================
+# Publish Job
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/<int:job_id>/publish",
+    methods=["POST"]
+)
+@login_required
+def publish_job(job_id):
+
+    if current_user.role != "Recruiter":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    job = Job.query.filter_by(
+        id=job_id,
+        recruiter_id=current_user.id
+    ).first()
+
+    if not job:
+
+        flash(
+            "Job not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    job.status = "Published"
+
+    db.session.commit()
+
+    flash(
+        "Job published successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("recruiter.jobs")
+    )
+
+
+# ==========================================================
+# Close Job
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/<int:job_id>/close",
+    methods=["POST"]
+)
+@login_required
+def close_job(job_id):
+
+    if current_user.role != "Recruiter":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    job = Job.query.filter_by(
+        id=job_id,
+        recruiter_id=current_user.id
+    ).first()
+
+    if not job:
+
+        flash(
+            "Job not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    job.status = "Closed"
+
+    db.session.commit()
+
+    flash(
+        "Job closed successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("recruiter.jobs")
+    )
+
+
+# ==========================================================
+# Delete Job
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/<int:job_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_job(job_id):
+
+    if current_user.role != "Recruiter":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    job = Job.query.filter_by(
+        id=job_id,
+        recruiter_id=current_user.id
+    ).first()
+
+    if not job:
+
+        flash(
+            "Job not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    db.session.delete(job)
+    db.session.commit()
+
+    flash(
+        "Job deleted successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("recruiter.jobs")
+    )
 # ==========================================================
 # Recruiter Settings
 # ==========================================================
