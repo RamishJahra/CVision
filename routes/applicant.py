@@ -37,6 +37,9 @@ from models.profile import (
     Project 
 )
 from models.resume import Resume
+from models.job import Job
+from models.application import Application
+from sqlalchemy import func
 from services.resume_parser import parse_resume
 from services.resume_scorer import calculate_resume_score
 import re
@@ -2677,3 +2680,253 @@ def resume_import_success(resume_id):
         resume=resume
     )
 
+# ==========================================================
+# APPLICANT JOB BROWSING
+# ==========================================================
+
+@applicant.route(
+    "/jobs",
+    methods=["GET"]
+)
+@login_required
+def jobs():
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    # ------------------------------------------------------
+    # Get only published jobs
+    # ------------------------------------------------------
+
+    jobs = Job.query.filter_by(
+        status="Published"
+    ).order_by(
+        Job.created_at.desc()
+    ).all()
+
+    # ------------------------------------------------------
+    # Get jobs already applied to by this applicant
+    # ------------------------------------------------------
+
+    applied_job_ids = {
+        application.job_id
+        for application in Application.query.filter_by(
+            applicant_id=current_user.id
+        ).all()
+    }
+
+    return render_template(
+        "applicant/jobs.html",
+        jobs=jobs,
+        applied_job_ids=applied_job_ids
+    )
+
+
+# ==========================================================
+# APPLICANT JOB DETAILS
+# ==========================================================
+
+@applicant.route(
+    "/jobs/<int:job_id>",
+    methods=["GET"]
+)
+@login_required
+def job_detail(job_id):
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    # ------------------------------------------------------
+    # Find published job
+    # ------------------------------------------------------
+
+    job = Job.query.filter(
+        Job.id == job_id,
+        func.lower(
+            func.trim(Job.status)
+        ) == "published"
+    ).first()
+
+    if not job:
+
+        flash(
+            "Job not found or is no longer available.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.jobs")
+        )
+
+    # ------------------------------------------------------
+    # Check whether applicant already applied
+    # ------------------------------------------------------
+
+    application = Application.query.filter_by(
+        job_id=job.id,
+        applicant_id=current_user.id
+    ).first()
+
+    return render_template(
+        "applicant/job_detail.html",
+        job=job,
+        application=application
+    )
+
+
+# ==========================================================
+# APPLY TO JOB
+# ==========================================================
+
+@applicant.route(
+    "/jobs/<int:job_id>/apply",
+    methods=["POST"]
+)
+@login_required
+def apply_job(job_id):
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    # ------------------------------------------------------
+    # Find published job
+    # ------------------------------------------------------
+
+    job = Job.query.filter(
+        Job.id == job_id,
+        func.lower(
+            func.trim(Job.status)
+        ) == "published"
+    ).first()
+
+    if not job:
+
+        flash(
+            "This job is no longer available.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.jobs")
+        )
+
+    # ------------------------------------------------------
+    # Check application deadline
+    # ------------------------------------------------------
+
+    if (
+        job.application_deadline
+        and datetime.utcnow().date()
+        > job.application_deadline
+    ):
+
+        flash(
+            "The application deadline for this job has passed.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "applicant.job_detail",
+                job_id=job.id
+            )
+        )
+
+    # ------------------------------------------------------
+    # Prevent duplicate application
+    # ------------------------------------------------------
+
+    existing_application = Application.query.filter_by(
+        job_id=job.id,
+        applicant_id=current_user.id
+    ).first()
+
+    if existing_application:
+
+        flash(
+            "You have already applied for this job.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "applicant.job_detail",
+                job_id=job.id
+            )
+        )
+
+    # ------------------------------------------------------
+    # Get optional cover letter
+    # ------------------------------------------------------
+
+    cover_letter = request.form.get(
+        "cover_letter",
+        ""
+    ).strip()
+
+    # ------------------------------------------------------
+    # Create application
+    # ------------------------------------------------------
+
+    application = Application(
+        job_id=job.id,
+        applicant_id=current_user.id,
+        cover_letter=cover_letter,
+        status="Pending"
+    )
+
+    db.session.add(application)
+
+    # ------------------------------------------------------
+    # Save application
+    # ------------------------------------------------------
+
+    try:
+
+        db.session.commit()
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        print(
+            "Job application error:",
+            repr(e)
+        )
+
+        flash(
+            "Unable to submit your application. Please try again.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "applicant.job_detail",
+                job_id=job.id
+            )
+        )
+
+    # ------------------------------------------------------
+    # Success
+    # ------------------------------------------------------
+
+    flash(
+        "Application submitted successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "applicant.job_detail",
+            job_id=job.id
+        )
+    )

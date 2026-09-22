@@ -353,17 +353,121 @@ def delete_user(user_id):
 
 
     # ------------------------------------------------------
-    # Delete
+    # Store name before deleting the object
     # ------------------------------------------------------
 
-    db.session.delete(user)
-
-    db.session.commit()
+    user_name = user.full_name
 
 
-    return jsonify({
-        "success": True,
-        "message": (
-            f"{user.full_name} has been deleted."
+    try:
+
+        # --------------------------------------------------
+        # Applicant Profile
+        # --------------------------------------------------
+
+        if user.applicant_profile:
+
+            db.session.delete(
+                user.applicant_profile
+            )
+
+
+        # --------------------------------------------------
+        # Recruiter Profile
+        # --------------------------------------------------
+
+        if user.recruiter_profile:
+
+            db.session.delete(
+                user.recruiter_profile
+            )
+
+
+        # --------------------------------------------------
+        # Education
+        # --------------------------------------------------
+
+        for education in user.educations:
+
+            db.session.delete(
+                education
+            )
+
+
+        # --------------------------------------------------
+        # Work Experience
+        # --------------------------------------------------
+
+        for experience in user.work_experiences:
+
+            db.session.delete(
+                experience
+            )
+
+
+        # --------------------------------------------------
+        # Skills
+        # --------------------------------------------------
+
+        for skill in user.skills:
+
+            db.session.delete(
+                skill
+            )
+
+
+        # --------------------------------------------------
+        # Certifications
+        # --------------------------------------------------
+
+        for certification in user.certifications:
+
+            db.session.delete(
+                certification
+            )
+
+
+        # --------------------------------------------------
+        # Projects
+        # --------------------------------------------------
+
+        for project in user.projects:
+
+            db.session.delete(
+                project
+            )
+
+
+        # --------------------------------------------------
+        # Finally delete User
+        # --------------------------------------------------
+
+        db.session.delete(user)
+
+        db.session.commit()
+
+
+        return jsonify({
+            "success": True,
+            "message": (
+                f"{user_name} has been deleted."
+            )
+        })
+
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        print(
+            "DELETE USER ERROR:",
+            e
         )
-    })
+
+        return jsonify({
+            "success": False,
+            "message": (
+                "Something went wrong while deleting "
+                "the user."
+            )
+        }), 500

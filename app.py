@@ -16,6 +16,7 @@ from models.profile import (
 )
 from models.location import District, Area
 from models.resume import Resume
+from models.application import Application
 
 from routes.public import public
 from routes.auth import auth

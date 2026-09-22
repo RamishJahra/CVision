@@ -62,13 +62,12 @@
 
         <!-- CVision -->
 
-        <!-- CVision -->
+        <a class="navbar-brand"
+           href="{{ url_for('dashboard.home') }}">
 
-<a class="navbar-brand"
-   href="{{ url_for('dashboard.home') }}">
-    <span class="cvision-c">C</span><span class="cvision-vision">Vision</span>
-</a>
+            <span class="cvision-c">C</span><span class="cvision-vision">Vision</span>
 
+        </a>
 
 
         <!-- Mobile Toggle -->
@@ -140,7 +139,7 @@
 
                         <a
                             class="nav-link"
-                            href="#"
+                            href="{{ url_for('applicant.jobs') }}"
                         >
                             Jobs
                         </a>
@@ -176,12 +175,12 @@
 
                     <li class="nav-item">
 
-                       <a
-    class="nav-link"
-    href="{{ url_for('recruiter.company_profile') }}"
->
-    Company
-</a>
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('recruiter.company_profile') }}"
+                        >
+                            Company
+                        </a>
 
                     </li>
 
@@ -189,11 +188,11 @@
                     <li class="nav-item">
 
                         <a
-    class="nav-link"
-    href="{{ url_for('recruiter.jobs') }}"
->
-    Jobs
-</a>
+                            class="nav-link"
+                            href="{{ url_for('recruiter.jobs') }}"
+                        >
+                            Jobs
+                        </a>
 
                     </li>
 
@@ -457,7 +456,9 @@
 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 
+
 <style>
+
     .cvision-c {
         color: #111111;
     }
@@ -465,7 +466,10 @@
     .cvision-vision {
         color: #0d6efd;
     }
+
 </style>
+
+
 {% block extra_js %}
 {% endblock %}
 
