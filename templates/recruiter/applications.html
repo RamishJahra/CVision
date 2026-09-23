@@ -1,0 +1,804 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Applications | CVision
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+    .applications-page {
+        padding-top: 110px;
+        padding-bottom: 60px;
+    }
+
+    .applications-header {
+        margin-bottom: 35px;
+    }
+
+    .applications-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #111111;
+        margin-bottom: 8px;
+    }
+
+    .applications-subtitle {
+        color: #6c757d;
+        font-size: 15px;
+        margin-bottom: 0;
+    }
+
+    .applications-card {
+        background: #ffffff;
+        border: 1px solid #eeeeee;
+        border-radius: 18px;
+        overflow: hidden;
+    }
+
+    .applications-table {
+        margin-bottom: 0;
+    }
+
+    .applications-table thead th {
+        background: #f8f9fa;
+        color: #555555;
+        font-size: 13px;
+        font-weight: 700;
+        border-bottom: 1px solid #eeeeee;
+        padding: 16px 18px;
+        white-space: nowrap;
+    }
+
+    .applications-table tbody td {
+        padding: 18px;
+        vertical-align: middle;
+        color: #555555;
+        font-size: 14px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .applications-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .applications-table tbody tr:hover {
+        background: #fafcff;
+    }
+
+    .applicant-name {
+        font-weight: 700;
+        color: #111111;
+        margin-bottom: 3px;
+    }
+
+    .applicant-username {
+        font-size: 12px;
+        color: #8a8f98;
+    }
+
+    .job-name {
+        font-weight: 600;
+        color: #111111;
+        margin-bottom: 3px;
+    }
+
+    .job-location {
+        font-size: 12px;
+        color: #8a8f98;
+    }
+
+    .application-status {
+        display: inline-block;
+        padding: 7px 11px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #997404;
+    }
+
+    .status-shortlisted {
+        background: #e7f1ff;
+        color: #0d6efd;
+    }
+
+    .status-rejected {
+        background: #fce8e8;
+        color: #dc3545;
+    }
+
+    .status-hired {
+        background: #e8f7ee;
+        color: #198754;
+    }
+
+    .application-date {
+        color: #6c757d;
+        font-size: 13px;
+    }
+
+    .empty-applications {
+        background: #ffffff;
+        border: 1px solid #eeeeee;
+        border-radius: 18px;
+        padding: 70px 30px;
+        text-align: center;
+    }
+
+    .empty-applications-icon {
+        width: 75px;
+        height: 75px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: #eef4ff;
+        color: #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+
+    .empty-applications h4 {
+        font-weight: 700;
+        color: #111111;
+    }
+
+    .empty-applications p {
+        color: #6c757d;
+        margin-bottom: 22px;
+    }
+
+    @media (max-width: 768px) {
+
+        .applications-table {
+            min-width: 800px;
+        }
+
+        .applications-card {
+            overflow-x: auto;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container applications-page">
+
+    <!-- ==========================
+         Page Header
+    =========================== -->
+
+    <div class="applications-header"
+         data-aos="fade-up">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+
+                <h1 class="applications-title">
+                    Applications
+                </h1>
+
+                <p class="applications-subtitle">
+                    Review and manage applications submitted to your jobs.
+                </p>
+
+            </div>
+
+
+            <a
+                href="{{ url_for('recruiter.jobs') }}"
+                class="btn btn-outline-primary rounded-pill px-4"
+            >
+
+                <i class="bi bi-briefcase me-1"></i>
+
+                My Jobs
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- ==========================
+         Applications
+    =========================== -->
+
+    <div id="recruiterApplicationsContainer">
+
+        {% if applications %}
+
+            <div class="applications-card">
+
+                <div class="table-responsive">
+
+                    <table class="table applications-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Applicant
+                                </th>
+
+                                <th>
+                                    Job
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Applied
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for application in applications %}
+
+                                <tr>
+
+                                    <!-- Applicant -->
+
+                                    <td>
+
+                                        <div class="applicant-name">
+
+                                            {{ application.applicant.full_name }}
+
+                                        </div>
+
+
+                                        <div class="applicant-username">
+
+                                            @{{ application.applicant.username }}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- Job -->
+
+                                    <td>
+
+                                        <div class="job-name">
+
+                                            {{ application.job.job_title }}
+
+                                        </div>
+
+
+                                        {% if application.job.location %}
+
+                                            <div class="job-location">
+
+                                                <i class="bi bi-geo-alt me-1"></i>
+
+                                                {{ application.job.location }}
+
+                                            </div>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- Status -->
+
+                                    <td>
+
+                                        {% if application.status == "Pending" %}
+
+                                            <span class="application-status status-pending">
+                                                Pending
+                                            </span>
+
+                                        {% elif application.status == "Shortlisted" %}
+
+                                            <span class="application-status status-shortlisted">
+                                                Shortlisted
+                                            </span>
+
+                                        {% elif application.status == "Rejected" %}
+
+                                            <span class="application-status status-rejected">
+                                                Rejected
+                                            </span>
+
+                                        {% elif application.status == "Hired" %}
+
+                                            <span class="application-status status-hired">
+                                                Hired
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="application-status status-pending">
+                                                {{ application.status }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- Applied -->
+
+                                    <td>
+
+                                        {% if application.applied_at %}
+
+                                            <div class="application-date">
+
+                                                {{ application.applied_at.strftime('%d %b %Y') }}
+
+                                                <br>
+
+                                                {{ application.applied_at.strftime('%I:%M %p') }}
+
+                                            </div>
+
+                                        {% else %}
+
+                                            <span class="application-date">
+                                                —
+                                            </span>
+
+                                        {% endif %}
+
+                                    </td>
+
+
+                                    <!-- Action -->
+
+                                    <td>
+
+                                        <a
+                                            href="{{ url_for(
+                                                'recruiter.application_detail',
+                                                application_id=application.id
+                                            ) }}"
+                                            class="btn btn-primary btn-sm rounded-pill px-3"
+                                        >
+
+                                            <i class="bi bi-eye me-1"></i>
+
+                                            View Application
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+        {% else %}
+
+            <!-- ==========================
+                 Empty State
+            =========================== -->
+
+            <div class="empty-applications"
+                 data-aos="fade-up">
+
+                <div class="empty-applications-icon">
+
+                    <i class="bi bi-file-earmark-person"></i>
+
+                </div>
+
+                <h4>
+                    No Applications Yet
+                </h4>
+
+                <p>
+                    Applications submitted to your jobs will appear here.
+                </p>
+
+                <a
+                    href="{{ url_for('recruiter.jobs') }}"
+                    class="btn btn-primary rounded-pill px-4"
+                >
+
+                    <i class="bi bi-briefcase me-1"></i>
+
+                    View My Jobs
+
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<!-- ==========================
+     Real-Time Application Updates
+=========================== -->
+
+<script>
+
+    let recruiterApplicationsVersion = null;
+
+
+    async function refreshRecruiterApplications() {
+
+        if (document.hidden) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "{{ url_for('recruiter.applications_live') }}",
+                {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+
+            if (!response.ok) {
+                return;
+            }
+
+
+            const data = await response.json();
+
+
+            if (recruiterApplicationsVersion === null) {
+
+                recruiterApplicationsVersion = data.version;
+
+                return;
+
+            }
+
+
+            if (data.version !== recruiterApplicationsVersion) {
+
+                const container = document.getElementById(
+                    "recruiterApplicationsContainer"
+                );
+
+
+                if (!container) {
+                    return;
+                }
+
+
+                let html = "";
+
+
+                if (data.applications.length > 0) {
+
+                    html = `
+
+                        <div class="applications-card">
+
+                            <div class="table-responsive">
+
+                                <table class="table applications-table">
+
+                                    <thead>
+
+                                        <tr>
+
+                                            <th>
+                                                Applicant
+                                            </th>
+
+                                            <th>
+                                                Job
+                                            </th>
+
+                                            <th>
+                                                Status
+                                            </th>
+
+                                            <th>
+                                                Applied
+                                            </th>
+
+                                            <th>
+                                                Action
+                                            </th>
+
+                                        </tr>
+
+                                    </thead>
+
+
+                                    <tbody>
+
+                    `;
+
+
+                    data.applications.forEach(
+                        function(application) {
+
+                            let statusClass = "status-pending";
+
+
+                            if (application.status === "Shortlisted") {
+
+                                statusClass = "status-shortlisted";
+
+                            } else if (application.status === "Rejected") {
+
+                                statusClass = "status-rejected";
+
+                            } else if (application.status === "Hired") {
+
+                                statusClass = "status-hired";
+
+                            }
+
+
+                            html += `
+
+                                <tr>
+
+                                    <td>
+
+                                        <div class="applicant-name">
+
+                                            ${escapeApplicationHtml(
+                                                application.applicant_name
+                                            )}
+
+                                        </div>
+
+
+                                        <div class="applicant-username">
+
+                                            @${escapeApplicationHtml(
+                                                application.applicant_username
+                                            )}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="job-name">
+
+                                            ${escapeApplicationHtml(
+                                                application.job_title
+                                            )}
+
+                                        </div>
+
+
+                                        ${
+                                            application.job_location
+                                            ?
+                                            `
+                                            <div class="job-location">
+
+                                                <i class="bi bi-geo-alt me-1"></i>
+
+                                                ${escapeApplicationHtml(
+                                                    application.job_location
+                                                )}
+
+                                            </div>
+                                            `
+                                            :
+                                            ""
+                                        }
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="application-status ${statusClass}">
+
+                                            ${escapeApplicationHtml(
+                                                application.status
+                                            )}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <div class="application-date">
+
+                                            ${escapeApplicationHtml(
+                                                application.applied_date
+                                            )}
+
+                                            <br>
+
+                                            ${escapeApplicationHtml(
+                                                application.applied_time
+                                            )}
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        <a
+                                            href="/recruiter/applications/${application.id}"
+                                            class="btn btn-primary btn-sm rounded-pill px-3"
+                                        >
+
+                                            <i class="bi bi-eye me-1"></i>
+
+                                            View Application
+
+                                        </a>
+
+                                    </td>
+
+                                </tr>
+
+                            `;
+
+                        }
+                    );
+
+
+                    html += `
+
+                                    </tbody>
+
+                                </table>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+
+                } else {
+
+                    html = `
+
+                        <div class="empty-applications"
+                             data-aos="fade-up">
+
+                            <div class="empty-applications-icon">
+
+                                <i class="bi bi-file-earmark-person"></i>
+
+                            </div>
+
+                            <h4>
+                                No Applications Yet
+                            </h4>
+
+                            <p>
+                                Applications submitted to your jobs will appear here.
+                            </p>
+
+                            <a
+                                href="{{ url_for('recruiter.jobs') }}"
+                                class="btn btn-primary rounded-pill px-4"
+                            >
+
+                                <i class="bi bi-briefcase me-1"></i>
+
+                                View My Jobs
+
+                            </a>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                container.innerHTML = html;
+
+                recruiterApplicationsVersion = data.version;
+
+
+                if (typeof AOS !== "undefined") {
+                    AOS.refreshHard();
+                }
+
+            }
+
+        } catch (error) {
+
+            console.debug(
+                "Recruiter applications live update failed:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function escapeApplicationHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    setInterval(
+        refreshRecruiterApplications,
+        3000
+    );
+
+
+    document.addEventListener(
+        "visibilitychange",
+        function() {
+
+            if (!document.hidden) {
+
+                refreshRecruiterApplications();
+
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}
