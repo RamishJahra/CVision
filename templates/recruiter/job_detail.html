@@ -8,153 +8,245 @@
 
 <div class="container mt-5 pt-5">
 
-    <div class="d-flex justify-content-between align-items-start mb-4">
 
-        <div>
-            <h1>{{ job.job_title }}</h1>
+<div class="d-flex justify-content-between align-items-start mb-4">
 
-            <p class="text-muted">
-                {{ job.job_type }}
+    <div>
+        <h1>{{ job.job_title }}</h1>
 
-                {% if job.location %}
-                    · {{ job.location }}
-                {% endif %}
-            </p>
-        </div>
+        <p class="text-muted">
+            {{ job.job_type }}
 
-        {% if job.status == "Published" %}
-
-            <span class="badge bg-success fs-6">
-                Published
-            </span>
-
-        {% elif job.status == "Closed" %}
-
-            <span class="badge bg-secondary fs-6">
-                Closed
-            </span>
-
-        {% else %}
-
-            <span class="badge bg-warning text-dark fs-6">
-                Draft
-            </span>
-
-        {% endif %}
-
+            {% if job.location %}
+                · {{ job.location }}
+            {% endif %}
+        </p>
     </div>
 
 
-    <div class="card border-0 shadow-sm p-4 mb-4">
+    {% if job.status == "Published" %}
 
-        <h4>Job Description</h4>
+        <span class="badge bg-success fs-6">
+            Published
+        </span>
 
-        <p style="white-space: pre-line;">
-            {{ job.description }}
-        </p>
+    {% elif job.status == "Closed" %}
 
-    </div>
+        <span class="badge bg-secondary fs-6">
+            Closed
+        </span>
 
+    {% elif job.status == "Archived" %}
 
-    <div class="card border-0 shadow-sm p-4 mb-4">
+        <span class="badge bg-dark fs-6">
+            Closed
+        </span>
 
-        <h4 class="mb-3">Requirements</h4>
+    {% else %}
 
-        {% if job.experience_required %}
-        <p>
-            <strong>Experience:</strong>
-            {{ job.experience_required }}
-        </p>
-        {% endif %}
+        <span class="badge bg-warning text-dark fs-6">
+            Draft
+        </span>
 
-        {% if job.education_required %}
-        <p>
-            <strong>Education:</strong>
-            {{ job.education_required }}
-        </p>
-        {% endif %}
+    {% endif %}
 
-        {% if job.skills_required %}
-        <p style="white-space: pre-line;">
-            <strong>Skills:</strong>
-            {{ job.skills_required }}
-        </p>
-        {% endif %}
-
-        {% if job.salary %}
-        <p>
-            <strong>Salary:</strong>
-            {{ job.salary }}
-        </p>
-        {% endif %}
-
-        {% if job.application_deadline %}
-        <p>
-            <strong>Application Deadline:</strong>
-            {{ job.application_deadline.strftime("%d %B %Y") }}
-        </p>
-        {% endif %}
-
-    </div>
+</div>
 
 
-    <div class="d-flex gap-2 flex-wrap">
+<!-- Job Description -->
+
+<div class="card border-0 shadow-sm p-4 mb-4">
+
+    <h4>Job Description</h4>
+
+    <p style="white-space: pre-line;">
+        {{ job.description }}
+    </p>
+
+</div>
+
+
+<!-- Requirements -->
+
+<div class="card border-0 shadow-sm p-4 mb-4">
+
+    <h4 class="mb-3">Requirements</h4>
+
+    {% if job.experience_required %}
+    <p>
+        <strong>Experience:</strong>
+        {{ job.experience_required }}
+    </p>
+    {% endif %}
+
+    {% if job.education_required %}
+    <p>
+        <strong>Education:</strong>
+        {{ job.education_required }}
+    </p>
+    {% endif %}
+
+    {% if job.skills_required %}
+    <p style="white-space: pre-line;">
+        <strong>Skills:</strong>
+        {{ job.skills_required }}
+    </p>
+    {% endif %}
+
+    {% if job.salary %}
+    <p>
+        <strong>Salary:</strong>
+        {{ job.salary }}
+    </p>
+    {% endif %}
+
+    {% if job.application_deadline %}
+    <p>
+        <strong>Application Deadline:</strong>
+        {{ job.application_deadline.strftime("%d %B %Y") }}
+    </p>
+    {% endif %}
+
+</div>
+
+
+<!-- Actions -->
+
+<div class="d-flex gap-2 flex-wrap">
+
+
+    <!-- Published Job -->
+
+    {% if job.status == "Published" %}
 
         <a
             href="{{ url_for('recruiter.edit_job', job_id=job.id) }}"
             class="btn btn-primary"
         >
+            <i class="bi bi-pencil me-1"></i>
             Edit
         </a>
 
-
-        {% if job.status != "Published" %}
-
-        <form
-            method="POST"
-            action="{{ url_for('recruiter.publish_job', job_id=job.id) }}"
-        >
-            <button class="btn btn-success">
-                Publish
-            </button>
-        </form>
-
-        {% endif %}
-
-
-        {% if job.status == "Published" %}
 
         <form
             method="POST"
             action="{{ url_for('recruiter.close_job', job_id=job.id) }}"
         >
-            <button class="btn btn-warning">
+            <button
+                type="submit"
+                class="btn btn-warning"
+                onclick="return confirm('Are you sure you want to close this job?');"
+            >
+                <i class="bi bi-x-circle me-1"></i>
                 Close Job
             </button>
         </form>
 
-        {% endif %}
 
+    <!-- Closed Job -->
+
+    {% elif job.status == "Closed" %}
+
+        <form
+            method="POST"
+            action="{{ url_for('recruiter.move_to_closed', job_id=job.id) }}"
+        >
+            <button
+                type="submit"
+                class="btn btn-secondary"
+                onclick="return confirm('Move this job to Closed Jobs?');"
+            >
+                <i class="bi bi-archive me-1"></i>
+                Move to Closed
+            </button>
+        </form>
+
+
+    <!-- Archived Job -->
+
+    {% elif job.status == "Archived" %}
+
+        <!--
+            Archived jobs are read-only.
+            No Edit, Publish, Close, Delete or Move button.
+        -->
+
+
+    <!-- Draft / Other Status -->
+
+    {% else %}
+
+        <a
+            href="{{ url_for('recruiter.edit_job', job_id=job.id) }}"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-pencil me-1"></i>
+            Edit
+        </a>
+
+        <form
+            method="POST"
+            action="{{ url_for('recruiter.publish_job', job_id=job.id) }}"
+        >
+            <button
+                type="submit"
+                class="btn btn-success"
+            >
+                <i class="bi bi-check-circle me-1"></i>
+                Publish
+            </button>
+        </form>
+
+    {% endif %}
+
+
+    <!-- Delete -->
+
+    {% if job.status != "Archived" %}
 
         <form
             method="POST"
             action="{{ url_for('recruiter.delete_job', job_id=job.id) }}"
             onsubmit="return confirm('Are you sure you want to delete this job?');"
         >
-            <button class="btn btn-danger">
+            <button
+                type="submit"
+                class="btn btn-danger"
+            >
+                <i class="bi bi-trash me-1"></i>
                 Delete
             </button>
         </form>
 
+    {% endif %}
+
+
+    <!-- Back -->
+
+    {% if job.status == "Archived" %}
+
+        <a
+            href="{{ url_for('recruiter.closed_jobs') }}"
+            class="btn btn-light"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back
+        </a>
+
+    {% else %}
 
         <a
             href="{{ url_for('recruiter.jobs') }}"
             class="btn btn-light"
         >
+            <i class="bi bi-arrow-left me-1"></i>
             Back
         </a>
 
-    </div>
+    {% endif %}
+
+</div>
+
 
 </div>
 

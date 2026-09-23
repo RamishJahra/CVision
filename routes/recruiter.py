@@ -1,5 +1,10 @@
 import os
 import uuid
+import random
+import hashlib
+
+from datetime import datetime, timedelta, date
+from sqlalchemy import func
 
 from flask import (
     Blueprint,
@@ -9,7 +14,8 @@ from flask import (
     request,
     flash,
     current_app,
-    session
+    session,
+    send_from_directory
 )
 
 from flask_login import login_required, current_user
@@ -22,12 +28,13 @@ from werkzeug.security import (
 
 from models import db, mail
 from models.user import User
-from models.profile import RecruiterProfile
+from models.profile import (
+    RecruiterProfile,
+    ApplicantProfile
+)
 from models.job import Job
-
-import random
-
-from datetime import datetime, timedelta
+from models.application import Application
+from models.resume import Resume
 
 
 recruiter = Blueprint(
@@ -35,6 +42,28 @@ recruiter = Blueprint(
     __name__,
     url_prefix="/recruiter"
 )
+
+
+# ==========================================================
+# Helper: Automatically Close Expired Jobs
+# ==========================================================
+
+def close_expired_jobs():
+
+    expired_jobs = Job.query.filter(
+        Job.recruiter_id == current_user.id,
+        Job.status == "Published",
+        Job.application_deadline.isnot(None),
+        Job.application_deadline < date.today()
+    ).all()
+
+    if expired_jobs:
+
+        for job in expired_jobs:
+
+            job.status = "Closed"
+
+        db.session.commit()
 
 
 # ==========================================================
@@ -48,7 +77,6 @@ recruiter = Blueprint(
 @login_required
 def profile():
 
-    # Only Recruiters can access
     if current_user.role != "Recruiter":
 
         return redirect(
@@ -59,7 +87,6 @@ def profile():
         user_id=current_user.id
     ).first()
 
-    # Create profile if it does not exist
     if not profile:
 
         profile = RecruiterProfile(
@@ -68,10 +95,6 @@ def profile():
 
         db.session.add(profile)
         db.session.commit()
-
-    # ======================================================
-    # Update Recruiter Information
-    # ======================================================
 
     if request.method == "POST":
 
@@ -186,7 +209,6 @@ def profile_picture():
 
     file.save(file_path)
 
-    # Delete previous custom recruiter image
     old_image = current_user.profile_image
 
     if old_image and old_image != "default.png":
@@ -235,7 +257,6 @@ def company_profile():
         user_id=current_user.id
     ).first()
 
-    # Create profile if it does not exist
     if not profile:
 
         profile = RecruiterProfile(
@@ -244,10 +265,6 @@ def company_profile():
 
         db.session.add(profile)
         db.session.commit()
-
-    # ======================================================
-    # Update Company Information
-    # ======================================================
 
     if request.method == "POST":
 
@@ -391,7 +408,6 @@ def company_logo():
 
     file.save(file_path)
 
-    # Delete previous company logo
     old_logo = profile.company_logo
 
     if old_logo:
@@ -418,6 +434,7 @@ def company_logo():
         url_for("recruiter.company_profile")
     )
 
+
 # ==========================================================
 # Job Management
 # ==========================================================
@@ -430,12 +447,16 @@ def company_logo():
 def jobs():
 
     if current_user.role != "Recruiter":
+
         return redirect(
             url_for("dashboard.home")
         )
 
-    jobs = Job.query.filter_by(
-        recruiter_id=current_user.id
+    close_expired_jobs()
+
+    jobs = Job.query.filter(
+        Job.recruiter_id == current_user.id,
+        Job.status.in_(["Published", "Closed"])
     ).order_by(
         Job.created_at.desc()
     ).all()
@@ -445,7 +466,177 @@ def jobs():
         jobs=jobs
     )
 
+# ==========================================================
+# REAL-TIME RECRUITER JOB UPDATES
+# ==========================================================
 
+@recruiter.route(
+    "/jobs/live",
+    methods=["GET"]
+)
+@login_required
+def jobs_live():
+
+    if current_user.role != "Recruiter":
+        return {
+            "error": "Unauthorized"
+        }, 403
+
+    close_expired_jobs()
+
+    jobs = Job.query.filter(
+        Job.recruiter_id == current_user.id,
+        func.lower(
+            func.trim(Job.status)
+        ).in_(["published", "closed"])
+    ).order_by(
+        Job.created_at.desc()
+    ).all()
+
+    job_data = []
+
+    for job in jobs:
+
+        job_data.append({
+
+            "id": job.id,
+
+            "job_title": job.job_title,
+
+            "description": job.description or "",
+
+            "location": job.location or "",
+
+            "job_type": job.job_type or "",
+
+            "salary": job.salary or "",
+
+            "status": (
+                job.status.strip()
+                if job.status
+                else "Published"
+            ),
+
+            "application_deadline": (
+                job.application_deadline.strftime("%d %b %Y")
+                if job.application_deadline
+                else None
+            )
+
+        })
+
+    version_source = repr(
+        [
+            (
+                job["id"],
+                job["job_title"],
+                job["description"],
+                job["location"],
+                job["job_type"],
+                job["salary"],
+                job["status"],
+                job["application_deadline"]
+            )
+            for job in job_data
+        ]
+    )
+
+    version = hashlib.md5(
+        version_source.encode("utf-8")
+    ).hexdigest()
+
+    return {
+        "version": version,
+        "jobs": job_data
+    }
+
+# ==========================================================
+# Move Job to Closed
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/<int:job_id>/move-to-closed",
+    methods=["POST"]
+)
+@login_required
+def move_to_closed(job_id):
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    job = Job.query.filter_by(
+        id=job_id,
+        recruiter_id=current_user.id
+    ).first()
+
+    if not job:
+
+        flash(
+            "Job not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    if job.status != "Closed":
+
+        flash(
+            "Only closed jobs can be moved to Closed Jobs.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    job.status = "Archived"
+
+    db.session.commit()
+
+    flash(
+        "Job moved to Closed Jobs successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("recruiter.jobs")
+    )
+
+# ==========================================================
+# Closed Jobs
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/closed",
+    methods=["GET"]
+)
+@login_required
+def closed_jobs():
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    jobs = Job.query.filter(
+        Job.recruiter_id == current_user.id,
+        func.lower(
+            func.trim(Job.status)
+        ) == "archived"
+    ).order_by(
+        Job.created_at.desc()
+    ).all()
+
+    return render_template(
+        "recruiter/closed_jobs.html",
+        jobs=jobs
+    )
 # ==========================================================
 # Create Job
 # ==========================================================
@@ -458,6 +649,7 @@ def jobs():
 def create_job():
 
     if current_user.role != "Recruiter":
+
         return redirect(
             url_for("dashboard.home")
         )
@@ -525,6 +717,7 @@ def create_job():
         if deadline_text:
 
             try:
+
                 application_deadline = datetime.strptime(
                     deadline_text,
                     "%Y-%m-%d"
@@ -584,9 +777,12 @@ def create_job():
 def job_detail(job_id):
 
     if current_user.role != "Recruiter":
+
         return redirect(
             url_for("dashboard.home")
         )
+
+    close_expired_jobs()
 
     job = Job.query.filter_by(
         id=job_id,
@@ -622,9 +818,12 @@ def job_detail(job_id):
 def edit_job(job_id):
 
     if current_user.role != "Recruiter":
+
         return redirect(
             url_for("dashboard.home")
         )
+
+    close_expired_jobs()
 
     job = Job.query.filter_by(
         id=job_id,
@@ -640,6 +839,20 @@ def edit_job(job_id):
 
         return redirect(
             url_for("recruiter.jobs")
+        )
+
+    if job.status in ["Closed", "Archived"]:
+
+        flash(
+            "Closed jobs cannot be edited.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.job_detail",
+                job_id=job.id
+            )
         )
 
     if request.method == "POST":
@@ -692,6 +905,7 @@ def edit_job(job_id):
         if deadline_text:
 
             try:
+
                 job.application_deadline = datetime.strptime(
                     deadline_text,
                     "%Y-%m-%d"
@@ -747,6 +961,7 @@ def edit_job(job_id):
 def publish_job(job_id):
 
     if current_user.role != "Recruiter":
+
         return redirect(
             url_for("dashboard.home")
         )
@@ -765,6 +980,41 @@ def publish_job(job_id):
 
         return redirect(
             url_for("recruiter.jobs")
+        )
+
+    if job.status in ["Closed", "Archived"]:
+
+        flash(
+            "A closed job cannot be published again.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.job_detail",
+                job_id=job.id
+            )
+        )
+
+    if (
+        job.application_deadline
+        and job.application_deadline < date.today()
+    ):
+
+        job.status = "Closed"
+
+        db.session.commit()
+
+        flash(
+            "This job's deadline has expired and the job is now closed.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.job_detail",
+                job_id=job.id
+            )
         )
 
     job.status = "Published"
@@ -793,6 +1043,7 @@ def publish_job(job_id):
 def close_job(job_id):
 
     if current_user.role != "Recruiter":
+
         return redirect(
             url_for("dashboard.home")
         )
@@ -807,6 +1058,17 @@ def close_job(job_id):
         flash(
             "Job not found.",
             "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.jobs")
+        )
+
+    if job.status != "Published":
+
+        flash(
+            "Only published jobs can be closed.",
+            "warning"
         )
 
         return redirect(
@@ -839,6 +1101,7 @@ def close_job(job_id):
 def delete_job(job_id):
 
     if current_user.role != "Recruiter":
+
         return redirect(
             url_for("dashboard.home")
         )
@@ -870,6 +1133,424 @@ def delete_job(job_id):
     return redirect(
         url_for("recruiter.jobs")
     )
+
+
+# ==========================================================
+# Recruiter Application Management
+# ==========================================================
+
+@recruiter.route(
+    "/applications",
+    methods=["GET"]
+)
+@login_required
+def applications():
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    # Automatically close expired jobs.
+    close_expired_jobs()
+
+    applications = Application.query.join(
+        Job,
+        Application.job_id == Job.id
+    ).join(
+        User,
+        Application.applicant_id == User.id
+    ).filter(
+        Job.recruiter_id == current_user.id
+    ).order_by(
+        Application.applied_at.desc()
+    ).all()
+
+    return render_template(
+        "recruiter/applications.html",
+        applications=applications
+    )
+
+# ==========================================================
+# REAL-TIME RECRUITER APPLICATION UPDATES
+# ==========================================================
+
+@recruiter.route(
+    "/applications/live",
+    methods=["GET"]
+)
+@login_required
+def applications_live():
+
+    if current_user.role != "Recruiter":
+        return {
+            "error": "Unauthorized"
+        }, 403
+
+    close_expired_jobs()
+
+    applications = Application.query.join(
+        Job,
+        Application.job_id == Job.id
+    ).join(
+        User,
+        Application.applicant_id == User.id
+    ).filter(
+        Job.recruiter_id == current_user.id
+    ).order_by(
+        Application.applied_at.desc()
+    ).all()
+
+    application_data = []
+
+    for application in applications:
+
+        applicant = application.applicant
+        job = application.job
+
+        application_data.append({
+
+            "id": application.id,
+
+            "applicant_name": (
+                applicant.full_name
+                if applicant
+                else "Unknown Applicant"
+            ),
+
+            "applicant_username": (
+                applicant.username
+                if applicant
+                else ""
+            ),
+
+            "job_title": (
+                job.job_title
+                if job
+                else "Unknown Job"
+            ),
+
+            "job_location": (
+                job.location
+                if job and job.location
+                else ""
+            ),
+
+            "status": (
+                application.status
+                if application.status
+                else "Pending"
+            ),
+
+            "applied_date": (
+                application.applied_at.strftime("%d %b %Y")
+                if application.applied_at
+                else "—"
+            ),
+
+            "applied_time": (
+                application.applied_at.strftime("%I:%M %p")
+                if application.applied_at
+                else ""
+            )
+
+        })
+
+    version_source = repr(
+        [
+            (
+                application["id"],
+                application["applicant_name"],
+                application["applicant_username"],
+                application["job_title"],
+                application["job_location"],
+                application["status"],
+                application["applied_date"],
+                application["applied_time"]
+            )
+            for application in application_data
+        ]
+    )
+
+    version = hashlib.md5(
+        version_source.encode("utf-8")
+    ).hexdigest()
+
+    return {
+        "version": version,
+        "applications": application_data
+    }
+# ==========================================================
+# Application Details
+# ==========================================================
+
+@recruiter.route(
+    "/applications/<int:application_id>",
+    methods=["GET"]
+)
+@login_required
+def application_detail(application_id):
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    application = Application.query.join(
+        Job,
+        Application.job_id == Job.id
+    ).filter(
+        Application.id == application_id,
+        Job.recruiter_id == current_user.id
+    ).first()
+
+    if not application:
+
+        flash(
+            "Application not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.applications")
+        )
+
+    applicant = application.applicant
+
+    applicant_profile = ApplicantProfile.query.filter_by(
+        user_id=applicant.id
+    ).first()
+
+    active_resume = Resume.query.filter_by(
+        user_id=applicant.id,
+        status="active"
+    ).order_by(
+        Resume.uploaded_at.desc()
+    ).first()
+
+    return render_template(
+        "recruiter/application_detail.html",
+        application=application,
+        applicant=applicant,
+        applicant_profile=applicant_profile,
+        active_resume=active_resume
+    )
+
+
+# ==========================================================
+# Update Application Status
+# ==========================================================
+
+@recruiter.route(
+    "/applications/<int:application_id>/status",
+    methods=["POST"]
+)
+@login_required
+def update_application_status(application_id):
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    application = Application.query.join(
+        Job,
+        Application.job_id == Job.id
+    ).filter(
+        Application.id == application_id,
+        Job.recruiter_id == current_user.id
+    ).first()
+
+    if not application:
+
+        flash(
+            "Application not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.applications")
+        )
+
+    new_status = request.form.get(
+        "status",
+        ""
+    ).strip()
+
+    allowed_statuses = {
+        "Pending",
+        "Shortlisted",
+        "Rejected",
+        "Hired"
+    }
+
+    if new_status not in allowed_statuses:
+
+        flash(
+            "Invalid application status.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.application_detail",
+                application_id=application.id
+            )
+        )
+
+    current_status = application.status
+
+    # ------------------------------------------------------
+    # Status transition rules
+    # ------------------------------------------------------
+
+    valid_transitions = {
+        "Pending": {
+            "Pending",
+            "Shortlisted",
+            "Rejected"
+        },
+        "Shortlisted": {
+            "Shortlisted",
+            "Rejected",
+            "Hired"
+        },
+        "Rejected": {
+            "Rejected"
+        },
+        "Hired": {
+            "Hired"
+        }
+    }
+
+    allowed_transitions = valid_transitions.get(
+        current_status,
+        set()
+    )
+
+    if new_status not in allowed_transitions:
+
+        flash(
+            f"Application cannot be changed from "
+            f"{current_status} to {new_status}.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.application_detail",
+                application_id=application.id
+            )
+        )
+
+    application.status = new_status
+
+    db.session.commit()
+
+    flash(
+        f"Application status updated to {new_status}.",
+        "success"
+    )
+
+    return redirect(
+        url_for(
+            "recruiter.application_detail",
+            application_id=application.id
+        )
+    )
+
+
+# ==========================================================
+# View / Download Applicant Resume
+# ==========================================================
+
+@recruiter.route(
+    "/applications/<int:application_id>/resume",
+    methods=["GET"]
+)
+@login_required
+def view_applicant_resume(application_id):
+
+    if current_user.role != "Recruiter":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    application = Application.query.join(
+        Job,
+        Application.job_id == Job.id
+    ).filter(
+        Application.id == application_id,
+        Job.recruiter_id == current_user.id
+    ).first()
+
+    if not application:
+
+        flash(
+            "Application not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("recruiter.applications")
+        )
+
+    active_resume = Resume.query.filter_by(
+        user_id=application.applicant_id,
+        status="active"
+    ).order_by(
+        Resume.uploaded_at.desc()
+    ).first()
+
+    if not active_resume:
+
+        flash(
+            "This applicant does not have an active resume.",
+            "warning"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.application_detail",
+                application_id=application.id
+            )
+        )
+
+    resume_folder = current_app.config[
+        "RESUME_UPLOAD_FOLDER"
+    ]
+
+    file_path = os.path.join(
+        resume_folder,
+        active_resume.file_path
+    )
+
+    if not os.path.exists(file_path):
+
+        flash(
+            "Resume file could not be found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for(
+                "recruiter.application_detail",
+                application_id=application.id
+            )
+        )
+
+    return send_from_directory(
+        resume_folder,
+        active_resume.file_path,
+        as_attachment=False,
+        download_name=active_resume.file_name
+    )
+
+
 # ==========================================================
 # Recruiter Settings
 # ==========================================================
@@ -924,7 +1605,6 @@ def change_password():
         ""
     )
 
-    # Check current password
     if not check_password_hash(
         current_user.password,
         current_password
@@ -939,7 +1619,6 @@ def change_password():
             url_for("recruiter.settings")
         )
 
-    # Password length
     if len(new_password) < 8:
 
         flash(
@@ -951,7 +1630,6 @@ def change_password():
             url_for("recruiter.settings")
         )
 
-    # Confirm password
     if new_password != confirm_password:
 
         flash(
@@ -963,7 +1641,6 @@ def change_password():
             url_for("recruiter.settings")
         )
 
-    # Prevent same password
     if check_password_hash(
         current_user.password,
         new_password
@@ -1027,7 +1704,6 @@ def change_email():
             url_for("recruiter.settings")
         )
 
-    # Duplicate email check
     existing_email = User.query.filter(
         User.email == new_email,
         User.id != current_user.id
@@ -1044,7 +1720,6 @@ def change_email():
             url_for("recruiter.settings")
         )
 
-    # Same email check
     if new_email == current_user.email.lower():
 
         flash(
@@ -1056,7 +1731,6 @@ def change_email():
             url_for("recruiter.settings")
         )
 
-    # Generate verification code
     verification_code = str(
         random.randint(
             100000,
@@ -1064,9 +1738,7 @@ def change_email():
         )
     )
 
-    current_user.verification_code = (
-        verification_code
-    )
+    current_user.verification_code = verification_code
 
     current_user.verification_expiry = (
         datetime.utcnow()
@@ -1077,7 +1749,6 @@ def change_email():
 
     db.session.commit()
 
-    # Send email
     try:
 
         msg = Message(
@@ -1115,7 +1786,6 @@ CVision Team
         print("=" * 60)
 
         current_user.verification_code = None
-
         current_user.verification_expiry = None
 
         session.pop(
@@ -1183,7 +1853,6 @@ def verify_new_email():
             ""
         ).strip()
 
-        # Check code
         if code != current_user.verification_code:
 
             flash(
@@ -1195,7 +1864,6 @@ def verify_new_email():
                 url_for("recruiter.verify_new_email")
             )
 
-        # Check expiry
         if (
             not current_user.verification_expiry
             or
@@ -1212,7 +1880,6 @@ def verify_new_email():
                 url_for("recruiter.settings")
             )
 
-        # Update email
         current_user.email = pending_email
 
         current_user.verification_code = None

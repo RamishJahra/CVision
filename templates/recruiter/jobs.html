@@ -4,128 +4,853 @@
 Manage Jobs | CVision
 {% endblock %}
 
+
+{% block extra_css %}
+
+<style>
+
+    .jobs-page {
+        padding-top: 110px;
+        padding-bottom: 60px;
+    }
+
+    .jobs-header {
+        margin-bottom: 35px;
+    }
+
+    .jobs-title {
+        font-size: 32px;
+        font-weight: 700;
+        color: #111111;
+        margin-bottom: 8px;
+    }
+
+    .jobs-subtitle {
+        color: #6c757d;
+        font-size: 15px;
+        margin-bottom: 0;
+    }
+
+    .job-card {
+        background: #ffffff;
+        border: 1px solid #eeeeee;
+        border-radius: 18px;
+        padding: 25px;
+        height: 100%;
+        transition: all 0.25s ease;
+    }
+
+    .job-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        border-color: #dce8ff;
+    }
+
+    .job-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        background: #eef4ff;
+        color: #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        flex-shrink: 0;
+    }
+
+    .job-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111111;
+        margin-bottom: 5px;
+    }
+
+    .job-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+    .job-meta-item {
+        color: #555555;
+        font-size: 13px;
+        background: #f8f9fa;
+        padding: 7px 11px;
+        border-radius: 8px;
+    }
+
+    .job-meta-item i {
+        color: #0d6efd;
+        margin-right: 4px;
+    }
+
+    .job-description {
+        color: #6c757d;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+    .job-status {
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 7px 11px;
+    }
+
+    .status-published {
+        background: #e8f7ee;
+        color: #198754;
+    }
+
+    .status-closed {
+        background: #fff3cd;
+        color: #997404;
+    }
+
+    .deadline {
+        font-size: 13px;
+        color: #6c757d;
+    }
+
+    .deadline i {
+        color: #dc3545;
+    }
+
+    .empty-jobs {
+        background: #ffffff;
+        border: 1px solid #eeeeee;
+        border-radius: 18px;
+        padding: 70px 30px;
+        text-align: center;
+    }
+
+    .empty-jobs-icon {
+        width: 75px;
+        height: 75px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: #eef4ff;
+        color: #0d6efd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+
+    .empty-jobs h4 {
+        font-weight: 700;
+        color: #111111;
+    }
+
+    .empty-jobs p {
+        color: #6c757d;
+        margin-bottom: 0;
+    }
+
+</style>
+
+{% endblock %}
+
+
 {% block content %}
 
-<div class="container mt-5 pt-5">
+<div class="container jobs-page">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- ==========================
+         Page Header
+    =========================== -->
 
-        <div>
-            <h1>Manage Jobs</h1>
+    <div class="jobs-header"
+         data-aos="fade-up">
 
-            <p class="text-muted mb-0">
-                View and manage your job postings.
-            </p>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <div>
+
+                <h1 class="jobs-title">
+                    Manage Jobs
+                </h1>
+
+                <p class="jobs-subtitle">
+                    Create, manage, and monitor your job postings.
+                </p>
+
+            </div>
+
+
+            <div class="d-flex gap-2">
+
+                <a
+                    href="{{ url_for('recruiter.closed_jobs') }}"
+                    class="btn btn-outline-secondary rounded-pill px-4"
+                >
+
+                    <i class="bi bi-archive me-1"></i>
+
+                    Closed Jobs
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('recruiter.create_job') }}"
+                    class="btn btn-primary rounded-pill px-4"
+                >
+
+                    <i class="bi bi-plus-lg me-1"></i>
+
+                    Create Job
+
+                </a>
+
+            </div>
+
         </div>
-
-        <a
-            href="{{ url_for('recruiter.create_job') }}"
-            class="btn btn-primary"
-        >
-            <i class="bi bi-plus-lg me-1"></i>
-            Create Job
-        </a>
 
     </div>
 
 
-    {% if jobs %}
+    <!-- ==========================
+         Job Listings
+    =========================== -->
 
-        <div class="row g-4">
+    <div id="recruiterJobsContainer">
 
-            {% for job in jobs %}
+        {% if jobs %}
 
-            <div class="col-md-6 col-lg-4">
+            <div class="row g-4">
 
-                <div class="card border-0 shadow-sm h-100 p-4">
+                {% for job in jobs %}
 
-                    <div class="d-flex justify-content-between">
+                    <div class="col-lg-6"
+                         data-aos="fade-up"
+                         data-aos-delay="{{ loop.index0 * 50 }}">
 
-                        <h4>
-                            {{ job.job_title }}
-                        </h4>
+                        <div class="job-card d-flex flex-column">
 
-                        {% if job.status == "Published" %}
+                            <!-- Job Header -->
 
-                            <span class="badge bg-success align-self-start">
-                                Published
-                            </span>
+                            <div class="d-flex align-items-start gap-3">
 
-                        {% elif job.status == "Closed" %}
+                                <div class="job-icon">
 
-                            <span class="badge bg-secondary align-self-start">
-                                Closed
-                            </span>
+                                    <i class="bi bi-briefcase-fill"></i>
 
-                        {% endif %}
+                                </div>
+
+
+                                <div class="flex-grow-1">
+
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+
+                                        <h2 class="job-title">
+
+                                            {{ job.job_title }}
+
+                                        </h2>
+
+
+                                        {% if job.status|lower|trim == "published" %}
+
+                                            <span class="job-status status-published">
+
+                                                Published
+
+                                            </span>
+
+                                        {% elif job.status|lower|trim == "closed" %}
+
+                                            <span class="job-status status-closed">
+
+                                                Closed
+
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Job Information -->
+
+                            <div class="job-meta">
+
+                                {% if job.location %}
+
+                                    <span class="job-meta-item">
+
+                                        <i class="bi bi-geo-alt"></i>
+
+                                        {{ job.location }}
+
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if job.job_type %}
+
+                                    <span class="job-meta-item">
+
+                                        <i class="bi bi-clock"></i>
+
+                                        {{ job.job_type }}
+
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if job.salary %}
+
+                                    <span class="job-meta-item">
+
+                                        <i class="bi bi-cash"></i>
+
+                                        {{ job.salary }}
+
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            {% if job.description %}
+
+                                <p class="job-description">
+
+                                    {{ job.description[:180] }}
+
+                                    {% if job.description|length > 180 %}
+                                        ...
+                                    {% endif %}
+
+                                </p>
+
+                            {% endif %}
+
+
+                            <!-- Bottom Section -->
+
+                            <div class="mt-auto">
+
+                                <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+
+                                    <div class="deadline">
+
+                                        {% if job.application_deadline %}
+
+                                            <i class="bi bi-calendar-event me-1"></i>
+
+                                            Deadline:
+                                            {{ job.application_deadline.strftime('%d %b %Y') }}
+
+                                        {% else %}
+
+                                            <i class="bi bi-calendar-event me-1"></i>
+
+                                            No deadline
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <!-- Actions -->
+
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                                        <a
+                                            href="{{ url_for('recruiter.job_detail', job_id=job.id) }}"
+                                            class="btn btn-primary rounded-pill px-4"
+                                        >
+
+                                            <i class="bi bi-eye me-1"></i>
+
+                                            View Job
+
+                                        </a>
+
+
+                                        {% if job.status|lower|trim == "closed" %}
+
+                                            <form
+                                                method="POST"
+                                                action="{{ url_for('recruiter.move_job_to_closed', job_id=job.id) }}"
+                                                class="d-inline"
+                                            >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-secondary rounded-pill px-4"
+                                                >
+
+                                                    <i class="bi bi-archive me-1"></i>
+
+                                                    Move to Closed
+
+                                                </button>
+
+                                            </form>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
 
                     </div>
 
-                    <p class="text-muted mt-2">
-                        {{ job.job_type }}
-                        {% if job.location %}
-                            · {{ job.location }}
-                        {% endif %}
-                    </p>
-
-                    {% if job.experience_required %}
-                    <p class="mb-1">
-                        <strong>Experience:</strong>
-                        {{ job.experience_required }}
-                    </p>
-                    {% endif %}
-
-                    {% if job.application_deadline %}
-                    <p class="mb-3">
-                        <strong>Deadline:</strong>
-                        {{ job.application_deadline.strftime("%d %b %Y") }}
-                    </p>
-                    {% endif %}
-
-                    <div class="mt-auto">
-
-                        <a
-                            href="{{ url_for('recruiter.job_detail', job_id=job.id) }}"
-                            class="btn btn-outline-primary w-100"
-                        >
-                            View Job
-                        </a>
-
-                    </div>
-
-                </div>
+                {% endfor %}
 
             </div>
 
-            {% endfor %}
 
-        </div>
+        {% else %}
 
-    {% else %}
+            <!-- Empty State -->
 
-        <div class="card border-0 shadow-sm p-5 text-center">
+            <div class="empty-jobs"
+                 data-aos="fade-up">
 
-            <i class="bi bi-briefcase fs-1 text-muted"></i>
+                <div class="empty-jobs-icon">
 
-            <h4 class="mt-3">
-                No jobs yet
-            </h4>
+                    <i class="bi bi-briefcase"></i>
 
-            <p class="text-muted">
-                Create your first job posting.
-            </p>
+                </div>
 
-            <a
-                href="{{ url_for('recruiter.create_job') }}"
-                class="btn btn-primary mx-auto"
-            >
-                Create Job
-            </a>
+                <h4>
+                    No Jobs Found
+                </h4>
 
-        </div>
+                <p>
+                    You currently have no active job postings.
+                    Create a new job to get started.
+                </p>
 
-    {% endif %}
+            </div>
+
+        {% endif %}
+
+    </div>
 
 </div>
+
+
+<!-- ==========================
+     Real-Time Job Updates
+=========================== -->
+
+<script>
+
+    let recruiterJobsVersion = null;
+
+
+    async function refreshRecruiterJobs() {
+
+        if (document.hidden) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "{{ url_for('recruiter.jobs_live') }}",
+                {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+
+            if (!response.ok) {
+                return;
+            }
+
+
+            const data = await response.json();
+
+
+            if (recruiterJobsVersion === null) {
+
+                recruiterJobsVersion = data.version;
+
+                return;
+
+            }
+
+
+            if (data.version !== recruiterJobsVersion) {
+
+                const container = document.getElementById(
+                    "recruiterJobsContainer"
+                );
+
+
+                if (!container) {
+                    return;
+                }
+
+
+                let html = "";
+
+
+                if (data.jobs.length > 0) {
+
+                    html += `
+                        <div class="row g-4">
+                    `;
+
+
+                    data.jobs.forEach(
+                        function(job, index) {
+
+                            let statusHtml = "";
+
+                            if (job.status === "Published") {
+
+                                statusHtml = `
+                                    <span class="job-status status-published">
+                                        Published
+                                    </span>
+                                `;
+
+                            } else if (job.status === "Closed") {
+
+                                statusHtml = `
+                                    <span class="job-status status-closed">
+                                        Closed
+                                    </span>
+                                `;
+
+                            }
+
+
+                            let deadlineHtml = "";
+
+                            if (job.application_deadline) {
+
+                                deadlineHtml = `
+                                    <i class="bi bi-calendar-event me-1"></i>
+
+                                    Deadline:
+                                    ${escapeRecruiterJobHtml(
+                                        job.application_deadline
+                                    )}
+                                `;
+
+                            } else {
+
+                                deadlineHtml = `
+                                    <i class="bi bi-calendar-event me-1"></i>
+
+                                    No deadline
+                                `;
+
+                            }
+
+
+                            let moveToClosedHtml = "";
+
+                            if (job.status === "Closed") {
+
+                                moveToClosedHtml = `
+
+                                    <form
+                                        method="POST"
+                                        action="/recruiter/jobs/${job.id}/move-to-closed"
+                                        class="d-inline"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-outline-secondary rounded-pill px-4"
+                                        >
+
+                                            <i class="bi bi-archive me-1"></i>
+
+                                            Move to Closed
+
+                                        </button>
+
+                                    </form>
+
+                                `;
+
+                            }
+
+
+                            html += `
+
+                                <div class="col-lg-6"
+                                     data-aos="fade-up"
+                                     data-aos-delay="${index * 50}">
+
+                                    <div class="job-card d-flex flex-column">
+
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <div class="job-icon">
+
+                                                <i class="bi bi-briefcase-fill"></i>
+
+                                            </div>
+
+
+                                            <div class="flex-grow-1">
+
+                                                <div class="d-flex justify-content-between align-items-start gap-2">
+
+                                                    <h2 class="job-title">
+
+                                                        ${escapeRecruiterJobHtml(
+                                                            job.job_title
+                                                        )}
+
+                                                    </h2>
+
+
+                                                    ${statusHtml}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="job-meta">
+
+                                            ${
+                                                job.location
+                                                ?
+                                                `
+                                                <span class="job-meta-item">
+
+                                                    <i class="bi bi-geo-alt"></i>
+
+                                                    ${escapeRecruiterJobHtml(
+                                                        job.location
+                                                    )}
+
+                                                </span>
+                                                `
+                                                :
+                                                ""
+                                            }
+
+
+                                            ${
+                                                job.job_type
+                                                ?
+                                                `
+                                                <span class="job-meta-item">
+
+                                                    <i class="bi bi-clock"></i>
+
+                                                    ${escapeRecruiterJobHtml(
+                                                        job.job_type
+                                                    )}
+
+                                                </span>
+                                                `
+                                                :
+                                                ""
+                                            }
+
+
+                                            ${
+                                                job.salary
+                                                ?
+                                                `
+                                                <span class="job-meta-item">
+
+                                                    <i class="bi bi-cash"></i>
+
+                                                    ${escapeRecruiterJobHtml(
+                                                        job.salary
+                                                    )}
+
+                                                </span>
+                                                `
+                                                :
+                                                ""
+                                            }
+
+                                        </div>
+
+
+                                        ${
+                                            job.description
+                                            ?
+                                            `
+                                            <p class="job-description">
+
+                                                ${escapeRecruiterJobHtml(
+                                                    job.description.length > 180
+                                                    ? job.description.substring(0, 180) + "..."
+                                                    : job.description
+                                                )}
+
+                                            </p>
+                                            `
+                                            :
+                                            ""
+                                        }
+
+
+                                        <div class="mt-auto">
+
+                                            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+
+                                                <div class="deadline">
+
+                                                    ${deadlineHtml}
+
+                                                </div>
+
+
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                                                    <a
+                                                        href="/recruiter/jobs/${job.id}"
+                                                        class="btn btn-primary rounded-pill px-4"
+                                                    >
+
+                                                        <i class="bi bi-eye me-1"></i>
+
+                                                        View Job
+
+                                                    </a>
+
+
+                                                    ${moveToClosedHtml}
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            `;
+
+                        }
+                    );
+
+
+                    html += `
+                        </div>
+                    `;
+
+
+                } else {
+
+                    html = `
+
+                        <div class="empty-jobs"
+                             data-aos="fade-up">
+
+                            <div class="empty-jobs-icon">
+
+                                <i class="bi bi-briefcase"></i>
+
+                            </div>
+
+                            <h4>
+                                No Jobs Found
+                            </h4>
+
+                            <p>
+                                You currently have no active job postings.
+                                Create a new job to get started.
+                            </p>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                container.innerHTML = html;
+
+                recruiterJobsVersion = data.version;
+
+
+                if (typeof AOS !== "undefined") {
+                    AOS.refreshHard();
+                }
+
+            }
+
+        } catch (error) {
+
+            console.debug(
+                "Recruiter jobs live update failed:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function escapeRecruiterJobHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    setInterval(
+        refreshRecruiterJobs,
+        3000
+    );
+
+
+    document.addEventListener(
+        "visibilitychange",
+        function() {
+
+            if (!document.hidden) {
+
+                refreshRecruiterJobs();
+
+            }
+
+        }
+    );
+
+</script>
 
 {% endblock %}

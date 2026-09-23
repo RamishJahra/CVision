@@ -1,7 +1,7 @@
-
 import os
 import uuid
 import fitz
+import hashlib
 from docx import Document
 from flask import (
     Blueprint,
@@ -23,6 +23,7 @@ from flask_mail import Message
 import random
 
 from datetime import datetime, timedelta
+
 
 from flask import session
 from models import db, mail
@@ -1541,7 +1542,7 @@ def extract_resume_text(
         )
 
     return None
-# ============================================================
+    # ============================================================
 # Resume Management
 # ============================================================
 
@@ -2679,6 +2680,30 @@ def resume_import_success(resume_id):
         "applicant/resume_import_success.html",
         resume=resume
     )
+# ==========================================================
+# AUTO CLOSE EXPIRED JOBS
+# ==========================================================
+
+def close_expired_jobs():
+
+    today = datetime.utcnow().date()
+
+    expired_jobs = Job.query.filter(
+        Job.application_deadline.isnot(None),
+        Job.application_deadline < today,
+        func.lower(
+            func.trim(Job.status)
+        ) == "published"
+    ).all()
+
+    for job in expired_jobs:
+
+        job.status = "Closed"
+
+    if expired_jobs:
+
+        db.session.commit()
+
 
 # ==========================================================
 # APPLICANT JOB BROWSING
@@ -2698,11 +2723,19 @@ def jobs():
         )
 
     # ------------------------------------------------------
+    # Automatically close expired jobs
+    # ------------------------------------------------------
+
+    close_expired_jobs()
+
+    # ------------------------------------------------------
     # Get only published jobs
     # ------------------------------------------------------
 
-    jobs = Job.query.filter_by(
-        status="Published"
+    jobs = Job.query.filter(
+        func.lower(
+            func.trim(Job.status)
+        ) == "published"
     ).order_by(
         Job.created_at.desc()
     ).all()
@@ -2723,7 +2756,112 @@ def jobs():
         jobs=jobs,
         applied_job_ids=applied_job_ids
     )
+# ==========================================================
+# REAL-TIME APPLICANT JOB UPDATES
+# ==========================================================
 
+@applicant.route(
+    "/jobs/live",
+    methods=["GET"]
+)
+@login_required
+def jobs_live():
+
+    if current_user.role != "Applicant":
+        return {
+            "error": "Unauthorized"
+        }, 403
+
+    close_expired_jobs()
+
+    jobs = Job.query.filter(
+        func.lower(
+            func.trim(Job.status)
+        ) == "published"
+    ).order_by(
+        Job.created_at.desc()
+    ).all()
+
+    applied_job_ids = {
+        application.job_id
+        for application in Application.query.filter_by(
+            applicant_id=current_user.id
+        ).all()
+    }
+
+    job_data = []
+
+    for job in jobs:
+
+        company_name = None
+        recruiter_name = None
+
+        if job.recruiter:
+
+            recruiter_name = job.recruiter.full_name
+
+            if (
+                job.recruiter.recruiter_profile
+                and job.recruiter.recruiter_profile.company_name
+            ):
+                company_name = (
+                    job.recruiter.recruiter_profile.company_name
+                )
+
+        job_data.append({
+
+            "id": job.id,
+
+            "job_title": job.job_title,
+
+            "description": job.description or "",
+
+            "location": job.location or "",
+
+            "job_type": job.job_type or "",
+
+            "salary": job.salary or "",
+
+            "application_deadline": (
+                job.application_deadline.strftime("%d %b %Y")
+                if job.application_deadline
+                else None
+            ),
+
+            "company_name": company_name,
+
+            "recruiter_name": recruiter_name or "",
+
+            "applied": job.id in applied_job_ids
+
+        })
+
+    version_source = repr(
+        [
+            (
+                job["id"],
+                job["job_title"],
+                job["description"],
+                job["location"],
+                job["job_type"],
+                job["salary"],
+                job["application_deadline"],
+                job["company_name"],
+                job["recruiter_name"],
+                job["applied"]
+            )
+            for job in job_data
+        ]
+    )
+
+    version = hashlib.md5(
+        version_source.encode("utf-8")
+    ).hexdigest()
+
+    return {
+        "version": version,
+        "jobs": job_data
+    }
 
 # ==========================================================
 # APPLICANT JOB DETAILS
@@ -2741,6 +2879,12 @@ def job_detail(job_id):
         return redirect(
             url_for("dashboard.home")
         )
+
+    # ------------------------------------------------------
+    # Automatically close expired jobs
+    # ------------------------------------------------------
+
+    close_expired_jobs()
 
     # ------------------------------------------------------
     # Find published job
@@ -2798,6 +2942,12 @@ def apply_job(job_id):
         )
 
     # ------------------------------------------------------
+    # Automatically close expired jobs
+    # ------------------------------------------------------
+
+    close_expired_jobs()
+
+    # ------------------------------------------------------
     # Find published job
     # ------------------------------------------------------
 
@@ -2829,6 +2979,14 @@ def apply_job(job_id):
         > job.application_deadline
     ):
 
+        # --------------------------------------------------
+        # Automatically close the expired job
+        # --------------------------------------------------
+
+        job.status = "Closed"
+
+        db.session.commit()
+
         flash(
             "The application deadline for this job has passed.",
             "warning"
@@ -2836,8 +2994,7 @@ def apply_job(job_id):
 
         return redirect(
             url_for(
-                "applicant.job_detail",
-                job_id=job.id
+                "applicant.jobs"
             )
         )
 
@@ -2884,7 +3041,9 @@ def apply_job(job_id):
         status="Pending"
     )
 
-    db.session.add(application)
+    db.session.add(
+        application
+    )
 
     # ------------------------------------------------------
     # Save application

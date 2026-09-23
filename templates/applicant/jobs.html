@@ -185,200 +185,203 @@ Jobs | CVision
          Job Listings
     =========================== -->
 
-    {% if jobs %}
+    <div id="applicantJobsContainer">
 
-        <div class="row g-4">
+        {% if jobs %}
 
-            {% for job in jobs %}
+            <div class="row g-4">
 
-                <div class="col-lg-6"
-                     data-aos="fade-up"
-                     data-aos-delay="{{ loop.index0 * 50 }}">
+                {% for job in jobs %}
 
-                    <div class="job-card d-flex flex-column">
+                    <div class="col-lg-6"
+                         data-aos="fade-up"
+                         data-aos-delay="{{ loop.index0 * 50 }}">
 
-                        <!-- Job Header -->
+                        <div class="job-card d-flex flex-column">
 
-                        <div class="d-flex align-items-start gap-3">
+                            <!-- Job Header -->
 
-                            <div class="job-icon">
+                            <div class="d-flex align-items-start gap-3">
 
-                                <i class="bi bi-briefcase-fill"></i>
+                                <div class="job-icon">
 
-                            </div>
+                                    <i class="bi bi-briefcase-fill"></i>
 
+                                </div>
 
-                            <div>
 
-                                <h2 class="job-title">
-                                    {{ job.job_title }}
-                                </h2>
+                                <div>
 
+                                    <h2 class="job-title">
+                                        {{ job.job_title }}
+                                    </h2>
 
-                                {% if job.recruiter and job.recruiter.recruiter_profile
-                                      and job.recruiter.recruiter_profile.company_name %}
 
-                                    <p class="company-name">
+                                    {% if job.recruiter
+                                          and job.recruiter.recruiter_profile
+                                          and job.recruiter.recruiter_profile.company_name %}
 
-                                        <i class="bi bi-building me-1"></i>
+                                        <p class="company-name">
 
-                                        {{ job.recruiter.recruiter_profile.company_name }}
+                                            <i class="bi bi-building me-1"></i>
 
-                                    </p>
+                                            {{ job.recruiter.recruiter_profile.company_name }}
 
-                                {% elif job.recruiter %}
+                                        </p>
 
-                                    <p class="company-name">
+                                    {% elif job.recruiter %}
 
-                                        <i class="bi bi-person me-1"></i>
+                                        <p class="company-name">
 
-                                        {{ job.recruiter.full_name }}
+                                            <i class="bi bi-person me-1"></i>
 
-                                    </p>
+                                            {{ job.recruiter.full_name }}
 
-                                {% else %}
-
-                                    <p class="company-name">
-                                        Recruiter information unavailable
-                                    </p>
-
-                                {% endif %}
-
-
-                                {% if job.recruiter
-                                      and job.recruiter.recruiter_profile
-                                      and job.recruiter.recruiter_profile.company_name
-                                      and job.recruiter.full_name %}
-
-                                    <p class="recruiter-name">
-
-                                        Recruiter:
-                                        {{ job.recruiter.full_name }}
-
-                                    </p>
-
-                                {% endif %}
-
-                            </div>
-
-                        </div>
-
-
-                        <!-- Job Information -->
-
-                        <div class="job-meta">
-
-                            {% if job.location %}
-
-                                <span class="job-meta-item">
-
-                                    <i class="bi bi-geo-alt"></i>
-
-                                    {{ job.location }}
-
-                                </span>
-
-                            {% endif %}
-
-
-                            {% if job.job_type %}
-
-                                <span class="job-meta-item">
-
-                                    <i class="bi bi-clock"></i>
-
-                                    {{ job.job_type }}
-
-                                </span>
-
-                            {% endif %}
-
-
-                            {% if job.salary %}
-
-                                <span class="job-meta-item">
-
-                                    <i class="bi bi-cash"></i>
-
-                                    {{ job.salary }}
-
-                                </span>
-
-                            {% endif %}
-
-                        </div>
-
-
-                        <!-- Description -->
-
-                        {% if job.description %}
-
-                            <p class="job-description">
-
-                                {{ job.description[:180] }}
-
-                                {% if job.description|length > 180 %}
-                                    ...
-                                {% endif %}
-
-                            </p>
-
-                        {% endif %}
-
-
-                        <!-- Bottom Section -->
-
-                        <div class="mt-auto">
-
-                            <div class="d-flex justify-content-between align-items-center gap-3">
-
-                                <div class="deadline">
-
-                                    {% if job.application_deadline %}
-
-                                        <i class="bi bi-calendar-event me-1"></i>
-
-                                        Deadline:
-                                        {{ job.application_deadline.strftime('%d %b %Y') }}
+                                        </p>
 
                                     {% else %}
 
-                                        <i class="bi bi-calendar-event me-1"></i>
+                                        <p class="company-name">
+                                            Recruiter information unavailable
+                                        </p>
 
-                                        No deadline
+                                    {% endif %}
+
+
+                                    {% if job.recruiter
+                                          and job.recruiter.recruiter_profile
+                                          and job.recruiter.recruiter_profile.company_name
+                                          and job.recruiter.full_name %}
+
+                                        <p class="recruiter-name">
+
+                                            Recruiter:
+                                            {{ job.recruiter.full_name }}
+
+                                        </p>
 
                                     {% endif %}
 
                                 </div>
 
+                            </div>
 
-                                <!-- Actions -->
 
-                                <div class="d-flex align-items-center gap-2">
+                            <!-- Job Information -->
 
-                                    {% if job.id in applied_job_ids %}
+                            <div class="job-meta">
 
-                                        <span class="applied-badge">
+                                {% if job.location %}
 
-                                            <i class="bi bi-check-circle me-1"></i>
+                                    <span class="job-meta-item">
 
-                                            Applied
+                                        <i class="bi bi-geo-alt"></i>
 
-                                        </span>
+                                        {{ job.location }}
 
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if job.job_type %}
+
+                                    <span class="job-meta-item">
+
+                                        <i class="bi bi-clock"></i>
+
+                                        {{ job.job_type }}
+
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if job.salary %}
+
+                                    <span class="job-meta-item">
+
+                                        <i class="bi bi-cash"></i>
+
+                                        {{ job.salary }}
+
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            {% if job.description %}
+
+                                <p class="job-description">
+
+                                    {{ job.description[:180] }}
+
+                                    {% if job.description|length > 180 %}
+                                        ...
                                     {% endif %}
 
+                                </p>
 
-                                    <!-- Always visible -->
+                            {% endif %}
 
-                                    <a
-                                        href="{{ url_for('applicant.job_detail', job_id=job.id) }}"
-                                        class="btn btn-primary rounded-pill px-4"
-                                    >
 
-                                        View Details
+                            <!-- Bottom Section -->
 
-                                    </a>
+                            <div class="mt-auto">
+
+                                <div class="d-flex justify-content-between align-items-center gap-3">
+
+                                    <div class="deadline">
+
+                                        {% if job.application_deadline %}
+
+                                            <i class="bi bi-calendar-event me-1"></i>
+
+                                            Deadline:
+                                            {{ job.application_deadline.strftime('%d %b %Y') }}
+
+                                        {% else %}
+
+                                            <i class="bi bi-calendar-event me-1"></i>
+
+                                            No deadline
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <!-- Actions -->
+
+                                    <div class="d-flex align-items-center gap-2">
+
+                                        {% if job.id in applied_job_ids %}
+
+                                            <span class="applied-badge">
+
+                                                <i class="bi bi-check-circle me-1"></i>
+
+                                                Applied
+
+                                            </span>
+
+                                        {% endif %}
+
+
+                                        <a
+                                            href="{{ url_for('applicant.job_detail', job_id=job.id) }}"
+                                            class="btn btn-primary rounded-pill px-4"
+                                        >
+
+                                            View Details
+
+                                        </a>
+
+                                    </div>
 
                                 </div>
 
@@ -388,40 +391,432 @@ Jobs | CVision
 
                     </div>
 
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-    {% else %}
-
-        <!-- ==========================
-             No Jobs
-        =========================== -->
-
-        <div class="empty-jobs"
-             data-aos="fade-up">
-
-            <div class="empty-jobs-icon">
-
-                <i class="bi bi-briefcase"></i>
+                {% endfor %}
 
             </div>
 
-            <h4>
-                No Jobs Available
-            </h4>
 
-            <p>
-                There are currently no published jobs available.
-                Please check again later.
-            </p>
+        {% else %}
 
-        </div>
+            <!-- ==========================
+                 No Jobs
+            =========================== -->
 
-    {% endif %}
+            <div class="empty-jobs"
+                 data-aos="fade-up">
+
+                <div class="empty-jobs-icon">
+
+                    <i class="bi bi-briefcase"></i>
+
+                </div>
+
+                <h4>
+                    No Jobs Available
+                </h4>
+
+                <p>
+                    There are currently no published jobs available.
+                    Please check again later.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </div>
 
 </div>
+
+
+<!-- ==========================
+     Real-Time Job Updates
+=========================== -->
+
+<script>
+
+    let applicantJobsVersion = null;
+
+
+    async function refreshApplicantJobs() {
+
+        if (document.hidden) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "{{ url_for('applicant.jobs_live') }}",
+                {
+                    method: "GET",
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+
+            if (!response.ok) {
+                return;
+            }
+
+
+            const data = await response.json();
+
+
+            /*
+             * First request:
+             * store the current version.
+             */
+            if (applicantJobsVersion === null) {
+
+                applicantJobsVersion = data.version;
+
+                return;
+
+            }
+
+
+            /*
+             * Update only when the data changed.
+             */
+            if (data.version !== applicantJobsVersion) {
+
+                const container = document.getElementById(
+                    "applicantJobsContainer"
+                );
+
+
+                if (!container) {
+                    return;
+                }
+
+
+                /*
+                 * Rebuild the job cards from JSON.
+                 */
+                let html = "";
+
+
+                if (data.jobs.length > 0) {
+
+                    html += `
+                        <div class="row g-4">
+                    `;
+
+
+                    data.jobs.forEach(
+                        function(job, index) {
+
+                            html += `
+
+                                <div class="col-lg-6"
+                                     data-aos="fade-up"
+                                     data-aos-delay="${index * 50}">
+
+                                    <div class="job-card d-flex flex-column">
+
+                                        <div class="d-flex align-items-start gap-3">
+
+                                            <div class="job-icon">
+
+                                                <i class="bi bi-briefcase-fill"></i>
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <h2 class="job-title">
+                                                    ${escapeApplicantJobHtml(job.job_title)}
+                                                </h2>
+
+                                                ${
+                                                    job.company_name
+                                                    ?
+                                                    `
+                                                    <p class="company-name">
+
+                                                        <i class="bi bi-building me-1"></i>
+
+                                                        ${escapeApplicantJobHtml(job.company_name)}
+
+                                                    </p>
+                                                    `
+                                                    :
+                                                    `
+                                                    <p class="company-name">
+
+                                                        <i class="bi bi-person me-1"></i>
+
+                                                        ${escapeApplicantJobHtml(job.recruiter_name)}
+
+                                                    </p>
+                                                    `
+                                                }
+
+
+                                                ${
+                                                    job.company_name && job.recruiter_name
+                                                    ?
+                                                    `
+                                                    <p class="recruiter-name">
+
+                                                        Recruiter:
+                                                        ${escapeApplicantJobHtml(job.recruiter_name)}
+
+                                                    </p>
+                                                    `
+                                                    :
+                                                    ""
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="job-meta">
+
+                                            ${
+                                                job.location
+                                                ?
+                                                `
+                                                <span class="job-meta-item">
+
+                                                    <i class="bi bi-geo-alt"></i>
+
+                                                    ${escapeApplicantJobHtml(job.location)}
+
+                                                </span>
+                                                `
+                                                :
+                                                ""
+                                            }
+
+
+                                            ${
+                                                job.job_type
+                                                ?
+                                                `
+                                                <span class="job-meta-item">
+
+                                                    <i class="bi bi-clock"></i>
+
+                                                    ${escapeApplicantJobHtml(job.job_type)}
+
+                                                </span>
+                                                `
+                                                :
+                                                ""
+                                            }
+
+
+                                            ${
+                                                job.salary
+                                                ?
+                                                `
+                                                <span class="job-meta-item">
+
+                                                    <i class="bi bi-cash"></i>
+
+                                                    ${escapeApplicantJobHtml(job.salary)}
+
+                                                </span>
+                                                `
+                                                :
+                                                ""
+                                            }
+
+                                        </div>
+
+
+                                        ${
+                                            job.description
+                                            ?
+                                            `
+                                            <p class="job-description">
+
+                                                ${escapeApplicantJobHtml(
+                                                    job.description.length > 180
+                                                    ? job.description.substring(0, 180) + "..."
+                                                    : job.description
+                                                )}
+
+                                            </p>
+                                            `
+                                            :
+                                            ""
+                                        }
+
+
+                                        <div class="mt-auto">
+
+                                            <div class="d-flex justify-content-between align-items-center gap-3">
+
+                                                <div class="deadline">
+
+                                                    <i class="bi bi-calendar-event me-1"></i>
+
+                                                    ${
+                                                        job.application_deadline
+                                                        ?
+                                                        "Deadline: " +
+                                                        escapeApplicantJobHtml(
+                                                            job.application_deadline
+                                                        )
+                                                        :
+                                                        "No deadline"
+                                                    }
+
+                                                </div>
+
+
+                                                <div class="d-flex align-items-center gap-2">
+
+                                                    ${
+                                                        job.applied
+                                                        ?
+                                                        `
+                                                        <span class="applied-badge">
+
+                                                            <i class="bi bi-check-circle me-1"></i>
+
+                                                            Applied
+
+                                                        </span>
+                                                        `
+                                                        :
+                                                        ""
+                                                    }
+
+
+                                                    <a
+                                                        href="/applicant/jobs/${job.id}"
+                                                        class="btn btn-primary rounded-pill px-4"
+                                                    >
+
+                                                        View Details
+
+                                                    </a>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            `;
+
+                        }
+                    );
+
+
+                    html += `
+                        </div>
+                    `;
+
+
+                } else {
+
+                    html = `
+
+                        <div class="empty-jobs"
+                             data-aos="fade-up">
+
+                            <div class="empty-jobs-icon">
+
+                                <i class="bi bi-briefcase"></i>
+
+                            </div>
+
+                            <h4>
+                                No Jobs Available
+                            </h4>
+
+                            <p>
+                                There are currently no published jobs available.
+                                Please check again later.
+                            </p>
+
+                        </div>
+
+                    `;
+
+                }
+
+
+                container.innerHTML = html;
+
+                applicantJobsVersion = data.version;
+
+
+                if (typeof AOS !== "undefined") {
+                    AOS.refreshHard();
+                }
+
+            }
+
+        } catch (error) {
+
+            console.debug(
+                "Applicant jobs live update failed:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function escapeApplicantJobHtml(value) {
+
+        if (value === null || value === undefined) {
+            return "";
+        }
+
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    /*
+     * Check every 3 seconds.
+     */
+    setInterval(
+        refreshApplicantJobs,
+        3000
+    );
+
+
+    /*
+     * Refresh immediately when returning
+     * to the browser tab.
+     */
+    document.addEventListener(
+        "visibilitychange",
+        function() {
+
+            if (!document.hidden) {
+
+                refreshApplicantJobs();
+
+            }
+
+        }
+    );
+
+</script>
 
 {% endblock %}
