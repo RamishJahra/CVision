@@ -41,7 +41,10 @@ from models.resume import Resume
 from models.job import Job
 from models.application import Application
 from sqlalchemy import func
-from services.resume_parser import parse_resume
+from services.resume_parser import (
+    parse_resume,
+    parse_experience_dates
+)
 from services.resume_scorer import calculate_resume_score
 import re
 
@@ -337,6 +340,23 @@ def add_education():
     ).strip()
 
 
+    # ==========================
+    # Current Education
+    # ==========================
+
+    is_current = (
+        request.form.get("is_current") == "1"
+    )
+
+
+    # If currently studying,
+    # end year should remain NULL.
+
+    if is_current:
+
+        end_year = None
+
+
     if not degree or not institution:
 
         flash(
@@ -362,6 +382,8 @@ def add_education():
         start_year=start_year,
 
         end_year=end_year,
+
+        is_current=is_current,
 
         cgpa=cgpa,
 
@@ -412,6 +434,203 @@ def education():
         educations=educations
     )
 
+
+# ==========================
+# Edit Education
+# ==========================
+
+@applicant.route(
+    "/education/<int:education_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_education(education_id):
+
+    if current_user.role != "Applicant":
+        return redirect(url_for("dashboard.home"))
+
+    education = Education.query.filter_by(
+        id=education_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    if request.method == "POST":
+
+        # ==================================================
+        # Basic Information
+        # ==================================================
+
+        degree = request.form.get(
+            "degree",
+            ""
+        ).strip()
+
+        institution = request.form.get(
+            "institution",
+            ""
+        ).strip()
+
+        field_of_study = request.form.get(
+            "field_of_study",
+            ""
+        ).strip()
+
+        cgpa = request.form.get(
+            "cgpa",
+            ""
+        ).strip()
+
+        description = request.form.get(
+            "description",
+            ""
+        ).strip()
+
+        # ==================================================
+        # Validation
+        # ==================================================
+
+        if not degree or not institution:
+
+            flash(
+                "Degree and institution are required.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "applicant.edit_education",
+                    education_id=education.id
+                )
+            )
+
+        # ==================================================
+        # Education Years
+        # ==================================================
+
+        start_year_raw = request.form.get(
+            "start_year",
+            ""
+        ).strip()
+
+        end_year_raw = request.form.get(
+            "end_year",
+            ""
+        ).strip()
+
+        # Convert empty strings to None
+        start_year = (
+            int(start_year_raw)
+            if start_year_raw
+            else None
+        )
+
+        end_year = (
+            int(end_year_raw)
+            if end_year_raw
+            else None
+        )
+
+        # ==================================================
+        # Currently Studying
+        # ==================================================
+
+        is_current = (
+            request.form.get("is_current") == "1"
+        )
+
+        # If currently studying, there must be
+        # no end year.
+        if is_current:
+            end_year = None
+
+        # ==================================================
+        # Update Education
+        # ==================================================
+
+        education.degree = degree
+
+        education.institution = institution
+
+        education.field_of_study = (
+            field_of_study or None
+        )
+
+        education.start_year = start_year
+
+        education.end_year = end_year
+
+        education.is_current = is_current
+
+        education.cgpa = (
+            cgpa or None
+        )
+
+        education.description = (
+            description or None
+        )
+
+        # ==================================================
+        # Save
+        # ==================================================
+
+        db.session.commit()
+
+        flash(
+            "Education updated successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for("applicant.education")
+        )
+
+    # ==================================================
+    # GET
+    # ==================================================
+
+    return render_template(
+        "applicant/edit_education.html",
+        education=education
+    )
+
+# ==========================
+# Delete Education
+# ==========================
+
+@applicant.route(
+    "/education/<int:education_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_education(education_id):
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+
+    education = Education.query.filter_by(
+        id=education_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+
+    db.session.delete(education)
+
+    db.session.commit()
+
+
+    flash(
+        "Education deleted successfully!",
+        "success"
+    )
+
+
+    return redirect(
+        url_for("applicant.education")
+    )
 # ==========================
 # Work Experience Page
 # ==========================
@@ -549,7 +768,214 @@ def add_experience():
     return redirect(
         url_for("applicant.experience")
     )
+@applicant.route(
+    "/experience/<int:experience_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_experience(experience_id):
 
+    if current_user.role != "Applicant":
+        return redirect(url_for("dashboard.home"))
+
+    experience = WorkExperience.query.filter_by(
+        id=experience_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    if request.method == "POST":
+
+        job_title = request.form.get(
+            "job_title",
+            ""
+        ).strip()
+
+        company_name = request.form.get(
+            "company_name",
+            ""
+        ).strip()
+
+        employment_type = request.form.get(
+            "employment_type",
+            ""
+        ).strip()
+
+        location = request.form.get(
+            "location",
+            ""
+        ).strip()
+
+        start_date_raw = request.form.get(
+            "start_date",
+            ""
+        ).strip()
+
+        end_date_raw = request.form.get(
+            "end_date",
+            ""
+        ).strip()
+
+        currently_working = (
+            request.form.get("currently_working") == "1"
+        )
+
+        description = request.form.get(
+            "description",
+            ""
+        ).strip()
+
+        # -----------------------------------------
+        # Validation
+        # -----------------------------------------
+
+        if not job_title or not company_name:
+
+            flash(
+                "Job title and company name are required.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "applicant.edit_experience",
+                    experience_id=experience.id
+                )
+            )
+
+        # -----------------------------------------
+        # Convert Start Date
+        # -----------------------------------------
+
+        start_date = None
+
+        if start_date_raw:
+
+            try:
+
+                start_date = datetime.strptime(
+                    start_date_raw,
+                    "%Y-%m-%d"
+                ).date()
+
+            except ValueError:
+
+                flash(
+                    "Invalid start date.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "applicant.edit_experience",
+                        experience_id=experience.id
+                    )
+                )
+
+        # -----------------------------------------
+        # Convert End Date
+        # -----------------------------------------
+
+        end_date = None
+
+        if not currently_working and end_date_raw:
+
+            try:
+
+                end_date = datetime.strptime(
+                    end_date_raw,
+                    "%Y-%m-%d"
+                ).date()
+
+            except ValueError:
+
+                flash(
+                    "Invalid end date.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "applicant.edit_experience",
+                        experience_id=experience.id
+                    )
+                )
+
+        # Currently working = no end date
+        if currently_working:
+            end_date = None
+
+        # -----------------------------------------
+        # Update Experience
+        # -----------------------------------------
+
+        experience.job_title = job_title
+
+        experience.company_name = company_name
+
+        experience.employment_type = (
+            employment_type or None
+        )
+
+        experience.location = (
+            location or None
+        )
+
+        experience.start_date = start_date
+
+        experience.end_date = end_date
+
+        experience.currently_working = (
+            currently_working
+        )
+
+        experience.description = (
+            description or None
+        )
+
+        db.session.commit()
+
+        flash(
+            "Work experience updated successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for("applicant.experience")
+        )
+
+    return render_template(
+        "applicant/edit_experience.html",
+        experience=experience
+    )
+
+
+@applicant.route(
+    "/experience/<int:experience_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_experience(experience_id):
+
+    if current_user.role != "Applicant":
+        return redirect(url_for("dashboard.home"))
+
+    experience = WorkExperience.query.filter_by(
+        id=experience_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    db.session.delete(experience)
+
+    db.session.commit()
+
+    flash(
+        "Work experience deleted successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("applicant.experience")
+    )
 # ==========================
 # Skills Page
 # ==========================
@@ -657,7 +1083,98 @@ def add_skill():
     return redirect(
         url_for("applicant.skills")
     )
+@applicant.route(
+    "/skills/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_selected_skills():
 
+    if current_user.role != "Applicant":
+        return redirect(url_for("dashboard.home"))
+
+    skill_ids = request.form.getlist(
+        "skill_ids"
+    )
+
+    if not skill_ids:
+
+        flash(
+            "Please select at least one skill to delete.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("applicant.skills")
+        )
+
+    # Convert IDs to integers safely
+    valid_skill_ids = []
+
+    for skill_id in skill_ids:
+
+        try:
+            valid_skill_ids.append(
+                int(skill_id)
+            )
+
+        except (TypeError, ValueError):
+            continue
+
+    if not valid_skill_ids:
+
+        flash(
+            "No valid skills were selected.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("applicant.skills")
+        )
+
+    # --------------------------------------------------
+    # Get only skills belonging to current applicant
+    # --------------------------------------------------
+
+    selected_skills = Skill.query.filter(
+        Skill.id.in_(valid_skill_ids),
+        Skill.user_id == current_user.id
+    ).all()
+
+    if not selected_skills:
+
+        flash(
+            "No selected skills were found.",
+            "warning"
+        )
+
+        return redirect(
+            url_for("applicant.skills")
+        )
+
+    # --------------------------------------------------
+    # Delete selected skills
+    # --------------------------------------------------
+
+    deleted_count = len(selected_skills)
+
+    for skill in selected_skills:
+        db.session.delete(skill)
+
+    db.session.commit()
+
+    # --------------------------------------------------
+    # Success message
+    # --------------------------------------------------
+
+    flash(
+        f"{deleted_count} skill(s) deleted successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("applicant.skills")
+    )
 # ==========================
 # Certifications Page
 # ==========================
@@ -780,6 +1297,259 @@ def add_certification():
 
     return redirect(
         url_for("applicant.certifications")
+    )
+
+
+# ==========================================================
+# Edit Certification
+# ==========================================================
+
+@applicant.route(
+    "/certifications/<int:certification_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_certification(certification_id):
+
+    certification = Certification.query.filter_by(
+        id=certification_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+
+    # ======================================================
+    # POST - Update Certification
+    # ======================================================
+
+    if request.method == "POST":
+
+        certification_name = request.form.get(
+            "certification_name",
+            ""
+        ).strip()
+
+        issuing_organization = request.form.get(
+            "issuing_organization",
+            ""
+        ).strip()
+
+        issue_date = request.form.get(
+            "issue_date",
+            ""
+        ).strip()
+
+        expiry_date = request.form.get(
+            "expiry_date",
+            ""
+        ).strip()
+
+        credential_id = request.form.get(
+            "credential_id",
+            ""
+        ).strip()
+
+        credential_url = request.form.get(
+            "credential_url",
+            ""
+        ).strip()
+
+        description = request.form.get(
+            "description",
+            ""
+        ).strip()
+
+
+        # ==================================================
+        # Validation
+        # ==================================================
+
+        if not certification_name:
+
+            flash(
+                "Certification name is required.",
+                "danger"
+            )
+
+            return render_template(
+                "applicant/edit_certification.html",
+                certification=certification
+            )
+
+
+        if not issuing_organization:
+
+            flash(
+                "Issuing organization is required.",
+                "danger"
+            )
+
+            return render_template(
+                "applicant/edit_certification.html",
+                certification=certification
+            )
+
+
+        # ==================================================
+        # Convert Dates
+        # ==================================================
+
+        try:
+
+            if issue_date:
+
+                certification.issue_date = datetime.strptime(
+                    issue_date,
+                    "%Y-%m-%d"
+                ).date()
+
+            else:
+
+                certification.issue_date = None
+
+
+            if expiry_date:
+
+                certification.expiry_date = datetime.strptime(
+                    expiry_date,
+                    "%Y-%m-%d"
+                ).date()
+
+            else:
+
+                certification.expiry_date = None
+
+
+        except ValueError:
+
+            flash(
+                "Please provide valid certification dates.",
+                "danger"
+            )
+
+            return render_template(
+                "applicant/edit_certification.html",
+                certification=certification
+            )
+
+
+        # ==================================================
+        # Update Fields
+        # ==================================================
+
+        certification.certification_name = (
+            certification_name
+        )
+
+        certification.issuing_organization = (
+            issuing_organization
+        )
+
+        certification.credential_id = (
+            credential_id or None
+        )
+
+        certification.credential_url = (
+            credential_url or None
+        )
+
+        certification.description = (
+            description or None
+        )
+
+
+        # ==================================================
+        # Save
+        # ==================================================
+
+        try:
+
+            db.session.commit()
+
+            flash(
+                "Certification updated successfully.",
+                "success"
+            )
+
+            return redirect(
+                url_for(
+                    "applicant.certifications"
+                )
+            )
+
+        except Exception as e:
+
+            db.session.rollback()
+
+            print(
+                "Edit certification error:",
+                e
+            )
+
+            flash(
+                "Unable to update certification.",
+                "danger"
+            )
+
+
+    # ======================================================
+    # GET - Show Edit Form
+    # ======================================================
+
+    return render_template(
+        "applicant/edit_certification.html",
+        certification=certification
+    )
+
+
+# ==========================================================
+# Delete Certification
+# ==========================================================
+
+@applicant.route(
+    "/certifications/<int:certification_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_certification(certification_id):
+
+    certification = Certification.query.filter_by(
+        id=certification_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+
+    try:
+
+        db.session.delete(
+            certification
+        )
+
+        db.session.commit()
+
+        flash(
+            "Certification deleted successfully.",
+            "success"
+        )
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        print(
+            "Delete certification error:",
+            e
+        )
+
+        flash(
+            "Unable to delete certification.",
+            "danger"
+        )
+
+
+    return redirect(
+        url_for(
+            "applicant.certifications"
+        )
     )
 
 # ==========================
@@ -905,7 +1675,224 @@ def add_project():
     return redirect(
         url_for("applicant.projects")
     )
+# ============================================================
+# EDIT PROJECT
+# ============================================================
 
+@applicant.route(
+    "/projects/<int:project_id>/edit",
+    methods=["GET", "POST"]
+)
+@login_required
+def edit_project(project_id):
+
+    if current_user.role != "Applicant":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    project = Project.query.filter_by(
+        id=project_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    if request.method == "POST":
+
+        project_title = request.form.get(
+            "project_title",
+            ""
+        ).strip()
+
+        technologies = request.form.get(
+            "technologies",
+            ""
+        ).strip()
+
+        start_date_raw = request.form.get(
+            "start_date",
+            ""
+        ).strip()
+
+        end_date_raw = request.form.get(
+            "end_date",
+            ""
+        ).strip()
+
+        project_url = request.form.get(
+            "project_url",
+            ""
+        ).strip()
+
+        github_url = request.form.get(
+            "github_url",
+            ""
+        ).strip()
+
+        description = request.form.get(
+            "description",
+            ""
+        ).strip()
+
+        # --------------------------------------------------
+        # Validation
+        # --------------------------------------------------
+
+        if not project_title:
+
+            flash(
+                "Project title is required.",
+                "danger"
+            )
+
+            return redirect(
+                url_for(
+                    "applicant.edit_project",
+                    project_id=project.id
+                )
+            )
+
+        # --------------------------------------------------
+        # Start date
+        # --------------------------------------------------
+
+        start_date = None
+
+        if start_date_raw:
+
+            try:
+
+                start_date = datetime.strptime(
+                    start_date_raw,
+                    "%Y-%m-%d"
+                ).date()
+
+            except ValueError:
+
+                flash(
+                    "Invalid start date.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "applicant.edit_project",
+                        project_id=project.id
+                    )
+                )
+
+        # --------------------------------------------------
+        # End date
+        # --------------------------------------------------
+
+        end_date = None
+
+        if end_date_raw:
+
+            try:
+
+                end_date = datetime.strptime(
+                    end_date_raw,
+                    "%Y-%m-%d"
+                ).date()
+
+            except ValueError:
+
+                flash(
+                    "Invalid end date.",
+                    "danger"
+                )
+
+                return redirect(
+                    url_for(
+                        "applicant.edit_project",
+                        project_id=project.id
+                    )
+                )
+
+        # --------------------------------------------------
+        # Update project
+        # --------------------------------------------------
+
+        project.project_title = project_title
+
+        project.technologies = (
+            technologies
+            if technologies
+            else None
+        )
+
+        project.start_date = start_date
+
+        project.end_date = end_date
+
+        project.project_url = (
+            project_url
+            if project_url
+            else None
+        )
+
+        project.github_url = (
+            github_url
+            if github_url
+            else None
+        )
+
+        project.description = (
+            description
+            if description
+            else None
+        )
+
+        db.session.commit()
+
+        flash(
+            "Project updated successfully!",
+            "success"
+        )
+
+        return redirect(
+            url_for("applicant.projects")
+        )
+
+    return render_template(
+        "applicant/edit_project.html",
+        project=project
+    )
+
+
+# ============================================================
+# DELETE PROJECT
+# ============================================================
+
+@applicant.route(
+    "/projects/<int:project_id>/delete",
+    methods=["POST"]
+)
+@login_required
+def delete_project(project_id):
+
+    if current_user.role != "Applicant":
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    project = Project.query.filter_by(
+        id=project_id,
+        user_id=current_user.id
+    ).first_or_404()
+
+    db.session.delete(project)
+
+    db.session.commit()
+
+    flash(
+        "Project deleted successfully!",
+        "success"
+    )
+
+    return redirect(
+        url_for("applicant.projects")
+    )
 # ==========================
 # Profile Picture Upload
 # ==========================
@@ -2149,6 +3136,7 @@ def review_resume_import(resume_id):
     ).first()
 
     if not resume:
+
         flash(
             "Resume not found.",
             "danger"
@@ -2159,6 +3147,7 @@ def review_resume_import(resume_id):
         )
 
     if not resume.extracted_text:
+
         flash(
             "No extracted text is available for this resume.",
             "danger"
@@ -2199,7 +3188,12 @@ def review_resume_import(resume_id):
                 parsed_data=parsed_data
             )
 
+        # --------------------------------------------------
+        # Import counters
+        # --------------------------------------------------
+
         imported_counts = {
+            "contact_links": 0,
             "skills": 0,
             "education": 0,
             "experience": 0,
@@ -2208,12 +3202,83 @@ def review_resume_import(resume_id):
         }
 
         skipped_counts = {
+            "contact_links": 0,
             "skills": 0,
             "education": 0,
             "experience": 0,
             "certifications": 0,
             "projects": 0
         }
+
+        # ==================================================
+        # CONTACT LINKS
+        # ==================================================
+
+        if "contact_links" in selected_sections:
+
+            profile = ApplicantProfile.query.filter_by(
+                user_id=current_user.id
+            ).first()
+
+            if not profile:
+
+                profile = ApplicantProfile(
+                    user_id=current_user.id
+                )
+
+                db.session.add(
+                    profile
+                )
+
+            contact_links = {
+
+                "linkedin_url": (
+                    parsed_data.get("linkedin")
+                    or ""
+                ).strip(),
+
+                "github_url": (
+                    parsed_data.get("github")
+                    or ""
+                ).strip(),
+
+                "portfolio_url": (
+                    parsed_data.get("website")
+                    or ""
+                ).strip()
+            }
+
+            for field_name, value in contact_links.items():
+
+                if not value:
+                    continue
+
+                current_value = (
+                    getattr(
+                        profile,
+                        field_name,
+                        ""
+                    )
+                    or ""
+                ).strip()
+
+                if current_value:
+
+                    skipped_counts[
+                        "contact_links"
+                    ] += 1
+
+                    continue
+
+                setattr(
+                    profile,
+                    field_name,
+                    value
+                )
+
+                imported_counts[
+                    "contact_links"
+                ] += 1
 
         # ==================================================
         # SKILLS
@@ -2231,9 +3296,13 @@ def review_resume_import(resume_id):
             ).all()
 
             existing_skill_names = {
+
                 skill.skill_name.strip().lower()
+
                 for skill in existing_skills
+
                 if skill.skill_name
+
             }
 
             for skill_name in resume_skills:
@@ -2246,9 +3315,15 @@ def review_resume_import(resume_id):
                 if not clean_skill:
                     continue
 
-                if clean_skill.lower() in existing_skill_names:
+                if (
+                    clean_skill.lower()
+                    in existing_skill_names
+                ):
 
-                    skipped_counts["skills"] += 1
+                    skipped_counts[
+                        "skills"
+                    ] += 1
+
                     continue
 
                 new_skill = Skill(
@@ -2264,7 +3339,9 @@ def review_resume_import(resume_id):
                     clean_skill.lower()
                 )
 
-                imported_counts["skills"] += 1
+                imported_counts[
+                    "skills"
+                ] += 1
 
         # ==================================================
         # EDUCATION
@@ -2282,11 +3359,21 @@ def review_resume_import(resume_id):
             ).all()
 
             existing_education_keys = {
+
                 (
-                    (education.degree or "").strip().lower(),
-                    (education.institution or "").strip().lower()
+                    (
+                        education.degree
+                        or ""
+                    ).strip().lower(),
+
+                    (
+                        education.institution
+                        or ""
+                    ).strip().lower()
                 )
+
                 for education in existing_education
+
             }
 
             for education_data in resume_education:
@@ -2311,37 +3398,91 @@ def review_resume_import(resume_id):
 
                 if duplicate_key in existing_education_keys:
 
-                    skipped_counts["education"] += 1
+                    skipped_counts[
+                        "education"
+                    ] += 1
+
                     continue
 
-                start_year = None
-                end_year = None
+                # --------------------------------------------------
+                # Education dates
+                # --------------------------------------------------
 
-                year_text = (
-                    education_data.get("year")
-                    or ""
-                ).strip()
-
-                year_matches = re.findall(
-                    r"\b(19\d{2}|20\d{2})\b",
-                    year_text
+                start_year = education_data.get(
+                    "start_year"
                 )
 
-                if len(year_matches) >= 2:
+                end_year = education_data.get(
+                    "end_year"
+                )
 
-                    start_year = int(
-                        year_matches[0]
+                is_current = bool(
+                    education_data.get(
+                        "is_current",
+                        False
+                    )
+                )
+
+                # --------------------------------------------------
+                # Backward compatibility
+                # --------------------------------------------------
+
+                if (
+                    start_year is None
+                    and end_year is None
+                ):
+
+                    year_text = (
+                        education_data.get("year")
+                        or ""
+                    ).strip()
+
+                    is_current = bool(
+                        re.search(
+                            r"\b(Present|Current|Now)\b",
+                            year_text,
+                            re.IGNORECASE
+                        )
                     )
 
-                    end_year = int(
-                        year_matches[1]
+                    year_matches = re.findall(
+                        r"\b(19\d{2}|20\d{2})\b",
+                        year_text
                     )
 
-                elif len(year_matches) == 1:
+                    if len(year_matches) >= 2:
 
-                    end_year = int(
-                        year_matches[0]
-                    )
+                        start_year = int(
+                            year_matches[0]
+                        )
+
+                        if is_current:
+
+                            end_year = None
+
+                        else:
+
+                            end_year = int(
+                                year_matches[1]
+                            )
+
+                    elif len(year_matches) == 1:
+
+                        start_year = int(
+                            year_matches[0]
+                        )
+
+                        if is_current:
+
+                            end_year = None
+
+                        else:
+
+                            end_year = None
+
+                # --------------------------------------------------
+                # Education description
+                # --------------------------------------------------
 
                 details = education_data.get(
                     "details",
@@ -2354,13 +3495,26 @@ def review_resume_import(resume_id):
                     if detail and detail.strip()
                 )
 
+                # --------------------------------------------------
+                # Create Education record
+                # --------------------------------------------------
+
                 new_education = Education(
+
                     user_id=current_user.id,
+
                     degree=degree,
+
                     institution=institution,
+
                     start_year=start_year,
+
                     end_year=end_year,
+
+                    is_current=is_current,
+
                     description=description or None
+
                 )
 
                 db.session.add(
@@ -2371,7 +3525,9 @@ def review_resume_import(resume_id):
                     duplicate_key
                 )
 
-                imported_counts["education"] += 1
+                imported_counts[
+                    "education"
+                ] += 1
 
         # ==================================================
         # WORK EXPERIENCE
@@ -2389,27 +3545,51 @@ def review_resume_import(resume_id):
             ).all()
 
             existing_experience_keys = {
+
                 (
-                    (experience.job_title or "").strip().lower(),
-                    (experience.company_name or "").strip().lower()
+                    (
+                        experience.job_title
+                        or ""
+                    ).strip().lower(),
+
+                    (
+                        experience.company_name
+                        or ""
+                    ).strip().lower()
                 )
+
                 for experience in existing_experience
+
             }
 
             for experience_data in resume_experience:
 
+                # --------------------------------------------------
+                # Job Title
+                # --------------------------------------------------
+
                 job_title = (
                     experience_data.get("title")
+                    or experience_data.get("job_title")
                     or ""
                 ).strip()
 
+                # --------------------------------------------------
+                # Company
+                # --------------------------------------------------
+
                 company_name = (
                     experience_data.get("company")
+                    or experience_data.get("company_name")
                     or ""
                 ).strip()
 
                 if not job_title or not company_name:
                     continue
+
+                # --------------------------------------------------
+                # Duplicate Check
+                # --------------------------------------------------
 
                 duplicate_key = (
                     job_title.lower(),
@@ -2418,8 +3598,114 @@ def review_resume_import(resume_id):
 
                 if duplicate_key in existing_experience_keys:
 
-                    skipped_counts["experience"] += 1
+                    skipped_counts[
+                        "experience"
+                    ] += 1
+
                     continue
+
+                # --------------------------------------------------
+                # Experience Dates
+                # --------------------------------------------------
+
+                start_date = experience_data.get(
+                    "start_date"
+                )
+
+                end_date = experience_data.get(
+                    "end_date"
+                )
+
+                currently_working = bool(
+                    experience_data.get(
+                        "currently_working",
+                        False
+                    )
+                )
+
+                # --------------------------------------------------
+                # Backward Compatibility
+                # --------------------------------------------------
+
+                if (
+                    start_date is None
+                    and end_date is None
+                ):
+
+                    duration = (
+                        experience_data.get(
+                            "duration"
+                        )
+                        or ""
+                    ).strip()
+
+                    date_data = parse_experience_dates(
+                        duration
+                    )
+
+                    start_date = date_data[
+                        "start_date"
+                    ]
+
+                    end_date = date_data[
+                        "end_date"
+                    ]
+
+                    currently_working = date_data[
+                        "currently_working"
+                    ]
+
+                # --------------------------------------------------
+                # Convert string dates
+                # --------------------------------------------------
+
+                if start_date:
+
+                    if isinstance(
+                        start_date,
+                        str
+                    ):
+
+                        try:
+
+                            start_date = datetime.strptime(
+                                start_date,
+                                "%Y-%m-%d"
+                            ).date()
+
+                        except ValueError:
+
+                            start_date = None
+
+                if end_date:
+
+                    if isinstance(
+                        end_date,
+                        str
+                    ):
+
+                        try:
+
+                            end_date = datetime.strptime(
+                                end_date,
+                                "%Y-%m-%d"
+                            ).date()
+
+                        except ValueError:
+
+                            end_date = None
+
+                # --------------------------------------------------
+                # Currently working
+                # --------------------------------------------------
+
+                if currently_working:
+
+                    end_date = None
+
+                # --------------------------------------------------
+                # Description
+                # --------------------------------------------------
 
                 details = experience_data.get(
                     "details",
@@ -2432,11 +3718,26 @@ def review_resume_import(resume_id):
                     if detail and detail.strip()
                 )
 
+                # --------------------------------------------------
+                # Create Work Experience
+                # --------------------------------------------------
+
                 new_experience = WorkExperience(
+
                     user_id=current_user.id,
+
                     job_title=job_title,
+
                     company_name=company_name,
+
+                    start_date=start_date,
+
+                    end_date=end_date,
+
+                    currently_working=currently_working,
+
                     description=description or None
+
                 )
 
                 db.session.add(
@@ -2447,7 +3748,9 @@ def review_resume_import(resume_id):
                     duplicate_key
                 )
 
-                imported_counts["experience"] += 1
+                imported_counts[
+                    "experience"
+                ] += 1
 
         # ==================================================
         # CERTIFICATIONS
@@ -2465,19 +3768,27 @@ def review_resume_import(resume_id):
             ).all()
 
             existing_certification_names = {
+
                 certification.certification_name.strip().lower()
+
                 for certification in existing_certifications
+
                 if certification.certification_name
+
             }
 
-            for certification_name in resume_certifications:
+            for certification_data in resume_certifications:
 
-                if not certification_name:
+                if not certification_data:
                     continue
 
                 clean_certification = (
-                    certification_name.strip()
-                )
+                    certification_data.get(
+                        "certification_name",
+                        ""
+                    )
+                    or ""
+                ).strip()
 
                 if not clean_certification:
                     continue
@@ -2487,13 +3798,119 @@ def review_resume_import(resume_id):
                     in existing_certification_names
                 ):
 
-                    skipped_counts["certifications"] += 1
+                    skipped_counts[
+                        "certifications"
+                    ] += 1
+
                     continue
 
+                issuing_organization = (
+                    certification_data.get(
+                        "issuing_organization"
+                    )
+                    or "Not specified"
+                ).strip()
+
+                issue_date = certification_data.get(
+                    "issue_date"
+                )
+
+                expiry_date = certification_data.get(
+                    "expiry_date"
+                )
+
+                credential_id = (
+                    certification_data.get(
+                        "credential_id"
+                    )
+                    or ""
+                ).strip()
+
+                credential_url = (
+                    certification_data.get(
+                        "credential_url"
+                    )
+                    or ""
+                ).strip()
+
+                description = (
+                    certification_data.get(
+                        "description"
+                    )
+                    or ""
+                ).strip()
+
+                # --------------------------------------------------
+                # Convert string dates to Python date objects
+                # --------------------------------------------------
+
+                if issue_date and isinstance(
+                    issue_date,
+                    str
+                ):
+
+                    try:
+
+                        issue_date = datetime.strptime(
+                            issue_date,
+                            "%Y-%m-%d"
+                        ).date()
+
+                    except ValueError:
+
+                        issue_date = None
+
+                if expiry_date and isinstance(
+                    expiry_date,
+                    str
+                ):
+
+                    try:
+
+                        expiry_date = datetime.strptime(
+                            expiry_date,
+                            "%Y-%m-%d"
+                        ).date()
+
+                    except ValueError:
+
+                        expiry_date = None
+
+                # --------------------------------------------------
+                # Create certification
+                # --------------------------------------------------
+
                 new_certification = Certification(
+
                     user_id=current_user.id,
-                    certification_name=clean_certification,
-                    issuing_organization="Not specified"
+
+                    certification_name=(
+                        clean_certification
+                    ),
+
+                    issuing_organization=(
+                        issuing_organization
+                    ),
+
+                    issue_date=issue_date,
+
+                    expiry_date=expiry_date,
+
+                    credential_id=(
+                        credential_id
+                        or None
+                    ),
+
+                    credential_url=(
+                        credential_url
+                        or None
+                    ),
+
+                    description=(
+                        description
+                        or None
+                    )
+
                 )
 
                 db.session.add(
@@ -2504,8 +3921,9 @@ def review_resume_import(resume_id):
                     clean_certification.lower()
                 )
 
-                imported_counts["certifications"] += 1
-
+                imported_counts[
+                    "certifications"
+                ] += 1
         # ==================================================
         # PROJECTS
         # ==================================================
@@ -2521,29 +3939,65 @@ def review_resume_import(resume_id):
                 user_id=current_user.id
             ).all()
 
-            existing_project_titles = {
-                project.project_title.strip().lower()
+            existing_project_keys = {
+
+                (
+                    (
+                        project.project_title
+                        or ""
+                    ).strip().lower()
+                )
+
                 for project in existing_projects
-                if project.project_title
+
             }
 
             for project_data in resume_projects:
 
                 project_title = (
+
                     project_data.get("name")
+
+                    or project_data.get(
+                        "project_title"
+                    )
+
                     or ""
+
                 ).strip()
 
                 if not project_title:
                     continue
 
-                if (
+                duplicate_key = (
                     project_title.lower()
-                    in existing_project_titles
-                ):
+                )
 
-                    skipped_counts["projects"] += 1
+                if duplicate_key in existing_project_keys:
+
+                    skipped_counts[
+                        "projects"
+                    ] += 1
+
                     continue
+
+                # ---------------------------------------------
+                # Technologies
+                # ---------------------------------------------
+
+                technologies = (
+
+                    project_data.get(
+                        "technologies"
+                    )
+
+                    or ""
+
+                ).strip()
+
+                # ---------------------------------------------
+                # Description
+                # ---------------------------------------------
 
                 details = project_data.get(
                     "details",
@@ -2551,26 +4005,135 @@ def review_resume_import(resume_id):
                 )
 
                 description = "\n".join(
+
                     detail.strip()
+
                     for detail in details
-                    if detail and detail.strip()
+
+                    if detail
+                    and detail.strip()
+
                 )
 
+                # ---------------------------------------------
+                # Dates
+                # ---------------------------------------------
+
+                start_date = project_data.get(
+                    "start_date"
+                )
+
+                end_date = project_data.get(
+                    "end_date"
+                )
+
+                if start_date:
+
+                    if isinstance(
+                        start_date,
+                        str
+                    ):
+
+                        try:
+
+                            start_date = datetime.strptime(
+                                start_date,
+                                "%Y-%m-%d"
+                            ).date()
+
+                        except ValueError:
+
+                            start_date = None
+
+                if end_date:
+
+                    if isinstance(
+                        end_date,
+                        str
+                    ):
+
+                        try:
+
+                            end_date = datetime.strptime(
+                                end_date,
+                                "%Y-%m-%d"
+                            ).date()
+
+                        except ValueError:
+
+                            end_date = None
+
+                # ---------------------------------------------
+                # URLs
+                # ---------------------------------------------
+
+                project_url = (
+
+                    project_data.get(
+                        "project_url"
+                    )
+
+                    or ""
+
+                ).strip()
+
+                github_url = (
+
+                    project_data.get(
+                        "github_url"
+                    )
+
+                    or ""
+
+                ).strip()
+
+                # ---------------------------------------------
+                # Create Project
+                # ---------------------------------------------
+
                 new_project = Project(
+
                     user_id=current_user.id,
+
                     project_title=project_title,
-                    description=description or None
+
+                    technologies=(
+                        technologies
+                        or None
+                    ),
+
+                    start_date=start_date,
+
+                    end_date=end_date,
+
+                    project_url=(
+                        project_url
+                        or None
+                    ),
+
+                    github_url=(
+                        github_url
+                        or None
+                    ),
+
+                    description=(
+                        description
+                        or None
+                    )
+
                 )
 
                 db.session.add(
                     new_project
                 )
 
-                existing_project_titles.add(
-                    project_title.lower()
+                existing_project_keys.add(
+                    duplicate_key
                 )
 
-                imported_counts["projects"] += 1
+                imported_counts[
+                    "projects"
+                ] += 1
 
         # ==================================================
         # SAVE ALL CHANGES
@@ -2618,7 +4181,8 @@ def review_resume_import(resume_id):
                 f"Resume information imported successfully. "
                 f"{total_imported} new item(s) added"
                 + (
-                    f" and {total_skipped} duplicate item(s) skipped."
+                    f" and {total_skipped} duplicate/existing "
+                    f"item(s) skipped."
                     if total_skipped > 0
                     else "."
                 ),
@@ -2649,8 +4213,6 @@ def review_resume_import(resume_id):
         resume=resume,
         parsed_data=parsed_data
     )
-
-
 # ==========================================================
 # RESUME IMPORT SUCCESS
 # ==========================================================
@@ -2887,17 +4449,45 @@ def job_detail(job_id):
     close_expired_jobs()
 
     # ------------------------------------------------------
-    # Find published job
+    # First find the job
     # ------------------------------------------------------
 
-    job = Job.query.filter(
-        Job.id == job_id,
-        func.lower(
-            func.trim(Job.status)
-        ) == "published"
+    job = Job.query.filter_by(
+        id=job_id
     ).first()
 
     if not job:
+
+        flash(
+            "Job not found.",
+            "danger"
+        )
+
+        return redirect(
+            url_for("applicant.jobs")
+        )
+
+    # ------------------------------------------------------
+    # Check applicant's existing application
+    # ------------------------------------------------------
+
+    application = Application.query.filter_by(
+        job_id=job.id,
+        applicant_id=current_user.id
+    ).first()
+
+    # ------------------------------------------------------
+    # If job is closed/unpublished and applicant has NOT
+    # applied, don't allow access.
+    #
+    # If applicant HAS applied, allow them to see details.
+    # ------------------------------------------------------
+
+    job_status = (
+        job.status or ""
+    ).strip().lower()
+
+    if job_status != "published" and not application:
 
         flash(
             "Job not found or is no longer available.",
@@ -2908,21 +4498,11 @@ def job_detail(job_id):
             url_for("applicant.jobs")
         )
 
-    # ------------------------------------------------------
-    # Check whether applicant already applied
-    # ------------------------------------------------------
-
-    application = Application.query.filter_by(
-        job_id=job.id,
-        applicant_id=current_user.id
-    ).first()
-
     return render_template(
         "applicant/job_detail.html",
         job=job,
         application=application
     )
-
 
 # ==========================================================
 # APPLY TO JOB
@@ -3089,3 +4669,197 @@ def apply_job(job_id):
             job_id=job.id
         )
     )
+
+# ==========================================================
+# APPLICANT MY APPLICATIONS
+# ==========================================================
+
+@applicant.route(
+    "/applications",
+    methods=["GET"]
+)
+@login_required
+def my_applications():
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    # ------------------------------------------------------
+    # Get all applications submitted by current applicant
+    # ------------------------------------------------------
+
+    applications = Application.query.filter_by(
+        applicant_id=current_user.id
+    ).join(
+        Job,
+        Application.job_id == Job.id
+    ).order_by(
+        Application.applied_at.desc()
+    ).all()
+
+    return render_template(
+        "applicant/my_applications.html",
+        applications=applications
+    )
+
+
+# ==========================================================
+# REAL-TIME MY APPLICATIONS
+# ==========================================================
+
+@applicant.route(
+    "/applications/live",
+    methods=["GET"]
+)
+@login_required
+def my_applications_live():
+
+    if current_user.role != "Applicant":
+
+        return {
+            "error": "Unauthorized"
+        }, 403
+
+    # ------------------------------------------------------
+    # Get applicant applications
+    # ------------------------------------------------------
+
+    applications = Application.query.filter_by(
+        applicant_id=current_user.id
+    ).join(
+        Job,
+        Application.job_id == Job.id
+    ).order_by(
+        Application.applied_at.desc()
+    ).all()
+
+    application_data = []
+
+    for application in applications:
+
+        job = application.job
+
+        company_name = ""
+
+        recruiter_name = ""
+
+        if job and job.recruiter:
+
+            recruiter_name = (
+                job.recruiter.full_name
+                or ""
+            )
+
+            if (
+                job.recruiter.recruiter_profile
+                and
+                job.recruiter.recruiter_profile.company_name
+            ):
+
+                company_name = (
+                    job.recruiter
+                    .recruiter_profile
+                    .company_name
+                )
+
+        application_data.append({
+
+            "id": application.id,
+
+            "job_id": (
+                application.job_id
+                if application.job_id
+                else None
+            ),
+
+            "job_title": (
+                job.job_title
+                if job
+                else "Job no longer available"
+            ),
+
+            "company_name": (
+                company_name
+                or recruiter_name
+                or "Company"
+            ),
+
+            "location": (
+                job.location
+                if job
+                else ""
+            ),
+
+            "job_type": (
+                job.job_type
+                if job
+                else ""
+            ),
+
+            "salary": (
+                job.salary
+                if job
+                else ""
+            ),
+
+            "job_status": (
+                job.status
+                if job
+                else "Unavailable"
+            ),
+
+            "status": (
+                application.status
+                or "Pending"
+            ),
+
+            "cover_letter": (
+                application.cover_letter
+                or ""
+            ),
+
+            "applied_at": (
+                application.applied_at.strftime(
+                    "%d %b %Y, %I:%M %p"
+                )
+                if application.applied_at
+                else ""
+            ),
+
+            "updated_at": (
+                application.updated_at.strftime(
+                    "%d %b %Y, %I:%M %p"
+                )
+                if application.updated_at
+                else ""
+            )
+
+        })
+
+    # ------------------------------------------------------
+    # Create version from current application state
+    # ------------------------------------------------------
+
+    version_source = repr(
+        [
+            (
+                application["id"],
+                application["job_id"],
+                application["status"],
+                application["updated_at"]
+            )
+            for application in application_data
+        ]
+    )
+
+    version = hashlib.md5(
+        version_source.encode("utf-8")
+    ).hexdigest()
+
+    return {
+        "version": version,
+        "applications": application_data
+    }

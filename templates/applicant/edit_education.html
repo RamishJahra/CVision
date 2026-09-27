@@ -1,0 +1,321 @@
+{% extends "layouts/account_settings_base.html" %}
+
+{% block title %}
+Edit Education - CVision
+{% endblock %}
+
+{% block account_content %}
+
+<div class="container-fluid py-4">
+
+    <!-- Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+
+        <div>
+            <h2 class="fw-bold mb-1">
+                Edit Education
+            </h2>
+
+            <p class="text-muted mb-0">
+                Update your education information.
+            </p>
+        </div>
+
+        <a
+            href="{{ url_for('applicant.education') }}"
+            class="btn btn-outline-secondary mt-3 mt-md-0"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Education
+        </a>
+
+    </div>
+
+
+    <!-- Edit Education Card -->
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body p-4">
+
+            <form
+                method="POST"
+                action="{{ url_for('applicant.edit_education', education_id=education.id) }}"
+            >
+
+                <!-- Degree -->
+                <div class="mb-3">
+
+                    <label
+                        for="degree"
+                        class="form-label fw-semibold"
+                    >
+                        Degree <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="degree"
+                        name="degree"
+                        value="{{ education.degree or '' }}"
+                        placeholder="e.g. BSc in Computer Science"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Institution -->
+                <div class="mb-3">
+
+                    <label
+                        for="institution"
+                        class="form-label fw-semibold"
+                    >
+                        Institution <span class="text-danger">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="institution"
+                        name="institution"
+                        value="{{ education.institution or '' }}"
+                        placeholder="e.g. University of Chittagong"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- Field of Study -->
+                <div class="mb-3">
+
+                    <label
+                        for="field_of_study"
+                        class="form-label fw-semibold"
+                    >
+                        Field of Study
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="field_of_study"
+                        name="field_of_study"
+                        value="{{ education.field_of_study or '' }}"
+                        placeholder="e.g. Computer Science and Engineering"
+                    >
+
+                </div>
+
+
+                <!-- Start & End Year -->
+                <div class="row">
+
+                    <!-- Start Year -->
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="start_year"
+                            class="form-label fw-semibold"
+                        >
+                            Start Year
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="start_year"
+                            name="start_year"
+                            value="{{ education.start_year or '' }}"
+                            min="1950"
+                            max="2100"
+                            placeholder="e.g. 2022"
+                        >
+
+                    </div>
+
+
+                    <!-- End Year -->
+                    <div class="col-md-6 mb-3">
+
+                        <label
+                            for="end_year"
+                            class="form-label fw-semibold"
+                        >
+                            End Year
+                        </label>
+
+                        <input
+                            type="number"
+                            class="form-control"
+                            id="end_year"
+                            name="end_year"
+                            value="{{ education.end_year or '' }}"
+                            min="1950"
+                            max="2100"
+                            placeholder="e.g. 2026"
+                            {% if education.is_current %}
+                                disabled
+                            {% endif %}
+                        >
+
+                        <div class="form-text">
+                            Leave empty if you are still studying.
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Currently Studying -->
+                <div class="mb-4">
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="is_current"
+                            name="is_current"
+                            value="1"
+                            {% if education.is_current %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <label
+                            class="form-check-label fw-semibold"
+                            for="is_current"
+                        >
+                            I am currently studying here
+                        </label>
+
+                    </div>
+
+                    <div class="form-text">
+                        If checked, the education period will be displayed as
+                        <strong>Start Year - Present</strong>.
+                    </div>
+
+                </div>
+
+
+                <!-- CGPA -->
+                <div class="mb-3">
+
+                    <label
+                        for="cgpa"
+                        class="form-label fw-semibold"
+                    >
+                        CGPA / Grade
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="cgpa"
+                        name="cgpa"
+                        value="{{ education.cgpa or '' }}"
+                        placeholder="e.g. 3.75 / 4.00"
+                    >
+
+                </div>
+
+
+                <!-- Description -->
+                <div class="mb-4">
+
+                    <label
+                        for="description"
+                        class="form-label fw-semibold"
+                    >
+                        Description
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        id="description"
+                        name="description"
+                        rows="5"
+                        placeholder="Add relevant information about your education..."
+                    >{{ education.description or '' }}</textarea>
+
+                </div>
+
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2">
+
+                    <a
+                        href="{{ url_for('applicant.education') }}"
+                        class="btn btn-outline-secondary"
+                    >
+                        Cancel
+                    </a>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        <i class="bi bi-check-circle me-1"></i>
+                        Update Education
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================
+     Current Education JavaScript
+========================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const currentCheckbox =
+        document.getElementById("is_current");
+
+    const endYear =
+        document.getElementById("end_year");
+
+
+    function updateEndYearState() {
+
+        if (currentCheckbox.checked) {
+
+            endYear.value = "";
+            endYear.disabled = true;
+
+        } else {
+
+            endYear.disabled = false;
+
+        }
+
+    }
+
+
+    currentCheckbox.addEventListener(
+        "change",
+        updateEndYearState
+    );
+
+
+    updateEndYearState();
+
+});
+
+</script>
+
+{% endblock %}

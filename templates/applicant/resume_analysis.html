@@ -1,4 +1,3 @@
-```html
 {% extends "layouts/account_settings_base.html" %}
 
 {% block title %}
@@ -147,9 +146,7 @@ Resume Analysis - CVision
 
             <div class="row g-4 align-items-center">
 
-                <!-- ==========================
-                     Score Circle
-                =========================== -->
+                <!-- Score Circle -->
 
                 <div class="col-md-4 text-center">
 
@@ -182,9 +179,7 @@ Resume Analysis - CVision
                 </div>
 
 
-                <!-- ==========================
-                     Score Breakdown
-                =========================== -->
+                <!-- Score Breakdown -->
 
                 <div class="col-md-8">
 
@@ -323,6 +318,8 @@ Resume Analysis - CVision
 
             <div class="row g-4">
 
+                <!-- Name -->
+
                 <div class="col-md-4">
 
                     <small class="text-muted d-block">
@@ -330,13 +327,13 @@ Resume Analysis - CVision
                     </small>
 
                     <div class="fw-semibold">
-
                         {{ parsed_data.name or "Not detected" }}
-
                     </div>
 
                 </div>
 
+
+                <!-- Email -->
 
                 <div class="col-md-4">
 
@@ -345,13 +342,13 @@ Resume Analysis - CVision
                     </small>
 
                     <div class="fw-semibold text-break">
-
                         {{ parsed_data.email or "Not detected" }}
-
                     </div>
 
                 </div>
 
+
+                <!-- Phone -->
 
                 <div class="col-md-4">
 
@@ -360,10 +357,101 @@ Resume Analysis - CVision
                     </small>
 
                     <div class="fw-semibold">
-
                         {{ parsed_data.phone or "Not detected" }}
-
                     </div>
+
+                </div>
+
+
+                <!-- LinkedIn -->
+
+                <div class="col-md-4">
+
+                    <small class="text-muted d-block">
+                        LinkedIn
+                    </small>
+
+                    {% if parsed_data.linkedin %}
+
+                        <a
+                            href="{{ parsed_data.linkedin }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="fw-semibold text-decoration-none text-break"
+                        >
+                            <i class="bi bi-linkedin me-1"></i>
+                            {{ parsed_data.linkedin }}
+                        </a>
+
+                    {% else %}
+
+                        <div class="fw-semibold text-muted">
+                            Not detected
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- GitHub -->
+
+                <div class="col-md-4">
+
+                    <small class="text-muted d-block">
+                        GitHub
+                    </small>
+
+                    {% if parsed_data.github %}
+
+                        <a
+                            href="{{ parsed_data.github }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="fw-semibold text-decoration-none text-break"
+                        >
+                            <i class="bi bi-github me-1"></i>
+                            {{ parsed_data.github }}
+                        </a>
+
+                    {% else %}
+
+                        <div class="fw-semibold text-muted">
+                            Not detected
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+
+                <!-- Website -->
+
+                <div class="col-md-4">
+
+                    <small class="text-muted d-block">
+                        Website
+                    </small>
+
+                    {% if parsed_data.website %}
+
+                        <a
+                            href="{{ parsed_data.website }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="fw-semibold text-decoration-none text-break"
+                        >
+                            <i class="bi bi-globe2 me-1"></i>
+                            {{ parsed_data.website }}
+                        </a>
+
+                    {% else %}
+
+                        <div class="fw-semibold text-muted">
+                            Not detected
+                        </div>
+
+                    {% endif %}
 
                 </div>
 
@@ -413,9 +501,7 @@ Resume Analysis - CVision
             {% else %}
 
                 <p class="text-muted mb-0">
-
                     No skills detected.
-
                 </p>
 
             {% endif %}
@@ -454,9 +540,7 @@ Resume Analysis - CVision
                         {% if education.degree %}
 
                             <div class="fw-bold mb-1">
-
                                 {{ education.degree }}
-
                             </div>
 
                         {% endif %}
@@ -554,9 +638,7 @@ Resume Analysis - CVision
                         {% if experience.title %}
 
                             <div class="fw-bold mb-1">
-
                                 {{ experience.title }}
-
                             </div>
 
                         {% endif %}
@@ -651,6 +733,8 @@ Resume Analysis - CVision
 
                     <div class="border rounded p-3 mb-3">
 
+                        <!-- Project Name -->
+
                         {% if project.name %}
 
                             <div class="fw-bold mb-1">
@@ -661,6 +745,33 @@ Resume Analysis - CVision
 
                         {% endif %}
 
+
+                        <!-- Technologies -->
+
+                        {% if project.technologies %}
+
+                            <div class="mt-2">
+
+                                <div class="small fw-semibold text-primary mb-1">
+
+                                    <i class="bi bi-tools me-1"></i>
+
+                                    Technologies
+
+                                </div>
+
+                                <div class="small text-muted">
+
+                                    {{ project.technologies }}
+
+                                </div>
+
+                            </div>
+
+                        {% endif %}
+
+
+                        <!-- Project Details -->
 
                         {% if project.details %}
 
@@ -726,9 +837,7 @@ Resume Analysis - CVision
                     <div class="border rounded p-3 mb-3">
 
                         <div class="fw-semibold">
-
                             {{ certification }}
-
                         </div>
 
                     </div>
@@ -1046,11 +1155,6 @@ document.addEventListener(
                         (score / maxScore) * 100;
 
 
-                    /*
-                     * Keep the percentage
-                     * between 0 and 100.
-                     */
-
                     percentage =
                         Math.max(
                             0,
@@ -1076,4 +1180,3 @@ document.addEventListener(
 
 
 {% endblock %}
-```

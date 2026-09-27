@@ -1,0 +1,307 @@
+{% extends "layouts/account_settings_base.html" %}
+
+{% block title %}
+Edit Certification - CVision
+{% endblock %}
+
+{% block account_content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <!-- ==========================
+                 Header
+            =========================== -->
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h2 class="mb-1">
+                        Edit Certification
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Update your certification information.
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('applicant.certifications') }}"
+                    class="btn btn-outline-secondary"
+                >
+
+                    <i class="bi bi-arrow-left me-1"></i>
+
+                    Back
+
+                </a>
+
+            </div>
+
+
+            <!-- ==========================
+                 Flash Messages
+            =========================== -->
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+
+                {% if messages %}
+
+                    {% for category, message in messages %}
+
+                        <div
+                            class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }} alert-dismissible fade show"
+                            role="alert"
+                        >
+
+                            {{ message }}
+
+                            <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Close"
+                            ></button>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% endif %}
+
+            {% endwith %}
+
+
+            <!-- ==========================
+                 Edit Certification
+            =========================== -->
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <h5 class="mb-4">
+
+                        <i class="bi bi-pencil-square text-primary me-2"></i>
+
+                        Certification Details
+
+                    </h5>
+
+
+                    <form
+                        method="POST"
+                        action="{{ url_for('applicant.edit_certification', certification_id=certification.id) }}"
+                    >
+
+                        <div class="row">
+
+
+                            <!-- Certification Name -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Certification Name
+
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="certification_name"
+                                    class="form-control"
+                                    value="{{ certification.certification_name or '' }}"
+                                    placeholder="AWS Certified Cloud Practitioner"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Issuing Organization -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Issuing Organization
+
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="issuing_organization"
+                                    class="form-control"
+                                    value="{{ certification.issuing_organization or '' }}"
+                                    placeholder="Amazon Web Services"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Issue Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Issue Date
+
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="issue_date"
+                                    class="form-control"
+
+                                    {% if certification.issue_date %}
+
+                                        value="{{ certification.issue_date.strftime('%Y-%m-%d') }}"
+
+                                    {% endif %}
+
+                                >
+
+                            </div>
+
+
+                            <!-- Expiry Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Expiry Date
+
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="expiry_date"
+                                    class="form-control"
+
+                                    {% if certification.expiry_date %}
+
+                                        value="{{ certification.expiry_date.strftime('%Y-%m-%d') }}"
+
+                                    {% endif %}
+
+                                >
+
+                            </div>
+
+
+                            <!-- Credential ID -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Credential ID
+
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="credential_id"
+                                    class="form-control"
+                                    value="{{ certification.credential_id or '' }}"
+                                    placeholder="ABC123456"
+                                >
+
+                            </div>
+
+
+                            <!-- Credential URL -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+
+                                    Credential URL
+
+                                </label>
+
+                                <input
+                                    type="url"
+                                    name="credential_url"
+                                    class="form-control"
+                                    value="{{ certification.credential_url or '' }}"
+                                    placeholder="https://..."
+                                >
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            <div class="col-12 mb-4">
+
+                                <label class="form-label">
+
+                                    Description
+
+                                </label>
+
+                                <textarea
+                                    name="description"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="Additional information about this certification..."
+                                >{{ certification.description or '' }}</textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ==========================
+                             Actions
+                        =========================== -->
+
+                        <div class="d-flex justify-content-between">
+
+                            <a
+                                href="{{ url_for('applicant.certifications') }}"
+                                class="btn btn-outline-secondary"
+                            >
+
+                                Cancel
+
+                            </a>
+
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+
+                                <i class="bi bi-check-lg me-1"></i>
+
+                                Update Certification
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

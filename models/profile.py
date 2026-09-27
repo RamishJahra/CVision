@@ -88,7 +88,11 @@ class Education(db.Model):
         db.Integer,
         nullable=True
     )
-
+    is_current = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False
+    )
     cgpa = db.Column(
         db.String(20),
         nullable=True

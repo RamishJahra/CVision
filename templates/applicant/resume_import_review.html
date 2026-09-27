@@ -105,6 +105,55 @@ Review Resume Import - CVision
 
             <div class="card-body px-4">
 
+
+                <!-- Contact Links -->
+
+                <div class="form-check import-option">
+
+                    <input
+                        class="form-check-input section-checkbox"
+                        type="checkbox"
+                        name="sections"
+                        value="contact_links"
+                        id="contactLinksSection"
+                        {% if parsed_data.linkedin or parsed_data.github or parsed_data.website %}checked{% endif %}
+                    >
+
+                    <label
+                        class="form-check-label w-100"
+                        for="contactLinksSection"
+                    >
+
+                        <strong>
+                            <i class="bi bi-link-45deg text-primary me-2"></i>
+                            Contact Links
+                        </strong>
+
+                        <div class="small text-muted">
+
+                            {% set contact_link_count = 0 %}
+
+                            {% if parsed_data.linkedin %}
+                                {% set contact_link_count = contact_link_count + 1 %}
+                            {% endif %}
+
+                            {% if parsed_data.github %}
+                                {% set contact_link_count = contact_link_count + 1 %}
+                            {% endif %}
+
+                            {% if parsed_data.website %}
+                                {% set contact_link_count = contact_link_count + 1 %}
+                            {% endif %}
+
+                            {{ contact_link_count }} detected
+
+                        </div>
+
+                    </label>
+
+                </div>
+
+
                 <!-- Skills -->
 
                 <div class="form-check import-option">
@@ -304,6 +353,120 @@ Review Resume Import - CVision
 
 
         <!-- ==================================================
+             CONTACT LINKS PREVIEW
+        =================================================== -->
+
+        {% if parsed_data.linkedin or parsed_data.github or parsed_data.website %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-white border-0 pt-4 px-4">
+
+                <h5 class="fw-bold mb-0">
+
+                    <i class="bi bi-link-45deg text-primary me-2"></i>
+
+                    Detected Contact Links
+
+                </h5>
+
+            </div>
+
+
+            <div class="card-body px-4">
+
+
+                <!-- LinkedIn -->
+
+                {% if parsed_data.linkedin %}
+
+                <div class="border rounded p-3 mb-3">
+
+                    <div class="fw-bold mb-1">
+
+                        <i class="bi bi-linkedin me-2"></i>
+
+                        LinkedIn
+
+                    </div>
+
+                    <a
+                        href="{{ parsed_data.linkedin }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-decoration-none"
+                    >
+                        {{ parsed_data.linkedin }}
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+
+                <!-- GitHub -->
+
+                {% if parsed_data.github %}
+
+                <div class="border rounded p-3 mb-3">
+
+                    <div class="fw-bold mb-1">
+
+                        <i class="bi bi-github me-2"></i>
+
+                        GitHub
+
+                    </div>
+
+                    <a
+                        href="{{ parsed_data.github }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-decoration-none"
+                    >
+                        {{ parsed_data.github }}
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+
+                <!-- Website -->
+
+                {% if parsed_data.website %}
+
+                <div class="border rounded p-3 mb-0">
+
+                    <div class="fw-bold mb-1">
+
+                        <i class="bi bi-globe me-2"></i>
+
+                        Website
+
+                    </div>
+
+                    <a
+                        href="{{ parsed_data.website }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-decoration-none"
+                    >
+                        {{ parsed_data.website }}
+                    </a>
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
+
+        <!-- ==================================================
              SKILLS PREVIEW
         =================================================== -->
 
@@ -314,8 +477,11 @@ Review Resume Import - CVision
             <div class="card-header bg-white border-0 pt-4 px-4">
 
                 <h5 class="fw-bold mb-0">
+
                     <i class="bi bi-lightning-charge text-warning me-2"></i>
+
                     Detected Skills
+
                 </h5>
 
             </div>
@@ -352,8 +518,11 @@ Review Resume Import - CVision
             <div class="card-header bg-white border-0 pt-4 px-4">
 
                 <h5 class="fw-bold mb-0">
+
                     <i class="bi bi-mortarboard text-success me-2"></i>
+
                     Detected Education
+
                 </h5>
 
             </div>
@@ -418,8 +587,11 @@ Review Resume Import - CVision
             <div class="card-header bg-white border-0 pt-4 px-4">
 
                 <h5 class="fw-bold mb-0">
+
                     <i class="bi bi-briefcase text-info me-2"></i>
+
                     Detected Work Experience
+
                 </h5>
 
             </div>
@@ -500,8 +672,11 @@ Review Resume Import - CVision
             <div class="card-header bg-white border-0 pt-4 px-4">
 
                 <h5 class="fw-bold mb-0">
+
                     <i class="bi bi-award text-warning me-2"></i>
+
                     Detected Certifications
+
                 </h5>
 
             </div>
@@ -538,8 +713,11 @@ Review Resume Import - CVision
             <div class="card-header bg-white border-0 pt-4 px-4">
 
                 <h5 class="fw-bold mb-0">
+
                     <i class="bi bi-code-square text-primary me-2"></i>
+
                     Detected Projects
+
                 </h5>
 
             </div>
@@ -620,8 +798,11 @@ Review Resume Import - CVision
                             type="submit"
                             class="btn btn-primary"
                         >
+
                             <i class="bi bi-cloud-arrow-down me-1"></i>
+
                             Confirm Import
+
                         </button>
 
                     </div>
@@ -693,7 +874,10 @@ document.addEventListener(
 
                 checkboxes.forEach(
                     function (checkbox) {
-                        checkbox.checked = allSelected;
+
+                        checkbox.checked =
+                            allSelected;
+
                     }
                 );
 

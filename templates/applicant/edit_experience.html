@@ -1,0 +1,350 @@
+```html
+{% extends "layouts/account_settings_base.html" %}
+
+{% block account_content %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-10">
+
+            <!-- Header -->
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+
+                <div>
+
+                    <h2 class="mb-1">
+                        Edit Work Experience
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Update your professional experience details.
+                    </p>
+
+                </div>
+
+                <a
+                    href="{{ url_for('applicant.experience') }}"
+                    class="btn btn-outline-secondary"
+                >
+                    <i class="bi bi-arrow-left"></i>
+                    Back
+                </a>
+
+            </div>
+
+
+            <!-- Edit Form -->
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body p-4">
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'applicant.edit_experience',
+                            experience_id=experience.id
+                        ) }}"
+                    >
+
+                        <div class="row">
+
+                            <!-- Job Title -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Job Title
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="job_title"
+                                    class="form-control"
+                                    value="{{ experience.job_title or '' }}"
+                                    placeholder="Software Engineer"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Company -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Company Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="company_name"
+                                    class="form-control"
+                                    value="{{ experience.company_name or '' }}"
+                                    placeholder="ABC Technologies"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <!-- Employment Type -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Employment Type
+                                </label>
+
+                                <select
+                                    name="employment_type"
+                                    class="form-select"
+                                >
+
+                                    <option value="">
+                                        Select Employment Type
+                                    </option>
+
+                                    <option
+                                        value="Full-time"
+                                        {% if experience.employment_type == "Full-time" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Full-time
+                                    </option>
+
+                                    <option
+                                        value="Part-time"
+                                        {% if experience.employment_type == "Part-time" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Part-time
+                                    </option>
+
+                                    <option
+                                        value="Internship"
+                                        {% if experience.employment_type == "Internship" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Internship
+                                    </option>
+
+                                    <option
+                                        value="Freelance"
+                                        {% if experience.employment_type == "Freelance" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Freelance
+                                    </option>
+
+                                    <option
+                                        value="Contract"
+                                        {% if experience.employment_type == "Contract" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Contract
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <!-- Location -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Location
+                                </label>
+
+                                <input
+                                    type="text"
+                                    name="location"
+                                    class="form-control"
+                                    value="{{ experience.location or '' }}"
+                                    placeholder="Chattogram, Bangladesh"
+                                >
+
+                            </div>
+
+
+                            <!-- Start Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    Start Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="start_date"
+                                    class="form-control"
+                                    value="{% if experience.start_date %}{{ experience.start_date.strftime('%Y-%m-%d') }}{% endif %}"
+                                >
+
+                            </div>
+
+
+                            <!-- End Date -->
+
+                            <div class="col-md-6 mb-3">
+
+                                <label class="form-label">
+                                    End Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    name="end_date"
+                                    id="endDate"
+                                    class="form-control"
+                                    value="{% if experience.end_date %}{{ experience.end_date.strftime('%Y-%m-%d') }}{% endif %}"
+                                    {% if experience.currently_working %}
+                                        disabled
+                                    {% endif %}
+                                >
+
+                            </div>
+
+
+                            <!-- Currently Working -->
+
+                            <div class="col-12 mb-3">
+
+                                <div class="form-check">
+
+                                    <input
+                                        type="checkbox"
+                                        name="currently_working"
+                                        value="1"
+                                        id="currentlyWorking"
+                                        class="form-check-input"
+                                        {% if experience.currently_working %}
+                                            checked
+                                        {% endif %}
+                                    >
+
+                                    <label
+                                        class="form-check-label"
+                                        for="currentlyWorking"
+                                    >
+                                        I currently work here
+                                    </label>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Description -->
+
+                            <div class="col-12 mb-3">
+
+                                <label class="form-label">
+                                    Description
+                                </label>
+
+                                <textarea
+                                    name="description"
+                                    class="form-control"
+                                    rows="5"
+                                    placeholder="Describe your responsibilities, achievements, technologies used, etc."
+                                >{{ experience.description or '' }}</textarea>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Buttons -->
+
+                        <div class="d-flex gap-2">
+
+                            <button
+                                type="submit"
+                                class="btn btn-primary"
+                            >
+                                <i class="bi bi-check-lg"></i>
+                                Update Experience
+                            </button>
+
+                            <a
+                                href="{{ url_for('applicant.experience') }}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Cancel
+                            </a>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- Currently Working Script -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const currentlyWorking =
+            document.getElementById(
+                "currentlyWorking"
+            );
+
+        const endDate =
+            document.getElementById(
+                "endDate"
+            );
+
+        if (!currentlyWorking || !endDate) {
+            return;
+        }
+
+        currentlyWorking.addEventListener(
+            "change",
+            function () {
+
+                if (this.checked) {
+
+                    endDate.value = "";
+                    endDate.disabled = true;
+
+                } else {
+
+                    endDate.disabled = false;
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}
+```

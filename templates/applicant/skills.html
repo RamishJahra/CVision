@@ -91,6 +91,7 @@
                             type="submit"
                             class="btn btn-primary"
                         >
+                            <i class="bi bi-plus-circle me-1"></i>
                             Add Skill
                         </button>
 
@@ -109,49 +110,103 @@
 
                 <div class="card-body p-4">
 
-                    <h5 class="mb-4">
-                        My Skills
-                    </h5>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+
+                        <h5 class="mb-0">
+                            My Skills
+                        </h5>
+
+
+                        {% if skills %}
+
+                            <button
+                                type="submit"
+                                form="deleteSkillsForm"
+                                class="btn btn-outline-danger btn-sm"
+                                id="deleteSelectedBtn"
+                                disabled
+                            >
+                                <i class="bi bi-trash me-1"></i>
+                                Delete Selected
+                            </button>
+
+                        {% endif %}
+
+                    </div>
 
 
                     {% if skills %}
 
-                        <div class="row">
+                        <form
+                            method="POST"
+                            action="{{ url_for('applicant.delete_selected_skills') }}"
+                            id="deleteSkillsForm"
+                        >
 
-                            {% for skill in skills %}
+                            <div class="row">
 
-                                <div class="col-md-6 mb-3">
+                                {% for skill in skills %}
 
-                                    <div class="border rounded p-3">
+                                    <div class="col-md-6 mb-3">
 
-                                        <div class="d-flex justify-content-between align-items-center">
+                                        <div class="border rounded p-3">
 
-                                            <strong>
-                                                {{ skill.skill_name }}
-                                            </strong>
+                                            <div class="d-flex align-items-center">
+
+                                                <!-- Checkbox -->
+
+                                                <div class="form-check me-3">
+
+                                                    <input
+                                                        class="form-check-input skill-checkbox"
+                                                        type="checkbox"
+                                                        name="skill_ids"
+                                                        value="{{ skill.id }}"
+                                                        id="skill_{{ skill.id }}"
+                                                    >
+
+                                                </div>
 
 
-                                            {% if skill.proficiency %}
+                                                <!-- Skill Information -->
 
-                                                <span class="badge bg-primary">
-                                                    {{ skill.proficiency }}
-                                                </span>
+                                                <div class="flex-grow-1">
 
-                                            {% endif %}
+                                                    <div class="d-flex justify-content-between align-items-center">
+
+                                                        <strong>
+                                                            {{ skill.skill_name }}
+                                                        </strong>
+
+
+                                                        {% if skill.proficiency %}
+
+                                                            <span class="badge bg-primary">
+                                                                {{ skill.proficiency }}
+                                                            </span>
+
+                                                        {% endif %}
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
 
                                         </div>
 
                                     </div>
 
-                                </div>
+                                {% endfor %}
 
-                            {% endfor %}
+                            </div>
 
-                        </div>
+                        </form>
+
 
                     {% else %}
 
-                        <p class="text-muted">
+                        <p class="text-muted mb-0">
                             No skills added yet.
                         </p>
 
@@ -166,5 +221,56 @@
     </div>
 
 </div>
+
+
+<!-- ==========================
+     Skills Selection JavaScript
+=========================== -->
+
+{% if skills %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const checkboxes = document.querySelectorAll(
+        ".skill-checkbox"
+    );
+
+    const deleteButton = document.getElementById(
+        "deleteSelectedBtn"
+    );
+
+
+    function updateDeleteButton() {
+
+        const selectedCount =
+            document.querySelectorAll(
+                ".skill-checkbox:checked"
+            ).length;
+
+        deleteButton.disabled =
+            selectedCount === 0;
+
+    }
+
+
+    checkboxes.forEach(function (checkbox) {
+
+        checkbox.addEventListener(
+            "change",
+            updateDeleteButton
+        );
+
+    });
+
+
+    updateDeleteButton();
+
+});
+
+</script>
+
+{% endif %}
 
 {% endblock %}
