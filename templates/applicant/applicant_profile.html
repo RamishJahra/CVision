@@ -1,0 +1,918 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Applicant Profile - CVision
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container pb-5" style="padding-top: 6rem;">
+
+    <!-- ==================================================
+         Profile Header
+    =================================================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <div class="row align-items-center">
+
+                <!-- Profile Picture -->
+
+                <div class="col-md-auto text-center mb-3 mb-md-0">
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/profile/' +
+                            (current_user.profile_image or 'default.png')
+                        ) }}"
+                        alt="Profile Picture"
+                        class="rounded-circle shadow-sm"
+                        width="140"
+                        height="140"
+                        style="object-fit: cover;"
+                    >
+
+                </div>
+
+
+                <!-- Basic Information -->
+
+                <div class="col-md">
+
+                    <h2 class="fw-bold mb-1">
+                        {{ current_user.full_name or "Name not provided" }}
+                    </h2>
+
+
+                    {% if current_user.username %}
+
+                        <p class="text-muted mb-2">
+                            @{{ current_user.username }}
+                        </p>
+
+                    {% endif %}
+
+
+                    {% if profile and profile.bio %}
+
+                        <p class="mb-3">
+                            {{ profile.bio }}
+                        </p>
+
+                    {% endif %}
+
+
+                    <div class="d-flex flex-wrap gap-3 text-muted">
+
+                        {% if current_user.email %}
+
+                            <span>
+                                <i class="bi bi-envelope me-1"></i>
+                                {{ current_user.email }}
+                            </span>
+
+                        {% endif %}
+
+
+                        {% if current_user.phone %}
+
+                            <span>
+                                <i class="bi bi-telephone me-1"></i>
+                                {{ current_user.phone }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         Personal Information
+    =================================================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-4">
+                Personal Information
+            </h4>
+
+
+            <div class="row g-4">
+
+                <!-- Full Name -->
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Full Name
+                    </small>
+
+                    <strong>
+                        {{ current_user.full_name or "Not provided" }}
+                    </strong>
+
+                </div>
+
+
+                <!-- Username -->
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Username
+                    </small>
+
+                    <strong>
+                        {{ current_user.username or "Not provided" }}
+                    </strong>
+
+                </div>
+
+
+                <!-- Email -->
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Email
+                    </small>
+
+                    <strong>
+                        {{ current_user.email or "Not provided" }}
+                    </strong>
+
+                </div>
+
+
+                <!-- Phone -->
+
+                <div class="col-md-6">
+
+                    <small class="text-muted d-block">
+                        Phone
+                    </small>
+
+                    <strong>
+                        {{ current_user.phone or "Not provided" }}
+                    </strong>
+
+                </div>
+
+
+                <!-- Date of Birth -->
+
+                {% if current_user.date_of_birth %}
+
+                    <div class="col-md-6">
+
+                        <small class="text-muted d-block">
+                            Date of Birth
+                        </small>
+
+                        <strong>
+                            {{ current_user.date_of_birth.strftime('%d %B %Y') }}
+                        </strong>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         Location & Contact
+    =================================================== -->
+
+    {% if profile %}
+
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-body p-4">
+
+                <h4 class="fw-bold mb-4">
+                    Location & Contact
+                </h4>
+
+
+                <div class="row g-4">
+
+                    <!-- Address -->
+
+                    {% if profile.address %}
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Address
+                            </small>
+
+                            <strong>
+                                {{ profile.address }}
+                            </strong>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- LinkedIn -->
+
+                    {% if profile.linkedin_url %}
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                LinkedIn
+                            </small>
+
+                            <a
+                                href="{{ profile.linkedin_url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {{ profile.linkedin_url }}
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- GitHub -->
+
+                    {% if profile.github_url %}
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                GitHub
+                            </small>
+
+                            <a
+                                href="{{ profile.github_url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {{ profile.github_url }}
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- Portfolio -->
+
+                    {% if profile.portfolio_url %}
+
+                        <div class="col-md-6">
+
+                            <small class="text-muted d-block">
+                                Portfolio
+                            </small>
+
+                            <a
+                                href="{{ profile.portfolio_url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {{ profile.portfolio_url }}
+                            </a>
+
+                        </div>
+
+                    {% endif %}
+
+
+                    {% if not profile.address
+                          and not profile.linkedin_url
+                          and not profile.github_url
+                          and not profile.portfolio_url %}
+
+                        <div class="col-12">
+
+                            <p class="text-muted mb-0">
+                                No location or contact information available.
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+
+    <!-- ==================================================
+         Education
+    =================================================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-4">
+                Education
+            </h4>
+
+
+            {% if education %}
+
+                {% for item in education %}
+
+                    <div class="border-bottom pb-4 mb-4">
+
+                        <!-- Degree -->
+
+                        <h5 class="fw-semibold mb-1">
+                            {{ item.degree }}
+                        </h5>
+
+
+                        <!-- Institution -->
+
+                        {% if item.institution %}
+
+                            <p class="text-muted mb-1">
+                                {{ item.institution }}
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Field of Study -->
+
+                        {% if item.field_of_study %}
+
+                            <p class="mb-1">
+
+                                <strong>
+                                    Field of Study:
+                                </strong>
+
+                                {{ item.field_of_study }}
+
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Duration -->
+
+                        {% if item.start_year or item.end_year or item.is_current %}
+
+                            <small class="text-muted d-block mb-2">
+
+                                {% if item.start_year %}
+
+                                    {{ item.start_year }}
+
+                                {% endif %}
+
+
+                                {% if item.start_year and (item.end_year or item.is_current) %}
+
+                                    -
+
+                                {% endif %}
+
+
+                                {% if item.is_current %}
+
+                                    Present
+
+                                {% elif item.end_year %}
+
+                                    {{ item.end_year }}
+
+                                {% endif %}
+
+                            </small>
+
+                        {% endif %}
+
+
+                        <!-- CGPA -->
+
+                        {% if item.cgpa %}
+
+                            <p class="mb-1">
+
+                                <strong>
+                                    CGPA:
+                                </strong>
+
+                                {{ item.cgpa }}
+
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Description -->
+
+                        {% if item.description %}
+
+                            <p class="mt-2 mb-0">
+                                {{ item.description }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+                    No education information available.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         Work Experience
+    =================================================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-4">
+                Work Experience
+            </h4>
+
+
+            {% if experience %}
+
+                {% for item in experience %}
+
+                    <div class="border-bottom pb-4 mb-4">
+
+                        <!-- Job Title -->
+
+                        <h5 class="fw-semibold mb-1">
+                            {{ item.job_title }}
+                        </h5>
+
+
+                        <!-- Company -->
+
+                        {% if item.company_name %}
+
+                            <p class="text-muted mb-1">
+                                {{ item.company_name }}
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Employment Type -->
+
+                        {% if item.employment_type %}
+
+                            <p class="mb-1">
+
+                                <strong>
+                                    Employment Type:
+                                </strong>
+
+                                {{ item.employment_type }}
+
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Location -->
+
+                        {% if item.location %}
+
+                            <p class="mb-1">
+
+                                <strong>
+                                    Location:
+                                </strong>
+
+                                {{ item.location }}
+
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Duration -->
+
+                        {% if item.start_date or item.end_date or item.currently_working %}
+
+                            <small class="text-muted d-block mb-2">
+
+                                {% if item.start_date %}
+
+                                    {{ item.start_date.strftime('%B %Y') }}
+
+                                {% endif %}
+
+
+                                {% if item.start_date and (item.end_date or item.currently_working) %}
+
+                                    -
+
+                                {% endif %}
+
+
+                                {% if item.currently_working %}
+
+                                    Present
+
+                                {% elif item.end_date %}
+
+                                    {{ item.end_date.strftime('%B %Y') }}
+
+                                {% endif %}
+
+                            </small>
+
+                        {% endif %}
+
+
+                        <!-- Description -->
+
+                        {% if item.description %}
+
+                            <p class="mt-2 mb-0">
+                                {{ item.description }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+                    No work experience available.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         Skills
+    =================================================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-4">
+                Skills
+            </h4>
+
+
+            {% if skills %}
+
+                <div class="row g-3">
+
+                    {% for skill in skills %}
+
+                        <div class="col-md-6 col-lg-4">
+
+                            <div class="border rounded p-3 h-100">
+
+                                <div class="fw-semibold">
+                                    {{ skill.skill_name }}
+                                </div>
+
+
+                                {% if skill.proficiency %}
+
+                                    <small class="text-muted">
+                                        Proficiency:
+                                        {{ skill.proficiency }}
+                                    </small>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+                    No skills available.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         Certifications
+    =================================================== -->
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-4">
+                Certifications
+            </h4>
+
+
+            {% if certifications %}
+
+                {% for certification in certifications %}
+
+                    <div class="border-bottom pb-4 mb-4">
+
+                        <!-- Certification Name -->
+
+                        <h5 class="fw-semibold mb-1">
+                            {{ certification.certification_name }}
+                        </h5>
+
+
+                        <!-- Issuing Organization -->
+
+                        {% if certification.issuing_organization %}
+
+                            <p class="text-muted mb-1">
+                                {{ certification.issuing_organization }}
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Dates -->
+
+                        {% if certification.issue_date %}
+
+                            <small class="text-muted d-block mb-2">
+
+                                Issued:
+                                {{ certification.issue_date.strftime('%B %Y') }}
+
+
+                                {% if certification.expiry_date %}
+
+                                    &nbsp;—&nbsp;
+
+                                    Expires:
+                                    {{ certification.expiry_date.strftime('%B %Y') }}
+
+                                {% endif %}
+
+                            </small>
+
+                        {% endif %}
+
+
+                        <!-- Credential ID -->
+
+                        {% if certification.credential_id %}
+
+                            <p class="mb-1">
+
+                                <strong>
+                                    Credential ID:
+                                </strong>
+
+                                {{ certification.credential_id }}
+
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Credential URL -->
+
+                        {% if certification.credential_url %}
+
+                            <a
+                                href="{{ certification.credential_url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <i class="bi bi-box-arrow-up-right me-1"></i>
+                                View Credential
+                            </a>
+
+                        {% endif %}
+
+
+                        <!-- Description -->
+
+                        {% if certification.description %}
+
+                            <p class="mt-2 mb-0">
+                                {{ certification.description }}
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+                    No certifications available.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==================================================
+         Projects
+    =================================================== -->
+
+    <div class="card border-0 shadow-sm mb-5">
+
+        <div class="card-body p-4">
+
+            <h4 class="fw-bold mb-4">
+                Projects
+            </h4>
+
+
+            {% if projects %}
+
+                {% for project in projects %}
+
+                    <div class="border-bottom pb-4 mb-4">
+
+                        <!-- Project Title -->
+
+                        <h5 class="fw-semibold mb-2">
+                            {{ project.project_title }}
+                        </h5>
+
+
+                        <!-- Description -->
+
+                        {% if project.description %}
+
+                            <p class="mb-2">
+                                {{ project.description }}
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Technologies -->
+
+                        {% if project.technologies %}
+
+                            <p class="text-muted mb-2">
+
+                                <strong>
+                                    Technologies:
+                                </strong>
+
+                                {{ project.technologies }}
+
+                            </p>
+
+                        {% endif %}
+
+
+                        <!-- Project Dates -->
+
+                        {% if project.start_date or project.end_date %}
+
+                            <small class="text-muted d-block mb-2">
+
+                                {% if project.start_date %}
+
+                                    {{ project.start_date.strftime('%B %Y') }}
+
+                                {% endif %}
+
+
+                                {% if project.start_date and project.end_date %}
+
+                                    -
+
+                                {% endif %}
+
+
+                                {% if project.end_date %}
+
+                                    {{ project.end_date.strftime('%B %Y') }}
+
+                                {% endif %}
+
+                            </small>
+
+                        {% endif %}
+
+
+                        <!-- Project Links -->
+
+                        <div class="d-flex flex-wrap gap-3">
+
+                            {% if project.project_url %}
+
+                                <a
+                                    href="{{ project.project_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>
+                                    Project
+                                </a>
+
+                            {% endif %}
+
+
+                            {% if project.github_url %}
+
+                                <a
+                                    href="{{ project.github_url }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <i class="bi bi-github me-1"></i>
+                                    GitHub
+                                </a>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p class="text-muted mb-0">
+                    No projects available.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

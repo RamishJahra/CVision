@@ -4863,3 +4863,136 @@ def my_applications_live():
         "version": version,
         "applications": application_data
     }
+# ==========================================================
+# Read-Only Applicant Profile
+# ==========================================================
+
+@applicant.route("/profile/view")
+@login_required
+def applicant_profile():
+
+    # ------------------------------------------------------
+    # Get applicant profile
+    # ------------------------------------------------------
+
+    profile = ApplicantProfile.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+
+    # ------------------------------------------------------
+    # Get applicant information
+    # ------------------------------------------------------
+
+    education = Education.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+
+    experience = WorkExperience.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+
+    skills = Skill.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+
+    certifications = Certification.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+
+    projects = Project.query.filter_by(
+        user_id=current_user.id
+    ).all()
+
+
+    # ------------------------------------------------------
+    # Render read-only profile
+    # ------------------------------------------------------
+
+    return render_template(
+        "applicant/applicant_profile.html",
+        profile=profile,
+        education=education,
+        experience=experience,
+        skills=skills,
+        certifications=certifications,
+        projects=projects
+    )
+
+# ============================================================
+# Read-Only Applicant Resume
+# ============================================================
+
+@applicant.route(
+    "/resume/view"
+)
+@login_required
+def applicant_resume():
+
+    if current_user.role != "Applicant":
+
+        return redirect(
+            url_for("dashboard.home")
+        )
+
+    # --------------------------------------------------------
+    # Get all resumes belonging to current applicant
+    # --------------------------------------------------------
+
+    resumes = Resume.query.filter_by(
+        user_id=current_user.id
+    ).order_by(
+        Resume.uploaded_at.desc()
+    ).all()
+
+    # --------------------------------------------------------
+    # Find active resume
+    # --------------------------------------------------------
+
+    active_resume = Resume.query.filter_by(
+        user_id=current_user.id,
+        status="active"
+    ).order_by(
+        Resume.uploaded_at.desc()
+    ).first()
+
+    # --------------------------------------------------------
+    # Analyze active resume
+    # --------------------------------------------------------
+
+    parsed_data = None
+    score_data = None
+
+    if active_resume and active_resume.extracted_text:
+
+        try:
+
+            parsed_data = parse_resume(
+                active_resume.extracted_text
+            )
+
+            score_data = calculate_resume_score(
+                parsed_data
+            )
+
+        except Exception as e:
+
+            print(
+                "Read-only resume analysis error:",
+                repr(e)
+            )
+
+            parsed_data = None
+            score_data = None
+
+    return render_template(
+        "applicant/applicant_resume.html",
+        resumes=resumes,
+        active_resume=active_resume,
+        parsed_data=parsed_data,
+        score_data=score_data
+    )
