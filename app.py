@@ -17,6 +17,8 @@ from models.profile import (
 from models.location import District, Area
 from models.resume import Resume
 from models.application import Application
+from models.notification import Notification
+from routes.notifications import notifications
 
 from routes.public import public
 from routes.auth import auth
@@ -111,6 +113,7 @@ app.register_blueprint(recruiter)
 
 app.register_blueprint(admin)
 
+app.register_blueprint(notifications)
 
 # ==========================
 # Create Database Tables

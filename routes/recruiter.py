@@ -35,6 +35,7 @@ from models.profile import (
 from models.job import Job
 from models.application import Application
 from models.resume import Resume
+from models.notification import Notification
 
 
 recruiter = Blueprint(
@@ -637,6 +638,7 @@ def closed_jobs():
         "recruiter/closed_jobs.html",
         jobs=jobs
     )
+
 # ==========================================================
 # Create Job
 # ==========================================================
@@ -748,8 +750,46 @@ def create_job():
             status="Published"
         )
 
+        # Save the published job
         db.session.add(job)
         db.session.commit()
+
+        # --------------------------------------------------
+        # Notify all applicants about the newly posted job
+        # --------------------------------------------------
+
+        try:
+
+            from models.user import User
+
+            applicants = User.query.filter_by(
+                role="Applicant"
+            ).all()
+
+            for applicant in applicants:
+
+                db.session.add(
+                    Notification(
+                        user_id=applicant.id,
+                        title="New Job Posted",
+                        message=(
+                            f"{current_user.username} posted a new job: "
+                            f"{job.job_title}."
+                        ),
+                        notification_type="new_job"
+                    )
+                )
+
+            db.session.commit()
+
+        except Exception as e:
+
+            db.session.rollback()
+
+            print(
+                "New job notification error:",
+                repr(e)
+            )
 
         flash(
             "Job created successfully!",
@@ -763,7 +803,6 @@ def create_job():
     return render_template(
         "recruiter/create_job.html"
     )
-
 
 # ==========================================================
 # Job Details
@@ -1448,6 +1487,22 @@ def update_application_status(application_id):
 
     application.status = new_status
 
+    if new_status != current_status:
+        db.session.add(
+            Notification(
+                user_id=application.applicant_id,
+                title="Application Status Updated",
+                message=(
+                    f"Your application for "
+                    f"{application.job.job_title} "
+                    f"has been updated to {new_status}."
+                ),
+                notification_type="application_status",
+                application_id=application.id
+            )
+        )
+
+    db.session.commit()
     db.session.commit()
 
     flash(

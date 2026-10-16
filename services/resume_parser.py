@@ -64,6 +64,7 @@ SECTION_HEADERS = {
         "key projects",
         "project experience",
         "project work",
+        "selected projects"
     ],
 
     "certifications": [

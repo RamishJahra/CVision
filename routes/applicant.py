@@ -40,6 +40,7 @@ from models.profile import (
 from models.resume import Resume
 from models.job import Job
 from models.application import Application
+from models.notification import Notification
 from sqlalchemy import func
 from services.resume_parser import (
     parse_resume,
@@ -4504,6 +4505,7 @@ def job_detail(job_id):
         application=application
     )
 
+
 # ==========================================================
 # APPLY TO JOB
 # ==========================================================
@@ -4559,9 +4561,7 @@ def apply_job(job_id):
         > job.application_deadline
     ):
 
-        # --------------------------------------------------
         # Automatically close the expired job
-        # --------------------------------------------------
 
         job.status = "Closed"
 
@@ -4573,9 +4573,7 @@ def apply_job(job_id):
         )
 
         return redirect(
-            url_for(
-                "applicant.jobs"
-            )
+            url_for("applicant.jobs")
         )
 
     # ------------------------------------------------------
@@ -4621,9 +4619,7 @@ def apply_job(job_id):
         status="Pending"
     )
 
-    db.session.add(
-        application
-    )
+    db.session.add(application)
 
     # ------------------------------------------------------
     # Save application
@@ -4655,6 +4651,38 @@ def apply_job(job_id):
         )
 
     # ------------------------------------------------------
+    # Notify recruiter about the new application
+    # ------------------------------------------------------
+
+    if job.recruiter_id:
+
+        try:
+
+            db.session.add(
+                Notification(
+                    user_id=job.recruiter_id,
+                    title="New Job Application",
+                    message=(
+                        f"{current_user.full_name or current_user.username} "
+                        f"applied for {job.job_title}."
+                    ),
+                    notification_type="new_application",
+                    application_id=application.id
+                )
+            )
+
+            db.session.commit()
+
+        except Exception as e:
+
+            db.session.rollback()
+
+            print(
+                "Recruiter notification error:",
+                repr(e)
+            )
+
+    # ------------------------------------------------------
     # Success
     # ------------------------------------------------------
 
@@ -4669,6 +4697,7 @@ def apply_job(job_id):
             job_id=job.id
         )
     )
+
 
 # ==========================================================
 # APPLICANT MY APPLICATIONS
