@@ -1,0 +1,520 @@
+```html
+{% extends "layouts/base.html" %}
+
+{% block title %}
+Ranked Candidates | CVision
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ranking-page {
+        padding-top: 110px;
+        padding-bottom: 55px;
+        color: #1e293b;
+    }
+
+    /* Page Header */
+    .ranking-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+
+    .ranking-title {
+        font-size: clamp(25px, 3vw, 32px);
+        font-weight: 750;
+        letter-spacing: -0.8px;
+        color: #172554;
+        margin-bottom: 8px;
+    }
+
+    .ranking-job {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 13px;
+        border-radius: 9px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .ranking-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 18px;
+        border-radius: 10px;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .ranking-back-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Table Card */
+    .ranking-card {
+        background: #ffffff;
+        border: 1px solid #e8edf5;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 5px 22px rgba(15, 23, 42, 0.045);
+    }
+
+    .ranking-table {
+        margin-bottom: 0;
+        min-width: 950px;
+    }
+
+    .ranking-table thead th {
+        background: #f8faff;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: 0.65px;
+        white-space: nowrap;
+        padding: 17px 15px;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+    .ranking-table tbody td {
+        padding: 19px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f3f8;
+        color: #475569;
+        font-size: 13px;
+    }
+
+    .ranking-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .ranking-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .ranking-table tbody tr:hover {
+        background: #f8faff;
+    }
+
+    /* Rank */
+    .rank-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 35px;
+        height: 35px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 13px;
+        font-weight: 750;
+    }
+
+    .ranking-table tbody tr:first-child .rank-number {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    /* Candidate */
+    .candidate-name {
+        color: #172554;
+        font-weight: 700;
+        font-size: 14px;
+        margin-bottom: 4px;
+        overflow-wrap: anywhere;
+    }
+
+    .candidate-username {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .resume-warning {
+        display: block;
+        color: #b45309;
+        font-size: 11px;
+        margin-top: 7px;
+    }
+
+    /* Match Score */
+    .match-score {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 7px 10px;
+        border-radius: 9px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 17px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .score-detail {
+        color: #64748b;
+        font-size: 11px;
+        margin-top: 8px;
+        line-height: 1.9;
+        white-space: nowrap;
+    }
+
+    .score-detail strong {
+        color: #475569;
+        font-weight: 600;
+    }
+
+    /* Skills */
+    .skill-heading {
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 750;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin: 0 0 6px;
+    }
+
+    .skill-group + .skill-group {
+        margin-top: 11px;
+    }
+
+    .skill-tag {
+        display: inline-block;
+        padding: 5px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.4;
+        margin: 2px 2px 2px 0;
+        overflow-wrap: anywhere;
+    }
+
+    .skill-matched {
+        color: #047857;
+        background: #ecfdf5;
+        border: 1px solid #d1fae5;
+    }
+
+    .skill-missing {
+        color: #b91c1c;
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+    }
+
+    .skill-neutral {
+        color: #64748b;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Education */
+    .education-note {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
+        min-width: 115px;
+    }
+
+    /* Application */
+    .application-status {
+        display: inline-block;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        border-radius: 7px;
+        padding: 5px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .view-application-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: #2563eb;
+        border: 1px solid #2563eb;
+        color: #ffffff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 650;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+    }
+
+    .view-application-btn:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+        color: #ffffff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.16);
+    }
+
+    /* Empty State */
+    .empty-ranking {
+        padding: 65px 20px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 65px;
+        height: 65px;
+        border-radius: 18px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 28px;
+        margin-bottom: 18px;
+    }
+
+    .empty-ranking h4 {
+        color: #172554;
+        font-weight: 750;
+    }
+
+    .empty-ranking p {
+        color: #64748b;
+        font-size: 14px;
+    }
+
+    /* Review Note */
+    .ranking-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.7;
+        margin-top: 18px;
+        margin-bottom: 0;
+    }
+
+    .ranking-note i {
+        color: #2563eb;
+        font-size: 15px;
+        margin-top: 1px;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+        .ranking-page {
+            padding-top: 95px;
+        }
+
+        .ranking-header {
+            align-items: flex-start;
+        }
+
+        .ranking-back-btn {
+            padding: 9px 14px;
+        }
+
+        .ranking-card {
+            border-radius: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container ranking-page">
+
+    <!-- Page Header -->
+    <div class="ranking-header">
+        <div>
+            <h1 class="ranking-title">Ranked Candidates</h1>
+
+            <p class="ranking-job">
+                <i class="bi bi-briefcase-fill"></i>
+                {{ job.job_title }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('recruiter.jobs') }}"
+           class="btn btn-outline-primary ranking-back-btn">
+            <i class="bi bi-arrow-left"></i>
+            My Jobs
+        </a>
+    </div>
+
+    <!-- Candidates Table -->
+    {% if candidates %}
+    <div class="ranking-card">
+        <div class="table-responsive">
+            <table class="table ranking-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Candidate</th>
+                        <th>Job Match</th>
+                        <th>Required Skills</th>
+                        <th>Education</th>
+                        <th>Application</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for candidate in candidates %}
+                    <tr>
+                        <!-- Rank -->
+                        <td>
+                            <span class="rank-number">
+                                {{ loop.index }}
+                            </span>
+                        </td>
+
+                        <!-- Candidate -->
+                        <td>
+                            <div class="candidate-name">
+                                {{ candidate.applicant_name }}
+                            </div>
+
+                            <div class="candidate-username">
+                                @{{ candidate.applicant_username }}
+                            </div>
+
+                            {% if not candidate.resume_available %}
+                            <span class="resume-warning">
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                No extracted active resume text
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Job Match -->
+                        <td>
+                            <div class="match-score">
+                                <i class="bi bi-bullseye"></i>
+                                {{ "%.1f"|format(candidate.overall_score) }}%
+                            </div>
+
+                            <div class="score-detail">
+                                <strong>Description:</strong>
+                                {{ "%.1f"|format(candidate.description_score) }}%
+
+                                {% if candidate.skill_score is not none %}
+                                <br>
+                                <strong>Skills:</strong>
+                                {{ "%.1f"|format(candidate.skill_score) }}%
+                                {% endif %}
+
+                                {% if candidate.education_score is not none %}
+                                <br>
+                                <strong>Education:</strong>
+                                {{ "%.1f"|format(candidate.education_score) }}%
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Required Skills -->
+                        <td>
+                            {% if candidate.required_skills %}
+
+                                <div class="skill-group">
+                                    <div class="skill-heading">Matched</div>
+
+                                    {% if candidate.matched_skills %}
+                                        {% for skill in candidate.matched_skills %}
+                                        <span class="skill-tag skill-matched">
+                                            {{ skill }}
+                                        </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="skill-tag skill-neutral">
+                                            None detected
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="skill-group">
+                                    <div class="skill-heading">Not found</div>
+
+                                    {% if candidate.missing_skills %}
+                                        {% for skill in candidate.missing_skills %}
+                                        <span class="skill-tag skill-missing">
+                                            {{ skill }}
+                                        </span>
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="skill-tag skill-matched">
+                                            All detected
+                                        </span>
+                                    {% endif %}
+                                </div>
+
+                            {% else %}
+                                <span class="text-muted small">
+                                    No required skills specified.
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Education -->
+                        <td>
+                            <div class="education-note">
+                                {{ candidate.education_note }}
+                            </div>
+                        </td>
+
+                        <!-- Application -->
+                        <td>
+                            <span class="application-status">
+                                {{ candidate.application_status }}
+                            </span>
+
+                            <a href="{{ url_for(
+                                'recruiter.application_detail',
+                                application_id=candidate.application_id
+                            ) }}"
+                               class="view-application-btn">
+                                <i class="bi bi-eye"></i>
+                                View Application
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="ranking-card empty-ranking">
+        <div class="empty-icon">
+            <i class="bi bi-people"></i>
+        </div>
+
+        <h4>No Candidates Yet</h4>
+
+        <p class="mb-0">
+            Candidates will appear here after they apply for this job.
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- Review Note -->
+    <p class="ranking-note">
+        <i class="bi bi-info-circle"></i>
+        <span>
+            Similarity scores are estimates. Review each candidate's resume,
+            education, work history, and application before making hiring decisions.
+        </span>
+    </p>
+
+</div>
+{% endblock %}
+```

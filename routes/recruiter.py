@@ -36,7 +36,7 @@ from models.job import Job
 from models.application import Application
 from models.resume import Resume
 from models.notification import Notification
-
+from services.job_resume_matcher import calculate_job_match
 
 recruiter = Blueprint(
     "recruiter",
@@ -1263,7 +1263,7 @@ def applications_live():
                 if applicant
                 else ""
             ),
-
+            "job_id": application.job_id,
             "job_title": (
                 job.job_title
                 if job
@@ -1320,6 +1320,59 @@ def applications_live():
         "version": version,
         "applications": application_data
     }
+
+# ==========================================================
+# Ranked Candidates for a Job
+# ==========================================================
+
+@recruiter.route(
+    "/jobs/<int:job_id>/candidates",
+    methods=["GET"]
+)
+@login_required
+def ranked_candidates(job_id):
+
+    if current_user.role != "Recruiter":
+        return redirect(url_for("dashboard.home"))
+
+    close_expired_jobs()
+
+    job = Job.query.filter_by(
+        id=job_id,
+        recruiter_id=current_user.id
+    ).first()
+
+    if not job:
+        flash("Job not found.", "danger")
+        return redirect(url_for("recruiter.jobs"))
+
+    applications = Application.query.filter_by(
+        job_id=job.id
+    ).all()
+
+    ranked_applications = []
+
+    for application in applications:
+        try:
+            result = calculate_job_match(job, application)
+            ranked_applications.append(result)
+        except Exception as error:
+            current_app.logger.exception(
+                "Job matching failed for application %s: %s",
+                application.id,
+                error
+            )
+
+    ranked_applications.sort(
+        key=lambda item: item["overall_score"],
+        reverse=True
+    )
+
+    return render_template(
+        "recruiter/ranked_candidates.html",
+        job=job,
+        candidates=ranked_applications
+    )
 # ==========================================================
 # Application Details
 # ==========================================================

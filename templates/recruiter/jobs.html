@@ -380,7 +380,13 @@ Manage Jobs | CVision
                                             View Job
 
                                         </a>
-
+                                        <a
+    href="{{ url_for('recruiter.ranked_candidates', job_id=job.id) }}"
+    class="btn btn-outline-primary rounded-pill px-3"
+>
+    <i class="bi bi-bar-chart-line me-1"></i>
+    Rank Applications
+</a>
 
                                         {% if job.status|lower|trim == "closed" %}
 
@@ -739,6 +745,13 @@ Manage Jobs | CVision
                                                         View Job
 
                                                     </a>
+                                                    <a
+    href="/recruiter/jobs/${job.id}/candidates"
+    class="btn btn-outline-primary rounded-pill px-3"
+>
+    <i class="bi bi-bar-chart-line me-1"></i>
+    Rank Applications
+</a>
 
 
                                                     ${moveToClosedHtml}
