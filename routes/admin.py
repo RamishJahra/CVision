@@ -114,28 +114,26 @@ def users():
     # ------------------------------------------------------
     # Statistics
     # ------------------------------------------------------
+    # ------------------------------------------------------
+    # Statistics: Applicants and Recruiters ONLY
+    # ------------------------------------------------------
 
-    total_users = User.query.filter(
-        User.role.in_(
-            ["Applicant", "Recruiter"]
-        )
-    ).count()
+    eligible_users = User.query.filter(
+        User.role.in_(["Applicant", "Recruiter"])
+    )
 
+    total_users = eligible_users.count()
 
     total_applicants = User.query.filter_by(
         role="Applicant"
     ).count()
 
-
     total_recruiters = User.query.filter_by(
         role="Recruiter"
     ).count()
 
-
     verified_users = User.query.filter(
-        User.role.in_(
-            ["Applicant", "Recruiter"]
-        ),
+        User.role.in_(["Applicant", "Recruiter"]),
         User.is_verified == True
     ).count()
 

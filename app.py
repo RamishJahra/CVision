@@ -28,7 +28,8 @@ from routes.recruiter import recruiter
 from routes.admin import admin
 from models.social import SocialPost, SocialComment, SocialReaction
 from routes.social import social
-
+from models.interview import Interview
+from routes.interviews import interviews
 from werkzeug.security import generate_password_hash
 
 
@@ -127,6 +128,7 @@ app.register_blueprint(admin)
 
 app.register_blueprint(notifications)
 app.register_blueprint(social)
+app.register_blueprint(interviews)
 # ==========================
 # Create Database Tables
 # ==========================

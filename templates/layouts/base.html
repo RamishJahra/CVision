@@ -151,6 +151,14 @@
                         </a>
 
                     </li>
+                    <li class="nav-item">
+
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('interviews.applicant_list') }}"
+                        >
+                            Interviews
+                        </a>
 
                 {% elif current_user.role == "Recruiter" %}
 
@@ -202,6 +210,15 @@
                         </a>
 
                     </li>
+                    <li class="nav-item">
+
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('interviews.recruiter_list') }}"
+                        >
+                            Interviews
+                        </a>
+                    </li>
 
                 {% elif current_user.role == "Admin" %}
 
@@ -229,24 +246,11 @@
 
                     <li class="nav-item">
 
-                        <a class="nav-link" href="#">
-                            Applicants
-                        </a>
-
-                    </li>
-
-                    <li class="nav-item">
-
-                        <a class="nav-link" href="#">
-                            Recruiters
-                        </a>
-
-                    </li>
-
-                    <li class="nav-item">
-
-                        <a class="nav-link" href="#">
-                            Jobs
+                        <a
+                            class="nav-link"
+                            href="#"
+                        >
+                            Feedbacks
                         </a>
 
                     </li>

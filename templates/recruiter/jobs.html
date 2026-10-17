@@ -149,6 +149,85 @@ Manage Jobs | CVision
         color: #6c757d;
         margin-bottom: 0;
     }
+    
+/* Search, sorting, and filtering */
+
+.jobs-toolbar {
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.jobs-search-wrapper {
+    position: relative;
+    left: 0;
+    width: 100%;
+}
+
+.jobs-search-input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.jobs-search-wrapper .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0d6efd;
+    pointer-events: none;
+}
+
+.jobs-search-input {
+    padding-left: 42px;
+    border-radius: 10px;
+    min-height: 45px;
+}
+
+.jobs-filter-select {
+    min-height: 45px;
+    border-radius: 10px;
+}
+
+.jobs-results-count {
+    font-size: 13px;
+    color: #6c757d;
+    margin: 14px 0 0;
+}
+
+.job-card[hidden],
+.job-column[hidden] {
+    display: none !important;
+}
+
+.jobs-no-results {
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    border-radius: 18px;
+    padding: 45px 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.jobs-no-results i {
+    font-size: 35px;
+    color: #0d6efd;
+    margin-bottom: 12px;
+}
+
+.jobs-no-results h4 {
+    font-weight: 700;
+    color: #111111;
+}
+
+.jobs-no-results p {
+    color: #6c757d;
+    margin-bottom: 0;
+}
+
 
 </style>
 
@@ -212,6 +291,76 @@ Manage Jobs | CVision
 
     </div>
 
+    
+<!-- ==========================
+     Search, Sort and Filter
+=========================== -->
+
+<div class="jobs-toolbar" data-aos="fade-up">
+
+    <div class="row g-3 align-items-end">
+<div class="col-lg-5 col-md-12">
+
+    <div class="jobs-search-wrapper">
+        <i class="bi bi-search search-icon"></i>
+
+        <input
+            type="search"
+            id="jobsSearch"
+            class="form-control jobs-search-input"
+            placeholder="Search title, location, salary..."
+            autocomplete="off"
+        >
+    </div>
+</div>
+
+
+        <div class="col-lg-3 col-md-4">
+            <label for="jobsStatusFilter" class="form-label fw-semibold">
+                Job Status
+            </label>
+
+            <select id="jobsStatusFilter"
+                    class="form-select jobs-filter-select">
+                <option value="all">All Jobs</option>
+                <option value="published">Published</option>
+                <option value="closed">Closed</option>
+            </select>
+        </div>
+
+        <div class="col-lg-3 col-md-5">
+            <label for="jobsSort" class="form-label fw-semibold">
+                Sort By
+            </label>
+
+            <select id="jobsSort"
+                    class="form-select jobs-filter-select">
+                <option value="title-asc">Job Title: A–Z</option>
+                <option value="title-desc">Job Title: Z–A</option>
+                <option value="deadline-asc">Deadline: Earliest First</option>
+                <option value="deadline-desc">Deadline: Latest First</option>
+            </select>
+        </div>
+
+        <div class="col-lg-1 col-md-3">
+            <button type="button"
+                    id="clearJobsFilters"
+                    class="btn btn-outline-secondary w-100"
+                    title="Clear filters"
+                    aria-label="Clear filters">
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <p id="jobsResultsCount"
+       class="jobs-results-count"
+       aria-live="polite">
+        Showing all jobs
+    </p>
+
+</div>
 
     <!-- ==========================
          Job Listings
@@ -463,406 +612,428 @@ Manage Jobs | CVision
 
 <script>
 
-    let recruiterJobsVersion = null;
+    
+let recruiterJobsVersion = null;
 
+const recruiterJobsState = {
+    search: "",
+    status: "all",
+    sort: "newest"
+};
 
-    async function refreshRecruiterJobs() {
+function escapeRecruiterJobHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
 
-        if (document.hidden) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function getJobTimestamp(job) {
+    const value = job.created_at || job.posted_at;
+
+    if (!value) {
+        return 0;
+    }
+
+    const timestamp = new Date(value).getTime();
+
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function getDeadlineTimestamp(job) {
+    if (!job.application_deadline) {
+        return null;
+    }
+
+    const timestamp = new Date(
+        job.application_deadline
+    ).getTime();
+
+    return Number.isNaN(timestamp) ? null : timestamp;
+}
+
+function sortRecruiterJobs(jobs) {
+    const sorted = [...jobs];
+
+    switch (recruiterJobsState.sort) {
+        case "oldest":
+            sorted.sort(
+                (a, b) => getJobTimestamp(a) - getJobTimestamp(b)
+            );
+            break;
+
+        case "title-asc":
+            sorted.sort(
+                (a, b) => String(a.job_title || "").localeCompare(
+                    String(b.job_title || "")
+                )
+            );
+            break;
+
+        case "title-desc":
+            sorted.sort(
+                (a, b) => String(b.job_title || "").localeCompare(
+                    String(a.job_title || "")
+                )
+            );
+            break;
+
+        case "deadline-asc":
+            sorted.sort((a, b) => {
+                const da = getDeadlineTimestamp(a);
+                const db = getDeadlineTimestamp(b);
+
+                if (da === null) return 1;
+                if (db === null) return -1;
+
+                return da - db;
+            });
+            break;
+
+        case "deadline-desc":
+            sorted.sort((a, b) => {
+                const da = getDeadlineTimestamp(a);
+                const db = getDeadlineTimestamp(b);
+
+                if (da === null) return 1;
+                if (db === null) return -1;
+
+                return db - da;
+            });
+            break;
+
+        case "newest":
+        default:
+            sorted.sort(
+                (a, b) => getJobTimestamp(b) - getJobTimestamp(a)
+            );
+            break;
+    }
+
+    return sorted;
+}
+
+function filterRecruiterJobs(jobs) {
+    const search = recruiterJobsState.search.toLowerCase();
+
+    return sortRecruiterJobs(jobs).filter(job => {
+        const searchableText = [
+            job.job_title,
+            job.location,
+            job.job_type,
+            job.salary,
+            job.description
+        ].join(" ").toLowerCase();
+
+        const matchesSearch = searchableText.includes(search);
+
+        const status = String(job.status || "").toLowerCase().trim();
+
+        const matchesStatus =
+            recruiterJobsState.status === "all" ||
+            status === recruiterJobsState.status;
+
+        return matchesSearch && matchesStatus;
+    });
+}
+
+function renderRecruiterJob(job, index) {
+    const status = String(job.status || "").trim().toLowerCase();
+
+    let statusHtml = "";
+
+    if (status === "published") {
+        statusHtml = `
+            <span class="job-status status-published">
+                Published
+            </span>
+        `;
+    } else if (status === "closed") {
+        statusHtml = `
+            <span class="job-status status-closed">
+                Closed
+            </span>
+        `;
+    }
+
+    let deadlineHtml = `
+        <i class="bi bi-calendar-event me-1"></i>
+        No deadline
+    `;
+
+    if (job.application_deadline) {
+        deadlineHtml = `
+            <i class="bi bi-calendar-event me-1"></i>
+            Deadline: ${escapeRecruiterJobHtml(
+                job.application_deadline
+            )}
+        `;
+    }
+
+    let moveToClosedHtml = "";
+
+    if (status === "closed") {
+        moveToClosedHtml = `
+            <form
+                method="POST"
+                action="/recruiter/jobs/${Number(job.id)}/move-to-closed"
+                class="d-inline"
+            >
+                <button
+                    type="submit"
+                    class="btn btn-outline-secondary rounded-pill px-4"
+                >
+                    <i class="bi bi-archive me-1"></i>
+                    Move to Closed
+                </button>
+            </form>
+        `;
+    }
+
+    const description = String(job.description || "");
+    const shortDescription = description.length > 180
+        ? description.substring(0, 180) + "..."
+        : description;
+
+    return `
+        <div class="col-lg-6 job-column"
+             data-aos="fade-up"
+             data-aos-delay="${index * 50}">
+
+            <div class="job-card d-flex flex-column">
+
+                <div class="d-flex align-items-start gap-3">
+                    <div class="job-icon">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <h2 class="job-title">
+                                ${escapeRecruiterJobHtml(job.job_title)}
+                            </h2>
+
+                            ${statusHtml}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="job-meta">
+                    ${job.location ? `
+                        <span class="job-meta-item">
+                            <i class="bi bi-geo-alt"></i>
+                            ${escapeRecruiterJobHtml(job.location)}
+                        </span>
+                    ` : ""}
+
+                    ${job.job_type ? `
+                        <span class="job-meta-item">
+                            <i class="bi bi-clock"></i>
+                            ${escapeRecruiterJobHtml(job.job_type)}
+                        </span>
+                    ` : ""}
+
+                    ${job.salary ? `
+                        <span class="job-meta-item">
+                            <i class="bi bi-cash"></i>
+                            ${escapeRecruiterJobHtml(job.salary)}
+                        </span>
+                    ` : ""}
+                </div>
+
+                ${description ? `
+                    <p class="job-description">
+                        ${escapeRecruiterJobHtml(shortDescription)}
+                    </p>
+                ` : ""}
+
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+
+                        <div class="deadline">
+                            ${deadlineHtml}
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+
+                            <a
+                                href="/recruiter/jobs/${Number(job.id)}"
+                                class="btn btn-primary rounded-pill px-4"
+                            >
+                                <i class="bi bi-eye me-1"></i>
+                                View Job
+                            </a>
+
+                            <a
+                                href="/recruiter/jobs/${Number(job.id)}/candidates"
+                                class="btn btn-outline-primary rounded-pill px-3"
+                            >
+                                <i class="bi bi-bar-chart-line me-1"></i>
+                                Rank Applications
+                            </a>
+
+                            ${moveToClosedHtml}
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    `;
+}
+
+function renderRecruiterJobs(jobs) {
+    const container = document.getElementById(
+        "recruiterJobsContainer"
+    );
+
+    const resultsCount = document.getElementById(
+        "jobsResultsCount"
+    );
+
+    if (!container) {
+        return;
+    }
+
+    const filteredJobs = filterRecruiterJobs(jobs);
+
+    if (filteredJobs.length > 0) {
+        container.innerHTML = `
+            <div class="row g-4">
+                ${filteredJobs.map(renderRecruiterJob).join("")}
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="jobs-no-results">
+                <i class="bi bi-search d-block"></i>
+
+                <h4>No Matching Jobs</h4>
+
+                <p>
+                    Try another search term or change your filters.
+                </p>
+            </div>
+        `;
+    }
+
+    if (resultsCount) {
+        resultsCount.textContent =
+            `Showing ${filteredJobs.length} of ${jobs.length} jobs`;
+    }
+
+    if (typeof AOS !== "undefined") {
+        AOS.refreshHard();
+    }
+}
+
+function initializeRecruiterJobFilters() {
+    const searchInput = document.getElementById("jobsSearch");
+    const statusFilter = document.getElementById("jobsStatusFilter");
+    const sortSelect = document.getElementById("jobsSort");
+    const clearButton = document.getElementById("clearJobsFilters");
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function() {
+            recruiterJobsState.search = this.value.trim();
+            refreshRecruiterJobs(true);
+        });
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener("change", function() {
+            recruiterJobsState.status = this.value;
+            refreshRecruiterJobs(true);
+        });
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", function() {
+            recruiterJobsState.sort = this.value;
+            refreshRecruiterJobs(true);
+        });
+    }
+
+    if (clearButton) {
+        clearButton.addEventListener("click", function() {
+            recruiterJobsState.search = "";
+            recruiterJobsState.status = "all";
+            recruiterJobsState.sort = "newest";
+
+            if (searchInput) searchInput.value = "";
+            if (statusFilter) statusFilter.value = "all";
+            if (sortSelect) sortSelect.value = "newest";
+
+            refreshRecruiterJobs(true);
+        });
+    }
+}
+
+async function refreshRecruiterJobs(forceRender = false) {
+    if (document.hidden) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "{{ url_for('recruiter.jobs_live') }}",
+            {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
             return;
         }
 
-        try {
+        const data = await response.json();
 
-            const response = await fetch(
-                "{{ url_for('recruiter.jobs_live') }}",
-                {
-                    method: "GET",
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    cache: "no-store"
-                }
-            );
-
-
-            if (!response.ok) {
-                return;
-            }
-
-
-            const data = await response.json();
-
-
-            if (recruiterJobsVersion === null) {
-
-                recruiterJobsVersion = data.version;
-
-                return;
-
-            }
-
-
-            if (data.version !== recruiterJobsVersion) {
-
-                const container = document.getElementById(
-                    "recruiterJobsContainer"
-                );
-
-
-                if (!container) {
-                    return;
-                }
-
-
-                let html = "";
-
-
-                if (data.jobs.length > 0) {
-
-                    html += `
-                        <div class="row g-4">
-                    `;
-
-
-                    data.jobs.forEach(
-                        function(job, index) {
-
-                            let statusHtml = "";
-
-                            if (job.status === "Published") {
-
-                                statusHtml = `
-                                    <span class="job-status status-published">
-                                        Published
-                                    </span>
-                                `;
-
-                            } else if (job.status === "Closed") {
-
-                                statusHtml = `
-                                    <span class="job-status status-closed">
-                                        Closed
-                                    </span>
-                                `;
-
-                            }
-
-
-                            let deadlineHtml = "";
-
-                            if (job.application_deadline) {
-
-                                deadlineHtml = `
-                                    <i class="bi bi-calendar-event me-1"></i>
-
-                                    Deadline:
-                                    ${escapeRecruiterJobHtml(
-                                        job.application_deadline
-                                    )}
-                                `;
-
-                            } else {
-
-                                deadlineHtml = `
-                                    <i class="bi bi-calendar-event me-1"></i>
-
-                                    No deadline
-                                `;
-
-                            }
-
-
-                            let moveToClosedHtml = "";
-
-                            if (job.status === "Closed") {
-
-                                moveToClosedHtml = `
-
-                                    <form
-                                        method="POST"
-                                        action="/recruiter/jobs/${job.id}/move-to-closed"
-                                        class="d-inline"
-                                    >
-
-                                        <button
-                                            type="submit"
-                                            class="btn btn-outline-secondary rounded-pill px-4"
-                                        >
-
-                                            <i class="bi bi-archive me-1"></i>
-
-                                            Move to Closed
-
-                                        </button>
-
-                                    </form>
-
-                                `;
-
-                            }
-
-
-                            html += `
-
-                                <div class="col-lg-6"
-                                     data-aos="fade-up"
-                                     data-aos-delay="${index * 50}">
-
-                                    <div class="job-card d-flex flex-column">
-
-                                        <div class="d-flex align-items-start gap-3">
-
-                                            <div class="job-icon">
-
-                                                <i class="bi bi-briefcase-fill"></i>
-
-                                            </div>
-
-
-                                            <div class="flex-grow-1">
-
-                                                <div class="d-flex justify-content-between align-items-start gap-2">
-
-                                                    <h2 class="job-title">
-
-                                                        ${escapeRecruiterJobHtml(
-                                                            job.job_title
-                                                        )}
-
-                                                    </h2>
-
-
-                                                    ${statusHtml}
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-
-                                        <div class="job-meta">
-
-                                            ${
-                                                job.location
-                                                ?
-                                                `
-                                                <span class="job-meta-item">
-
-                                                    <i class="bi bi-geo-alt"></i>
-
-                                                    ${escapeRecruiterJobHtml(
-                                                        job.location
-                                                    )}
-
-                                                </span>
-                                                `
-                                                :
-                                                ""
-                                            }
-
-
-                                            ${
-                                                job.job_type
-                                                ?
-                                                `
-                                                <span class="job-meta-item">
-
-                                                    <i class="bi bi-clock"></i>
-
-                                                    ${escapeRecruiterJobHtml(
-                                                        job.job_type
-                                                    )}
-
-                                                </span>
-                                                `
-                                                :
-                                                ""
-                                            }
-
-
-                                            ${
-                                                job.salary
-                                                ?
-                                                `
-                                                <span class="job-meta-item">
-
-                                                    <i class="bi bi-cash"></i>
-
-                                                    ${escapeRecruiterJobHtml(
-                                                        job.salary
-                                                    )}
-
-                                                </span>
-                                                `
-                                                :
-                                                ""
-                                            }
-
-                                        </div>
-
-
-                                        ${
-                                            job.description
-                                            ?
-                                            `
-                                            <p class="job-description">
-
-                                                ${escapeRecruiterJobHtml(
-                                                    job.description.length > 180
-                                                    ? job.description.substring(0, 180) + "..."
-                                                    : job.description
-                                                )}
-
-                                            </p>
-                                            `
-                                            :
-                                            ""
-                                        }
-
-
-                                        <div class="mt-auto">
-
-                                            <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
-
-                                                <div class="deadline">
-
-                                                    ${deadlineHtml}
-
-                                                </div>
-
-
-                                                <div class="d-flex align-items-center gap-2 flex-wrap">
-
-                                                    <a
-                                                        href="/recruiter/jobs/${job.id}"
-                                                        class="btn btn-primary rounded-pill px-4"
-                                                    >
-
-                                                        <i class="bi bi-eye me-1"></i>
-
-                                                        View Job
-
-                                                    </a>
-                                                    <a
-    href="/recruiter/jobs/${job.id}/candidates"
-    class="btn btn-outline-primary rounded-pill px-3"
->
-    <i class="bi bi-bar-chart-line me-1"></i>
-    Rank Applications
-</a>
-
-
-                                                    ${moveToClosedHtml}
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                            `;
-
-                        }
-                    );
-
-
-                    html += `
-                        </div>
-                    `;
-
-
-                } else {
-
-                    html = `
-
-                        <div class="empty-jobs"
-                             data-aos="fade-up">
-
-                            <div class="empty-jobs-icon">
-
-                                <i class="bi bi-briefcase"></i>
-
-                            </div>
-
-                            <h4>
-                                No Jobs Found
-                            </h4>
-
-                            <p>
-                                You currently have no active job postings.
-                                Create a new job to get started.
-                            </p>
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                container.innerHTML = html;
-
-                recruiterJobsVersion = data.version;
-
-
-                if (typeof AOS !== "undefined") {
-                    AOS.refreshHard();
-                }
-
-            }
-
-        } catch (error) {
-
-            console.debug(
-                "Recruiter jobs live update failed:",
-                error
-            );
-
+        if (!Array.isArray(data.jobs)) {
+            return;
         }
 
+        const changed = recruiterJobsVersion !== data.version;
+
+        if (
+            recruiterJobsVersion === null ||
+            changed ||
+            forceRender
+        ) {
+            renderRecruiterJobs(data.jobs);
+            recruiterJobsVersion = data.version;
+        }
+
+    } catch (error) {
+        console.debug(
+            "Recruiter jobs live update failed:",
+            error
+        );
     }
+}
 
+document.addEventListener("DOMContentLoaded", function() {
+    initializeRecruiterJobFilters();
+    refreshRecruiterJobs(true);
 
-    function escapeRecruiterJobHtml(value) {
+    setInterval(refreshRecruiterJobs, 3000);
 
-        if (value === null || value === undefined) {
-            return "";
+    document.addEventListener("visibilitychange", function() {
+        if (!document.hidden) {
+            refreshRecruiterJobs(true);
         }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-
-    }
-
-
-    setInterval(
-        refreshRecruiterJobs,
-        3000
-    );
-
-
-    document.addEventListener(
-        "visibilitychange",
-        function() {
-
-            if (!document.hidden) {
-
-                refreshRecruiterJobs();
-
-            }
-
-        }
-    );
+    });
+});
 
 </script>
 

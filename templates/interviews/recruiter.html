@@ -1,0 +1,1295 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Interview Management | CVision{% endblock %}
+
+{% block extra_css %}
+<style>
+    .interview-page {
+        padding-top: 110px;
+        padding-bottom: 65px;
+    }
+
+    .interview-hero {
+        padding: 28px;
+        margin-bottom: 26px;
+        border: 1px solid #e1e9ff;
+        border-radius: 20px;
+        background: linear-gradient(120deg, #eff6ff, #f5f3ff);
+    }
+
+    .hero-eyebrow {
+        color: #3158c9;
+        font-size: .76rem;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+    }
+
+    .hero-title {
+        color: #172554;
+        font-weight: 800;
+        letter-spacing: -.6px;
+    }
+
+    .hero-description {
+        color: #64748b;
+        max-width: 580px;
+    }
+
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 13px;
+        border: 1px solid #dbeafe;
+        border-radius: 30px;
+        background: #fff;
+        color: #1d4ed8;
+        font-size: .78rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px #dcfce7;
+    }
+
+    .interview-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 27px;
+    }
+
+    .summary-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 20px;
+        border: 1px solid #e8edf5;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, .035);
+    }
+
+    .summary-icon {
+        width: 46px;
+        height: 46px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        border-radius: 13px;
+        font-size: 1.25rem;
+    }
+
+    .summary-icon.blue {
+        color: #3158c9;
+        background: #eaf1ff;
+    }
+
+    .summary-icon.purple {
+        color: #7e22ce;
+        background: #f3e8ff;
+    }
+
+    .summary-icon.green {
+        color: #15803d;
+        background: #dcfce7;
+    }
+
+    .summary-label {
+        margin-bottom: 3px;
+        color: #64748b;
+        font-size: .82rem;
+    }
+
+    .summary-value {
+        color: #172554;
+        font-size: 1.45rem;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .interview-panel {
+        overflow: hidden;
+        margin-bottom: 25px;
+        border: 1px solid #e8edf5;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 5px 22px rgba(20, 35, 70, .045);
+    }
+
+    .panel-header {
+        padding: 23px 25px;
+        border-bottom: 1px solid #edf0f5;
+        background: #fff;
+    }
+
+    .panel-title {
+        margin-bottom: 5px;
+        color: #172554;
+        font-weight: 800;
+    }
+
+    .muted {
+        color: #64748b;
+        font-size: .88rem;
+    }
+
+    .panel-body {
+        padding: 25px;
+    }
+
+    .form-label {
+        color: #334155;
+        font-size: .86rem;
+        font-weight: 700;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 43px;
+        border-color: #dfe5ef;
+        border-radius: 10px;
+        font-size: .9rem;
+    }
+
+    textarea.form-control {
+        min-height: auto;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #7193ed;
+        box-shadow: 0 0 0 .2rem rgba(49, 88, 201, .10);
+    }
+
+    .primary-button {
+        padding: 11px 18px;
+        border-radius: 10px;
+        background: #3158c9;
+        border-color: #3158c9;
+        font-weight: 700;
+    }
+
+    .primary-button:hover {
+        background: #2445a5;
+        border-color: #2445a5;
+    }
+
+    .section-heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 32px 0 17px;
+    }
+
+    .section-heading h4 {
+        margin: 0;
+        color: #172554;
+        font-weight: 800;
+    }
+
+    .count-pill {
+        padding: 6px 12px;
+        border-radius: 30px;
+        background: #eaf1ff;
+        color: #2549a8;
+        font-size: .8rem;
+        font-weight: 800;
+    }
+
+    .interview-list {
+        display: grid;
+        gap: 18px;
+    }
+
+    .interview-card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e8edf5;
+        border-radius: 17px;
+        background: #fff;
+        box-shadow: 0 5px 20px rgba(20, 35, 70, .045);
+        transition: box-shadow .2s ease, transform .2s ease;
+    }
+
+    .interview-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 9px 25px rgba(20, 35, 70, .075);
+    }
+
+    .interview-card::before {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 4px;
+        background: #64748b;
+        content: "";
+    }
+
+    .interview-card.status-scheduled::before {
+        background: #2563eb;
+    }
+
+    .interview-card.status-completed::before {
+        background: #16a34a;
+    }
+
+    .interview-card.status-cancelled::before {
+        background: #dc2626;
+    }
+
+    .interview-card.status-no-show::before {
+        background: #d97706;
+    }
+
+    .interview-card-body {
+        padding: 24px 25px 23px 29px;
+    }
+
+    .candidate-name {
+        margin-bottom: 5px;
+        color: #172554;
+        font-size: 1.08rem;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .job-name {
+        margin-bottom: 5px;
+        color: #475569;
+        font-size: .91rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .interview-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 10px;
+        color: #3158c9;
+        font-size: .74rem;
+        font-weight: 800;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 30px;
+        font-size: .76rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .status-scheduled-badge {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .status-completed-badge {
+        color: #166534;
+        background: #dcfce7;
+    }
+
+    .status-cancelled-badge {
+        color: #991b1b;
+        background: #fee2e2;
+    }
+
+    .status-no-show-badge {
+        color: #92400e;
+        background: #fef3c7;
+    }
+
+    .status-unknown-badge {
+        color: #475569;
+        background: #e2e8f0;
+    }
+
+    .interview-details {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 17px;
+        margin-top: 20px;
+        padding: 19px 0;
+        border-top: 1px solid #edf0f5;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+    .detail-label {
+        margin-bottom: 7px;
+        color: #94a3b8;
+        font-size: .74rem;
+        font-weight: 800;
+    }
+
+    .detail-value {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        color: #334155;
+        font-size: .89rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .detail-value i {
+        margin-top: 2px;
+        color: #4773dc;
+    }
+
+    .extra-details {
+        margin-top: 15px;
+        padding: 14px 16px;
+        border: 1px solid #edf1f7;
+        border-radius: 12px;
+        background: #f8fafc;
+    }
+
+    .extra-title {
+        margin-bottom: 7px;
+        color: #475569;
+        font-size: .8rem;
+        font-weight: 800;
+    }
+
+    .extra-content {
+        margin: 0;
+        color: #475569;
+        font-size: .88rem;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .meeting-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 16px;
+        color: #3158c9;
+        font-size: .88rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .meeting-link:hover {
+        color: #1d3e9b;
+        text-decoration: underline;
+    }
+
+    .management-area {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .management-box {
+        padding: 14px;
+        border: 1px solid #e8edf5;
+        border-radius: 12px;
+        background: #fff;
+    }
+
+    .management-title {
+        margin-bottom: 10px;
+        color: #475569;
+        font-size: .8rem;
+        font-weight: 800;
+    }
+
+    .management-box .form-select {
+        min-width: 0;
+    }
+
+    .empty-state,
+    .loading-state,
+    .error-state {
+        padding: 48px 20px;
+        border: 1px solid #e8edf5;
+        border-radius: 17px;
+        background: #fff;
+        text-align: center;
+    }
+
+    .empty-icon {
+        display: grid;
+        place-items: center;
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 16px;
+        border-radius: 21px;
+        background: #eff6ff;
+        color: #3158c9;
+        font-size: 1.9rem;
+    }
+
+    .empty-state h5,
+    .loading-state h5,
+    .error-state h5 {
+        color: #172554;
+        font-weight: 800;
+    }
+
+    .empty-state p,
+    .loading-state p,
+    .error-state p {
+        max-width: 460px;
+        margin: 8px auto 0;
+        color: #64748b;
+        font-size: .9rem;
+    }
+
+    .sync-message {
+        min-height: 20px;
+        margin-top: 12px;
+        color: #64748b;
+        font-size: .78rem;
+        text-align: right;
+    }
+
+    .sync-error {
+        color: #b91c1c;
+    }
+
+    .sync-success {
+        color: #15803d;
+    }
+
+    .interview-skeleton {
+        height: 210px;
+        border-radius: 17px;
+        background: linear-gradient(
+            90deg, #f1f5f9 25%, #e8edf5 50%, #f1f5f9 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s linear infinite;
+    }
+
+    .submit-feedback {
+        display: none;
+        margin-top: 12px;
+        font-size: .85rem;
+    }
+
+    @keyframes shimmer {
+        from { background-position: 200% 0; }
+        to { background-position: -200% 0; }
+    }
+
+    @media (max-width: 767px) {
+        .interview-page {
+            padding-top: 95px;
+        }
+
+        .interview-hero {
+            padding: 22px;
+        }
+
+        .interview-summary {
+            grid-template-columns: 1fr;
+            gap: 11px;
+        }
+
+        .panel-header,
+        .panel-body {
+            padding: 19px;
+        }
+
+        .interview-card-body {
+            padding: 21px 17px 20px 22px;
+        }
+
+        .interview-details {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .management-area {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .interview-card,
+        .interview-skeleton {
+            animation: none;
+            transition: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container interview-page">
+
+    <section class="interview-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+            <div>
+                <div class="hero-eyebrow mb-2">RECRUITER WORKSPACE</div>
+                <h2 class="hero-title mb-2">Interview Management</h2>
+                <p class="hero-description mb-0">
+                    Schedule interviews, manage candidate appointments, and keep
+                    applicants informed throughout the hiring process.
+                </p>
+            </div>
+
+            <span class="live-indicator">
+                <span class="live-dot"></span>
+                Live updates
+            </span>
+        </div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'warning' if category == 'message' else category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="interview-summary">
+        <div class="summary-card">
+            <div class="summary-icon blue">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+            <div>
+                <div class="summary-label">Total interviews</div>
+                <div class="summary-value" id="totalInterviews">0</div>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon purple">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div>
+                <div class="summary-label">Scheduled</div>
+                <div class="summary-value" id="scheduledInterviews">0</div>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon green">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div>
+                <div class="summary-label">Completed</div>
+                <div class="summary-value" id="completedInterviews">0</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="interview-panel">
+        <div class="panel-header">
+            <h5 class="panel-title">Schedule an interview</h5>
+            <p class="muted mb-0">
+                Select an application belonging to one of your jobs.
+                Notifications are sent after scheduling.
+            </p>
+        </div>
+
+        <div class="panel-body">
+            {% if applications %}
+            <form method="POST" id="scheduleInterviewForm"
+                  action="" autocomplete="off">
+                <div class="row g-3">
+
+                    <div class="col-lg-6">
+                        <label class="form-label" for="application_id">
+                            Applicant and job
+                        </label>
+                        <select class="form-select" id="application_id" required>
+                            <option value="">Select an application</option>
+                            {% for application in applications %}
+                            <option value="{{ application.id }}">
+                                {{ application.applicant.full_name }}
+                                · {{ application.job.job_title }}
+                                · Application #{{ application.id }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label class="form-label" for="scheduled_at">
+                            Date and time
+                        </label>
+                        <input class="form-control" type="datetime-local"
+                               id="scheduled_at" name="scheduled_at" required>
+                    </div>
+
+                    <div class="col-lg-3">
+                        <label class="form-label" for="interview_type">
+                            Interview type
+                        </label>
+                        <select class="form-select" id="interview_type"
+                                name="interview_type" required>
+                            {% for kind in interview_types %}
+                            <option value="{{ kind }}">{{ kind }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-lg-6" id="meetingLinkGroup">
+                        <label class="form-label" for="meeting_link">
+                            Meeting link
+                        </label>
+                        <input class="form-control" type="url"
+                               id="meeting_link" name="meeting_link"
+                               placeholder="https://..." maxlength="500">
+                    </div>
+
+                    <div class="col-lg-6 d-none" id="locationGroup">
+                        <label class="form-label" for="location">
+                            Interview location
+                        </label>
+                        <input class="form-control" type="text"
+                               id="location" name="location"
+                               maxlength="255" placeholder="Office address">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label" for="instructions">
+                            Instructions <span class="text-muted">(optional)</span>
+                        </label>
+                        <textarea class="form-control" id="instructions"
+                                  name="instructions" rows="3" maxlength="5000"
+                                  placeholder="Preparation notes or documents to bring"></textarea>
+                    </div>
+
+                    <div class="col-12 d-flex flex-wrap align-items-center gap-3">
+                        <button class="btn btn-primary primary-button"
+                                type="submit" id="scheduleSubmitButton">
+                            <i class="bi bi-calendar2-check me-2"></i>
+                            Schedule interview
+                        </button>
+                        <span class="muted">
+                            Applicants will see updates on their interview page.
+                        </span>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="submit-feedback text-danger"
+                             id="scheduleFormError" role="alert"></div>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+                <h5>No applications yet</h5>
+                <p>
+                    Applications to your jobs will appear here when candidates apply.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <div class="section-heading">
+        <div>
+            <h4>Interview schedule</h4>
+            <p class="muted mb-0 mt-1">
+                Review appointments and update interview details or statuses.
+                Application status remains unchanged.
+            </p>
+        </div>
+        <span class="count-pill" id="interviewCount">
+            {{ interviews|length }} interviews
+        </span>
+    </div>
+
+    <section id="interviewList" class="interview-list" aria-live="polite"
+             aria-busy="true">
+        <div class="interview-skeleton"></div>
+        <div class="interview-skeleton"></div>
+    </section>
+
+    <div id="syncMessage" class="sync-message" role="status">
+        Loading interviews...
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const applicationSelect = document.getElementById("application_id");
+    const scheduleForm = document.getElementById("scheduleInterviewForm");
+    const typeSelect = document.getElementById("interview_type");
+    const linkGroup = document.getElementById("meetingLinkGroup");
+    const locationGroup = document.getElementById("locationGroup");
+    const linkInput = document.getElementById("meeting_link");
+    const locationInput = document.getElementById("location");
+    const scheduleButton = document.getElementById("scheduleSubmitButton");
+    const scheduleError = document.getElementById("scheduleFormError");
+
+    const interviewList = document.getElementById("interviewList");
+    const syncMessage = document.getElementById("syncMessage");
+
+    const totalElement = document.getElementById("totalInterviews");
+    const scheduledElement = document.getElementById("scheduledInterviews");
+    const completedElement = document.getElementById("completedInterviews");
+    const countElement = document.getElementById("interviewCount");
+
+    const updatesUrl = "{{ url_for('interviews.recruiter_updates') }}";
+    const scheduleUrlPattern =
+        "{{ url_for('interviews.schedule', application_id=0) }}";
+    const updateUrlPattern =
+        "{{ url_for('interviews.update', interview_id=0) }}";
+    const statusUrlPattern =
+        "{{ url_for('interviews.update_status', interview_id=0) }}";
+
+    const POLL_INTERVAL = 15000;
+    let isFetching = false;
+    let hasLoaded = false;
+    let lastRenderedData = "";
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (character) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[character];
+        });
+    }
+
+    function routeFor(pattern, id) {
+        return pattern.replace("/0", "/" + encodeURIComponent(id));
+    }
+
+    function normalizeStatus(status) {
+        const value = String(status || "").trim().toLowerCase();
+
+        if (value === "scheduled") return "scheduled";
+        if (value === "completed") return "completed";
+        if (value === "cancelled" || value === "canceled") return "cancelled";
+        if (value === "no-show" || value === "no show" || value === "noshow") {
+            return "no-show";
+        }
+
+        return "unknown";
+    }
+
+    function statusLabel(status) {
+        const key = normalizeStatus(status);
+
+        return {
+            scheduled: "Scheduled",
+            completed: "Completed",
+            cancelled: "Cancelled",
+            "no-show": "No-show",
+            unknown: status || "Unknown"
+        }[key];
+    }
+
+    function statusIcon(status) {
+        return {
+            scheduled: "bi-clock-history",
+            completed: "bi-check-circle-fill",
+            cancelled: "bi-x-circle-fill",
+            "no-show": "bi-exclamation-circle-fill",
+            unknown: "bi-info-circle-fill"
+        }[normalizeStatus(status)];
+    }
+
+    function safeMeetingLink(value) {
+        if (!value) return "";
+
+        try {
+            const parsed = new URL(value);
+
+            if (!["http:", "https:"].includes(parsed.protocol)) {
+                return "";
+            }
+
+            return parsed.href;
+        } catch (error) {
+            return "";
+        }
+    }
+
+    function renderStatusOptions(selectedStatus) {
+        const statuses = ["Scheduled", "Completed", "Cancelled", "No-show"];
+
+        return statuses.map(function (status) {
+            const selected = status === selectedStatus ? "selected" : "";
+
+            return `<option value="${status}" ${selected}>${status}</option>`;
+        }).join("");
+    }
+
+    function renderTypeOptions(selectedType) {
+        const types = ["Online", "In-person", "Phone"];
+
+        return types.map(function (type) {
+            const selected = type === selectedType ? "selected" : "";
+
+            return `<option value="${type}" ${selected}>${type}</option>`;
+        }).join("");
+    }
+
+    function renderInterview(interview) {
+        const id = Number(interview.id);
+        const status = normalizeStatus(interview.status);
+        const statusClass = status === "unknown" ? "" : "status-" + status;
+        const badgeClass = status === "unknown"
+            ? "status-unknown-badge"
+            : "status-" + status + "-badge";
+
+        const applicant = escapeHTML(interview.applicant_name || "Applicant");
+        const jobTitle = escapeHTML(interview.job_title || "Job interview");
+        const type = escapeHTML(interview.interview_type || "Online");
+        const statusText = escapeHTML(statusLabel(interview.status));
+        const date = escapeHTML(interview.scheduled_date || "Not available");
+        const time = escapeHTML(interview.scheduled_time || "Not available");
+        const applicationId = escapeHTML(interview.application_id);
+        const meetingLink = safeMeetingLink(interview.meeting_link);
+
+        const linkHTML = meetingLink
+            ? `<a class="meeting-link" href="${escapeHTML(meetingLink)}"
+                  target="_blank" rel="noopener noreferrer">
+                  <i class="bi bi-camera-video"></i> Open meeting link
+               </a>`
+            : "";
+
+        const locationHTML = interview.location
+            ? `<div class="extra-details">
+                   <div class="extra-title">
+                       <i class="bi bi-geo-alt me-1"></i>Location
+                   </div>
+                   <p class="extra-content">${escapeHTML(interview.location)}</p>
+               </div>`
+            : "";
+
+        const instructionsHTML = interview.instructions
+            ? `<div class="extra-details">
+                   <div class="extra-title">
+                       <i class="bi bi-info-circle me-1"></i>Instructions
+                   </div>
+                   <p class="extra-content">${escapeHTML(interview.instructions)}</p>
+               </div>`
+            : "";
+
+        const meetingLinkValue = escapeHTML(interview.meeting_link || "");
+        const locationValue = escapeHTML(interview.location || "");
+        const instructionsValue = escapeHTML(interview.instructions || "");
+
+        return `
+            <article class="interview-card ${statusClass}" data-interview-id="${id}">
+                <div class="interview-card-body">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-start gap-3">
+                        <div class="flex-grow-1">
+                            <div class="interview-type">
+                                <i class="bi bi-camera-video"></i>
+                                ${type} interview
+                            </div>
+                            <h5 class="candidate-name">${applicant}</h5>
+                            <div class="job-name">${jobTitle}</div>
+                            <div class="muted">Application #${applicationId}</div>
+                        </div>
+
+                        <span class="status-pill ${badgeClass}">
+                            <i class="bi ${statusIcon(interview.status)}"></i>
+                            ${statusText}
+                        </span>
+                    </div>
+
+                    <div class="interview-details">
+                        <div>
+                            <div class="detail-label">DATE</div>
+                            <div class="detail-value">
+                                <i class="bi bi-calendar3"></i>
+                                <span>${date}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="detail-label">TIME</div>
+                            <div class="detail-value">
+                                <i class="bi bi-clock"></i>
+                                <span>${time}</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="detail-label">INTERVIEW FORMAT</div>
+                            <div class="detail-value">
+                                <i class="bi bi-camera-video"></i>
+                                <span>${type}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${linkHTML}
+                    ${locationHTML}
+                    ${instructionsHTML}
+
+                    <div class="management-area">
+                        <div class="management-box">
+                            <div class="management-title">
+                                <i class="bi bi-arrow-repeat me-1"></i>
+                                Update status
+                            </div>
+                            <form method="POST"
+                                  action="${routeFor(statusUrlPattern, id)}"
+                                  class="status-update-form">
+                                <div class="d-flex gap-2">
+                                    <select class="form-select form-select-sm"
+                                            name="status" aria-label="Interview status">
+                                        ${renderStatusOptions(interview.status)}
+                                    </select>
+                                    <button class="btn btn-sm btn-primary"
+                                            type="submit">Save</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="management-box">
+                            <div class="management-title">
+                                <i class="bi bi-pencil-square me-1"></i>
+                                Edit interview
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary w-100"
+                                    type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#edit-interview-${id}"
+                                    aria-expanded="false">
+                                Reschedule / edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="collapse mt-3" id="edit-interview-${id}">
+                        <form method="POST"
+                              action="${routeFor(updateUrlPattern, id)}"
+                              class="border rounded-3 p-3 edit-interview-form">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="edit-date-${id}">
+                                        Date and time
+                                    </label>
+                                    <input class="form-control"
+                                           id="edit-date-${id}"
+                                           type="datetime-local"
+                                           name="scheduled_at"
+                                           value="${escapeHTML(interview.scheduled_at_input || "")}"
+                                           required>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="edit-type-${id}">
+                                        Interview type
+                                    </label>
+                                    <select class="form-select"
+                                            id="edit-type-${id}"
+                                            name="interview_type" required>
+                                        ${renderTypeOptions(interview.interview_type)}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="edit-link-${id}">
+                                        Meeting link
+                                    </label>
+                                    <input class="form-control"
+                                           id="edit-link-${id}"
+                                           type="url" name="meeting_link"
+                                           value="${meetingLinkValue}"
+                                           maxlength="500"
+                                           placeholder="https://...">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label" for="edit-location-${id}">
+                                        Location
+                                    </label>
+                                    <input class="form-control"
+                                           id="edit-location-${id}"
+                                           type="text" name="location"
+                                           value="${locationValue}"
+                                           maxlength="255">
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label"
+                                           for="edit-instructions-${id}">
+                                        Instructions
+                                    </label>
+                                    <textarea class="form-control"
+                                              id="edit-instructions-${id}"
+                                              name="instructions" rows="3"
+                                              maxlength="5000">${instructionsValue}</textarea>
+                                </div>
+
+                                <div class="col-12">
+                                    <button class="btn btn-primary btn-sm"
+                                            type="submit">
+                                        <i class="bi bi-check2-circle me-1"></i>
+                                        Save changes
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderEmptyState() {
+        interviewList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="bi bi-calendar2-week"></i>
+                </div>
+                <h5>No interviews scheduled</h5>
+                <p>
+                    Use the form above to schedule an interview.
+                    Newly created interviews will appear here automatically.
+                </p>
+            </div>
+        `;
+    }
+
+    function updateSummary(interviews) {
+        const scheduled = interviews.filter(function (item) {
+            return normalizeStatus(item.status) === "scheduled";
+        }).length;
+
+        const completed = interviews.filter(function (item) {
+            return normalizeStatus(item.status) === "completed";
+        }).length;
+
+        totalElement.textContent = interviews.length;
+        scheduledElement.textContent = scheduled;
+        completedElement.textContent = completed;
+
+        countElement.textContent =
+            interviews.length + (interviews.length === 1
+                ? " interview"
+                : " interviews");
+    }
+
+    function updateTypeFields() {
+        if (!typeSelect) return;
+
+        const kind = typeSelect.value;
+
+        linkGroup.classList.toggle("d-none", kind !== "Online");
+        locationGroup.classList.toggle("d-none", kind !== "In-person");
+
+        linkInput.required = kind === "Online";
+        locationInput.required = kind === "In-person";
+    }
+
+    function updateEditTypeFields(form) {
+        const typeInput = form.querySelector('[name="interview_type"]');
+        const meetingInput = form.querySelector('[name="meeting_link"]');
+        const locationField = form.querySelector('[name="location"]');
+
+        if (!typeInput || !meetingInput || !locationField) return;
+
+        meetingInput.required = typeInput.value === "Online";
+        locationField.required = typeInput.value === "In-person";
+    }
+
+    async function loadInterviews() {
+        if (isFetching || document.hidden) return;
+
+        isFetching = true;
+
+        try {
+            const response = await fetch(updatesUrl, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                credentials: "same-origin",
+                cache: "no-store"
+            });
+
+            if (!response.ok) {
+                throw new Error("Unable to load interview updates.");
+            }
+
+            const data = await response.json();
+
+            if (!Array.isArray(data.interviews)) {
+                throw new Error("Invalid interview data received.");
+            }
+
+            const interviews = data.interviews;
+            const serialized = JSON.stringify(interviews);
+
+            if (!hasLoaded || serialized !== lastRenderedData) {
+                if (interviews.length) {
+                    interviewList.innerHTML = interviews.map(renderInterview).join("");
+                } else {
+                    renderEmptyState();
+                }
+
+                lastRenderedData = serialized;
+            }
+
+            updateSummary(interviews);
+            hasLoaded = true;
+            interviewList.setAttribute("aria-busy", "false");
+
+            syncMessage.className = "sync-message sync-success";
+            syncMessage.textContent =
+                "Live updates active · Last checked at " +
+                new Date().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    second: "2-digit"
+                });
+
+        } catch (error) {
+            console.error("Recruiter interview polling error:", error);
+
+            syncMessage.className = "sync-message sync-error";
+            syncMessage.textContent = hasLoaded
+                ? "Could not refresh. Previously loaded interviews remain visible."
+                : "Unable to load interviews. Please refresh the page and try again.";
+
+            if (!hasLoaded) {
+                interviewList.innerHTML = `
+                    <div class="error-state">
+                        <div class="empty-icon">
+                            <i class="bi bi-wifi-off"></i>
+                        </div>
+                        <h5>Couldn't load interviews</h5>
+                        <p>Check your connection and try again.</p>
+                        <button type="button" id="retryInterviews"
+                                class="btn btn-outline-primary btn-sm mt-3">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Try again
+                        </button>
+                    </div>
+                `;
+
+                document.getElementById("retryInterviews")
+                    ?.addEventListener("click", loadInterviews);
+
+                interviewList.setAttribute("aria-busy", "false");
+            }
+        } finally {
+            isFetching = false;
+        }
+    }
+
+    if (applicationSelect && scheduleForm) {
+        applicationSelect.addEventListener("change", function () {
+            scheduleForm.action = this.value
+                ? routeFor(scheduleUrlPattern, this.value)
+                : "";
+        });
+
+        scheduleForm.addEventListener("submit", function (event) {
+            scheduleError.style.display = "none";
+            scheduleError.textContent = "";
+
+            if (!applicationSelect.value) {
+                event.preventDefault();
+                applicationSelect.focus();
+                scheduleError.textContent = "Please select an application first.";
+                scheduleError.style.display = "block";
+                return;
+            }
+
+            if (!scheduleForm.action) {
+                event.preventDefault();
+                scheduleError.textContent =
+                    "The scheduling URL could not be prepared. Please select the application again.";
+                scheduleError.style.display = "block";
+                return;
+            }
+
+            if (!scheduleForm.reportValidity()) {
+                event.preventDefault();
+                return;
+            }
+
+            scheduleButton.disabled = true;
+            scheduleButton.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2"></span>Scheduling...';
+        });
+    }
+
+    if (typeSelect) {
+        typeSelect.addEventListener("change", updateTypeFields);
+        updateTypeFields();
+    }
+
+    // Handle dynamic edit forms after the interview cards are rendered.
+    interviewList.addEventListener("change", function (event) {
+        if (event.target.matches('[name="interview_type"]')) {
+            const form = event.target.closest("form.edit-interview-form");
+            if (form) updateEditTypeFields(form);
+        }
+    });
+
+    interviewList.addEventListener("submit", function (event) {
+        const form = event.target;
+
+        if (form.matches("form.edit-interview-form")) {
+            updateEditTypeFields(form);
+        }
+
+        if (
+            form.matches("form.edit-interview-form") ||
+            form.matches("form.status-update-form")
+        ) {
+            if (!form.reportValidity()) {
+                event.preventDefault();
+                return;
+            }
+
+            const button = form.querySelector('button[type="submit"]');
+
+            if (button) {
+                button.disabled = true;
+                button.dataset.originalText = button.textContent.trim();
+                button.textContent = "Saving...";
+            }
+        }
+    });
+
+    loadInterviews();
+
+    // Check for changes without reloading the page.
+    window.setInterval(loadInterviews, POLL_INTERVAL);
+
+    // Refresh when the recruiter returns to the tab.
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) loadInterviews();
+    });
+});
+</script>
+{% endblock %}

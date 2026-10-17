@@ -154,6 +154,119 @@ Applications | CVision
         margin-bottom: 22px;
     }
 
+.applications-toolbar {
+    background: linear-gradient(135deg, #ffffff, #f8fbff);
+    border: 1px solid #e3eaf5;
+    border-radius: 18px;
+    padding: 24px;
+    margin-bottom: 25px;
+    box-shadow: 0 6px 24px rgba(24, 67, 125, 0.06);
+}
+
+.applications-toolbar .form-label {
+    display: block;
+    width: 100%;
+    margin-bottom: 9px;
+    color: #24344d;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.applications-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.applications-search-wrapper .search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0d6efd;
+    pointer-events: none;
+}
+
+.applications-search-input,
+.applications-filter-select {
+    display: block;
+    width: 100%;
+    min-height: 46px;
+    box-sizing: border-box;
+    border: 1px solid #dce4f0;
+    border-radius: 11px;
+    background-color: #ffffff;
+    color: #263449;
+    font-size: 14px;
+}
+
+.applications-search-input {
+    padding-left: 42px;
+}
+
+.applications-search-input:focus,
+.applications-filter-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+}
+
+.applications-search-input::placeholder {
+    color: #98a4b5;
+}
+
+.applications-clear-btn {
+    min-height: 46px;
+    border-radius: 11px;
+    border-color: #dce4f0;
+    background: #ffffff;
+}
+
+.applications-clear-btn:hover {
+    color: #ffffff;
+    background: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.applications-filter-footer {
+    margin-top: 17px;
+    padding-top: 14px;
+    border-top: 1px solid #e8edf5;
+    color: #718096;
+    font-size: 13px;
+}
+
+.applications-no-results {
+    padding: 50px 20px;
+    background: #ffffff;
+    border: 1px dashed #cbd8e8;
+    border-radius: 18px;
+    text-align: center;
+}
+
+.applications-no-results i {
+    display: block;
+    margin-bottom: 14px;
+    color: #0d6efd;
+    font-size: 38px;
+}
+
+.applications-no-results h4 {
+    color: #24344d;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.applications-no-results p {
+    color: #718096;
+    margin-bottom: 0;
+}
+
+@media (max-width: 767px) {
+    .applications-toolbar {
+        padding: 17px;
+        border-radius: 14px;
+    }
+}
+
     @media (max-width: 768px) {
 
         .applications-table {
@@ -212,7 +325,81 @@ Applications | CVision
 
     </div>
 
+<!-- Applications Search and Filters -->
+<div class="applications-toolbar" data-aos="fade-up">
 
+    <div class="row g-3 align-items-end">
+
+        <div class="col-lg-5 col-md-12">
+        
+
+            <div class="applications-search-wrapper">
+                <i class="bi bi-search search-icon"></i>
+                <input
+                    type="search"
+                    id="applicationsSearch"
+                    class="form-control applications-search-input"
+                    placeholder="Search applicant, job, location..."
+                    autocomplete="off"
+                >
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-5">
+            <label for="applicationStatusFilter" class="form-label">
+                Application Status
+            </label>
+
+            <select
+                id="applicationStatusFilter"
+                class="form-select applications-filter-select"
+            >
+                <option value="all">All Applications</option>
+                <option value="pending">Pending</option>
+                <option value="shortlisted">Shortlisted</option>
+                <option value="rejected">Rejected</option>
+                <option value="hired">Hired</option>
+            </select>
+        </div>
+
+        <div class="col-lg-3 col-md-5">
+            <label for="applicationsSort" class="form-label">
+                Sort By
+            </label>
+
+            <select
+                id="applicationsSort"
+                class="form-select applications-filter-select"
+            >
+                <option value="applicant-asc">Applicant Name: A–Z</option>
+                <option value="applicant-desc">Applicant Name: Z–A</option>
+                <option value="job-asc">Job Title: A–Z</option>
+                <option value="job-desc">Job Title: Z–A</option>
+                <option value="status-asc">Status: A–Z</option>
+            </select>
+        </div>
+
+        <div class="col-lg-1 col-md-2">
+            <button
+                type="button"
+                id="clearApplicationsFilters"
+                class="btn btn-outline-secondary applications-clear-btn w-100"
+                title="Clear filters"
+                aria-label="Clear filters"
+            >
+                <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+        </div>
+
+    </div>
+
+    <div class="applications-filter-footer">
+        <span id="applicationsResultsCount" aria-live="polite">
+            Loading applications...
+        </span>
+    </div>
+
+</div>
     <!-- ==========================
          Applications
     =========================== -->
@@ -455,350 +642,368 @@ Applications | CVision
 =========================== -->
 
 <script>
+let recruiterApplicationsVersion = null;
+let recruiterApplications = [];
 
-    let recruiterApplicationsVersion = null;
+const applicationFilters = {
+    search: "",
+    status: "all",
+    sort: "applicant-asc"
+};
 
+function escapeApplicationHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
 
-    async function refreshRecruiterApplications() {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
-        if (document.hidden) {
+function getApplicationStatusClass(status) {
+    switch (String(status || "").toLowerCase()) {
+        case "shortlisted":
+            return "status-shortlisted";
+        case "rejected":
+            return "status-rejected";
+        case "hired":
+            return "status-hired";
+        default:
+            return "status-pending";
+    }
+}
+
+function getApplicationTimestamp(application) {
+    const value = application.applied_at ||
+        application.applied_datetime ||
+        "";
+
+    if (value) {
+        const timestamp = new Date(value).getTime();
+
+        if (!Number.isNaN(timestamp)) {
+            return timestamp;
+        }
+    }
+
+    const date = application.applied_date || "";
+    const time = application.applied_time || "";
+
+    const timestamp = new Date(`${date} ${time}`).getTime();
+
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function filterAndSortApplications(applications) {
+    const search = applicationFilters.search.toLowerCase();
+
+    const filtered = applications.filter(application => {
+        const searchableText = [
+            application.applicant_name,
+            application.applicant_username,
+            application.job_title,
+            application.job_location,
+            application.status
+        ].join(" ").toLowerCase();
+
+        const matchesSearch = searchableText.includes(search);
+
+        const status = String(application.status || "")
+            .toLowerCase()
+            .trim();
+
+        const matchesStatus =
+            applicationFilters.status === "all" ||
+            status === applicationFilters.status;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    filtered.sort((a, b) => {
+        const applicantA = String(a.applicant_name || "");
+        const applicantB = String(b.applicant_name || "");
+        const jobA = String(a.job_title || "");
+        const jobB = String(b.job_title || "");
+        const statusA = String(a.status || "");
+        const statusB = String(b.status || "");
+
+        switch (applicationFilters.sort) {
+            case "applicant-desc":
+                return applicantB.localeCompare(applicantA);
+
+            case "job-asc":
+                return jobA.localeCompare(jobB);
+
+            case "job-desc":
+                return jobB.localeCompare(jobA);
+
+            case "status-asc":
+                return statusA.localeCompare(statusB);
+
+            case "applicant-asc":
+            default:
+                return applicantA.localeCompare(applicantB);
+        }
+    });
+
+    return filtered;
+}
+
+function renderApplicationRow(application) {
+    const statusClass = getApplicationStatusClass(
+        application.status
+    );
+
+    const applicationId = Number(application.id);
+
+    const appliedDate = escapeApplicationHtml(
+        application.applied_date || "—"
+    );
+
+    const appliedTime = escapeApplicationHtml(
+        application.applied_time || ""
+    );
+
+    return `
+        <tr>
+            <td>
+                <div class="applicant-name">
+                    ${escapeApplicationHtml(
+                        application.applicant_name
+                    )}
+                </div>
+
+                <div class="applicant-username">
+                    @${escapeApplicationHtml(
+                        application.applicant_username
+                    )}
+                </div>
+            </td>
+
+            <td>
+                <div class="job-name">
+                    ${escapeApplicationHtml(
+                        application.job_title
+                    )}
+                </div>
+
+                ${
+                    application.job_location
+                    ? `
+                        <div class="job-location">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            ${escapeApplicationHtml(
+                                application.job_location
+                            )}
+                        </div>
+                    `
+                    : ""
+                }
+            </td>
+
+            <td>
+                <span class="application-status ${statusClass}">
+                    ${escapeApplicationHtml(
+                        application.status || "Pending"
+                    )}
+                </span>
+            </td>
+
+            <td>
+                <div class="application-date">
+                    ${appliedDate}
+                    ${appliedTime ? `<br>${appliedTime}` : ""}
+                </div>
+            </td>
+
+            <td>
+                <a
+                    href="/recruiter/applications/${applicationId}"
+                    class="btn btn-primary btn-sm rounded-pill px-3"
+                >
+                    <i class="bi bi-eye me-1"></i>
+                    View Application
+                </a>
+            </td>
+        </tr>
+    `;
+}
+
+function renderRecruiterApplications() {
+    const container = document.getElementById(
+        "recruiterApplicationsContainer"
+    );
+
+    const resultsCount = document.getElementById(
+        "applicationsResultsCount"
+    );
+
+    if (!container) {
+        return;
+    }
+
+    const filteredApplications = filterAndSortApplications(
+        recruiterApplications
+    );
+
+    if (resultsCount) {
+        resultsCount.textContent =
+            `Showing ${filteredApplications.length} of ` +
+            `${recruiterApplications.length} applications`;
+    }
+
+    if (filteredApplications.length === 0) {
+        container.innerHTML = `
+            <div class="applications-no-results">
+                <i class="bi bi-search"></i>
+                <h4>No Matching Applications</h4>
+                <p>
+                    Try another search term or change your filters.
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="applications-card">
+            <div class="table-responsive">
+                <table class="table applications-table">
+                    <thead>
+                        <tr>
+                            <th>Applicant</th>
+                            <th>Job</th>
+                            <th>Status</th>
+                            <th>Applied</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${filteredApplications
+                            .map(renderApplicationRow)
+                            .join("")}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function initializeApplicationFilters() {
+    const searchInput = document.getElementById(
+        "applicationsSearch"
+    );
+
+    const statusFilter = document.getElementById(
+        "applicationStatusFilter"
+    );
+
+    const sortSelect = document.getElementById(
+        "applicationsSort"
+    );
+
+    const clearButton = document.getElementById(
+        "clearApplicationsFilters"
+    );
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            applicationFilters.search = this.value.trim();
+            renderRecruiterApplications();
+        });
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener("change", function () {
+            applicationFilters.status = this.value;
+            renderRecruiterApplications();
+        });
+    }
+
+    if (sortSelect) {
+        sortSelect.addEventListener("change", function () {
+            applicationFilters.sort = this.value;
+            renderRecruiterApplications();
+        });
+    }
+
+    if (clearButton) {
+        clearButton.addEventListener("click", function () {
+            applicationFilters.search = "";
+            applicationFilters.status = "all";
+            applicationFilters.sort = "applicant-asc";
+
+            if (searchInput) searchInput.value = "";
+            if (statusFilter) statusFilter.value = "all";
+            if (sortSelect) sortSelect.value = "applicant-asc";
+
+            renderRecruiterApplications();
+        });
+    }
+}
+
+async function refreshRecruiterApplications() {
+    if (document.hidden) {
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            "{{ url_for('recruiter.applications_live') }}",
+            {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                cache: "no-store"
+            }
+        );
+
+        if (!response.ok) {
             return;
         }
 
-        try {
+        const data = await response.json();
 
-            const response = await fetch(
-                "{{ url_for('recruiter.applications_live') }}",
-                {
-                    method: "GET",
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest"
-                    },
-                    cache: "no-store"
-                }
-            );
-
-
-            if (!response.ok) {
-                return;
-            }
-
-
-            const data = await response.json();
-
-
-            if (recruiterApplicationsVersion === null) {
-
-                recruiterApplicationsVersion = data.version;
-
-                return;
-
-            }
-
-
-            if (data.version !== recruiterApplicationsVersion) {
-
-                const container = document.getElementById(
-                    "recruiterApplicationsContainer"
-                );
-
-
-                if (!container) {
-                    return;
-                }
-
-
-                let html = "";
-
-
-                if (data.applications.length > 0) {
-
-                    html = `
-
-                        <div class="applications-card">
-
-                            <div class="table-responsive">
-
-                                <table class="table applications-table">
-
-                                    <thead>
-
-                                        <tr>
-
-                                            <th>
-                                                Applicant
-                                            </th>
-
-                                            <th>
-                                                Job
-                                            </th>
-
-                                            <th>
-                                                Status
-                                            </th>
-
-                                            <th>
-                                                Applied
-                                            </th>
-
-                                            <th>
-                                                Action
-                                            </th>
-
-                                        </tr>
-
-                                    </thead>
-
-
-                                    <tbody>
-
-                    `;
-
-
-                    data.applications.forEach(
-                        function(application) {
-
-                            let statusClass = "status-pending";
-
-
-                            if (application.status === "Shortlisted") {
-
-                                statusClass = "status-shortlisted";
-
-                            } else if (application.status === "Rejected") {
-
-                                statusClass = "status-rejected";
-
-                            } else if (application.status === "Hired") {
-
-                                statusClass = "status-hired";
-
-                            }
-
-
-                            html += `
-
-                                <tr>
-
-                                    <td>
-
-                                        <div class="applicant-name">
-
-                                            ${escapeApplicationHtml(
-                                                application.applicant_name
-                                            )}
-
-                                        </div>
-
-
-                                        <div class="applicant-username">
-
-                                            @${escapeApplicationHtml(
-                                                application.applicant_username
-                                            )}
-
-                                        </div>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <div class="job-name">
-
-                                            ${escapeApplicationHtml(
-                                                application.job_title
-                                            )}
-
-                                        </div>
-
-
-                                        ${
-                                            application.job_location
-                                            ?
-                                            `
-                                            <div class="job-location">
-
-                                                <i class="bi bi-geo-alt me-1"></i>
-
-                                                ${escapeApplicationHtml(
-                                                    application.job_location
-                                                )}
-
-                                            </div>
-                                            `
-                                            :
-                                            ""
-                                        }
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <span class="application-status ${statusClass}">
-
-                                            ${escapeApplicationHtml(
-                                                application.status
-                                            )}
-
-                                        </span>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <div class="application-date">
-
-                                            ${escapeApplicationHtml(
-                                                application.applied_date
-                                            )}
-
-                                            <br>
-
-                                            ${escapeApplicationHtml(
-                                                application.applied_time
-                                            )}
-
-                                        </div>
-
-                                    </td>
-
-
-                                    <td>
-
-                                        <a
-                                            href="/recruiter/applications/${application.id}"
-                                            class="btn btn-primary btn-sm rounded-pill px-3"
-                                        >
-
-                                            <i class="bi bi-eye me-1"></i>
-
-                                            View Application
-
-                                        </a>
-
-                                    </td>
-
-                                </tr>
-
-                            `;
-
-                        }
-                    );
-
-
-                    html += `
-
-                                    </tbody>
-
-                                </table>
-
-                            </div>
-
-                        </div>
-
-                    `;
-
-
-                } else {
-
-                    html = `
-
-                        <div class="empty-applications"
-                             data-aos="fade-up">
-
-                            <div class="empty-applications-icon">
-
-                                <i class="bi bi-file-earmark-person"></i>
-
-                            </div>
-
-                            <h4>
-                                No Applications Yet
-                            </h4>
-
-                            <p>
-                                Applications submitted to your jobs will appear here.
-                            </p>
-
-                            <a
-                                href="{{ url_for('recruiter.jobs') }}"
-                                class="btn btn-primary rounded-pill px-4"
-                            >
-
-                                <i class="bi bi-briefcase me-1"></i>
-
-                                View My Jobs
-
-                            </a>
-
-                        </div>
-
-                    `;
-
-                }
-
-
-                container.innerHTML = html;
-
-                recruiterApplicationsVersion = data.version;
-
-
-                if (typeof AOS !== "undefined") {
-                    AOS.refreshHard();
-                }
-
-            }
-
-        } catch (error) {
-
-            console.debug(
-                "Recruiter applications live update failed:",
-                error
-            );
-
+        if (!Array.isArray(data.applications)) {
+            return;
         }
 
+        if (
+            recruiterApplicationsVersion === null ||
+            data.version !== recruiterApplicationsVersion
+        ) {
+            recruiterApplications = data.applications;
+            recruiterApplicationsVersion = data.version;
+
+            renderRecruiterApplications();
+        }
+    } catch (error) {
+        console.debug(
+            "Recruiter applications live update failed:",
+            error
+        );
     }
+}
 
+document.addEventListener("DOMContentLoaded", function () {
+    initializeApplicationFilters();
 
-    function escapeApplicationHtml(value) {
+    refreshRecruiterApplications();
 
-        if (value === null || value === undefined) {
-            return "";
+    setInterval(refreshRecruiterApplications, 3000);
+
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            refreshRecruiterApplications();
         }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-
-    }
-
-
-    setInterval(
-        refreshRecruiterApplications,
-        3000
-    );
-
-
-    document.addEventListener(
-        "visibilitychange",
-        function() {
-
-            if (!document.hidden) {
-
-                refreshRecruiterApplications();
-
-            }
-
-        }
-    );
-
+    });
+});
 </script>
 
 {% endblock %}

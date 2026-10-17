@@ -1,4 +1,3 @@
-
 import os
 import uuid
 
@@ -15,6 +14,7 @@ from werkzeug.utils import secure_filename
 from models import db
 from models.user import User
 from models.social import SocialPost, SocialComment, SocialReaction
+from models.notification import Notification
 
 
 social = Blueprint(
@@ -44,6 +44,18 @@ def role_name(user):
 
 def can_use_social():
     return (current_user.role or "").strip().lower() in ALLOWED_ROLES
+
+
+def create_social_notification(user_id, title, message, notification_type):
+    notification = Notification(
+        user_id=user_id,
+        title=title,
+        message=message,
+        notification_type=notification_type,
+        is_read=False
+    )
+
+    db.session.add(notification)
 
 
 def image_url(filename):
@@ -447,6 +459,18 @@ def react_to_post(post_id):
         user_id=current_user.id
     ).first()
 
+    # Notify only when a like is newly added or changed from dislike.
+    was_already_liked = (
+        reaction is not None
+        and reaction.reaction == "like"
+    )
+
+    should_notify = (
+        reaction_type == "like"
+        and not was_already_liked
+        and post.user_id != current_user.id
+    )
+
     if reaction and reaction.reaction == reaction_type:
         db.session.delete(reaction)
         current_reaction = None
@@ -464,8 +488,31 @@ def react_to_post(post_id):
         db.session.add(reaction)
         current_reaction = reaction_type
 
+    if should_notify:
+        actor_name = current_user.full_name or current_user.username
+
+        create_social_notification(
+            user_id=post.user_id,
+            title="New like on your post",
+            message=f"{actor_name} liked your post.",
+            notification_type="social_like"
+        )
+
     try:
         db.session.commit()
+
+        # Query the database for current counts rather than iterating
+        # over a relationship that may contain a deleted reaction.
+        like_count = SocialReaction.query.filter_by(
+            post_id=post.id,
+            reaction="like"
+        ).count()
+
+        dislike_count = SocialReaction.query.filter_by(
+            post_id=post.id,
+            reaction="dislike"
+        ).count()
+
     except Exception:
         db.session.rollback()
         current_app.logger.exception("Could not save reaction.")
@@ -478,14 +525,8 @@ def react_to_post(post_id):
     return jsonify({
         "success": True,
         "my_reaction": current_reaction,
-        "like_count": sum(
-            1 for item in post.reactions
-            if item.reaction == "like"
-        ),
-        "dislike_count": sum(
-            1 for item in post.reactions
-            if item.reaction == "dislike"
-        )
+        "like_count": like_count,
+        "dislike_count": dislike_count
     })
 
 
@@ -556,10 +597,40 @@ def create_comment(post_id):
 
     try:
         db.session.add(comment)
+
+        actor_name = current_user.full_name or current_user.username
+
+        # A reply notifies the parent comment's author.
+        # A normal comment notifies the post owner.
+        recipient_id = (
+            parent.user_id if parent else post.user_id
+        )
+
+        # Never notify a user about their own action.
+        if recipient_id != current_user.id:
+            if parent:
+                create_social_notification(
+                    user_id=recipient_id,
+                    title="New reply to your comment",
+                    message=f"{actor_name} replied to your comment.",
+                    notification_type="social_reply"
+                )
+            else:
+                create_social_notification(
+                    user_id=recipient_id,
+                    title="New comment on your post",
+                    message=f"{actor_name} commented on your post.",
+                    notification_type="social_comment"
+                )
+
         db.session.commit()
+
     except Exception:
         db.session.rollback()
-        current_app.logger.exception("Could not create comment.")
+
+        current_app.logger.exception(
+            "Could not create comment or notification."
+        )
 
         return jsonify({
             "success": False,
