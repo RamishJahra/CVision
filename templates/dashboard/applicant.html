@@ -1,274 +1,1935 @@
+
 {% extends "layouts/base.html" %}
 
+{% block title %}Applicant Dashboard | CVision{% endblock %}
 
-{% block title %}
-Applicant Dashboard | CVision
+{% block extra_css %}
+<style>
+.community-dashboard {
+    background: #f4f7fb;
+    min-height: calc(100vh - 75px);
+    padding: 100px 0 40px;
+    color: #243247;
+}
+
+.community-dashboard .container-fluid {
+    max-width: 1600px;
+    padding-left: 24px;
+    padding-right: 24px;
+}
+
+.dashboard-row { align-items: flex-start; }
+
+.sidebar-column,
+.feed-column,
+.my-posts-column { min-width: 0; }
+
+.sidebar-card,
+.community-card {
+    background: #fff;
+    border: 1px solid #e5eaf1;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: 0 3px 14px rgba(30, 50, 80, .04);
+}
+
+.profile-banner {
+    height: 90px;
+    background: linear-gradient(135deg, #1456b8, #4389ed);
+}
+
+.profile-body { padding: 0 20px 22px; }
+
+.profile-avatar {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    background: #dce9ff;
+    color: #1756ae;
+    font-weight: 700;
+    font-size: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -38px;
+    overflow: hidden;
+}
+
+.profile-avatar img,
+.post-avatar img,
+.comment-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    overflow-wrap: anywhere;
+}
+
+.profile-role {
+    color: #718096;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.side-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 12px;
+    color: #40516a;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    margin-top: 4px;
+    transition: .2s;
+}
+
+.side-link i {
+    color: #2468c9;
+    font-size: 17px;
+    width: 20px;
+    text-align: center;
+}
+
+.side-link:hover,
+.side-link.active {
+    background: #edf4ff;
+    color: #1756ae;
+}
+
+.sidebar-heading {
+    font-size: 12px;
+    font-weight: 700;
+    color: #8290a3;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+    margin: 22px 0 8px;
+}
+
+.sidebar-description {
+    font-size: 13px;
+    color: #748196;
+    line-height: 1.65;
+    padding: 0 12px;
+}
+
+.sidebar-divider {
+    border: 0;
+    border-top: 1px solid #e9edf3;
+    margin: 17px 0;
+}
+
+.my-posts-toggle {
+    width: 100%;
+    border: 1px solid #d8e6fa;
+    border-radius: 9px;
+    padding: 11px 12px;
+    background: #edf4ff;
+    color: #1756ae;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    margin-top: 12px;
+}
+
+.my-posts-toggle:hover { background: #dfebff; }
+
+.community-card { padding: 20px; }
+
+.feed-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 17px;
+}
+
+.feed-heading h4 {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.feed-subtitle {
+    color: #8190a4;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.compose-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.post-avatar {
+    width: 43px;
+    height: 43px;
+    min-width: 43px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0ebff;
+    color: #1d5cb4;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.compose-input,
+.comment-input,
+.edit-post-input {
+    width: 100%;
+    border: 1px solid #dce3ed;
+    background: #f8fafd;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+    color: #243247;
+}
+
+.compose-input:focus,
+.comment-input:focus,
+.edit-post-input:focus {
+    border-color: #6ca1ed;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(36, 104, 201, .08);
+}
+
+.compose-input { min-height: 95px; }
+
+.compose-tools {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+.image-upload-label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #2468c9;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 11px;
+    border-radius: 8px;
+}
+
+.image-upload-label:hover { background: #edf4ff; }
+.image-upload-label input { display: none; }
+
+.btn-publish {
+    border: 0;
+    background: #2468c9;
+    color: #fff;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.btn-publish:hover {
+    background: #1756ae;
+    color: #fff;
+}
+
+.btn-publish:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.image-preview {
+    position: relative;
+    margin-top: 12px;
+    display: none;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 320px;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.remove-preview {
+    border: 0;
+    background: #253348;
+    color: white;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+.feed-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.feed-filter {
+    border: 1px solid #dce4ef;
+    border-radius: 20px;
+    background: #fff;
+    color: #63738a;
+    padding: 7px 15px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.feed-filter.active {
+    background: #2468c9;
+    border-color: #2468c9;
+    color: #fff;
+}
+
+.post-card { padding: 20px; }
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.post-author-info {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.post-author-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #243247;
+    overflow-wrap: anywhere;
+}
+
+.post-meta {
+    font-size: 12px;
+    color: #8996a8;
+    margin-top: 3px;
+}
+
+.account-type {
+    display: inline-block;
+    background: #edf4ff;
+    color: #2468c9;
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.post-menu { display: flex; gap: 5px; }
+
+.post-menu button,
+.post-action {
+    border: 0;
+    background: transparent;
+    color: #75849a;
+    border-radius: 7px;
+    padding: 7px 9px;
+    font-size: 13px;
+}
+
+.post-menu button:hover,
+.post-action:hover {
+    background: #edf4ff;
+    color: #2468c9;
+}
+
+.post-content {
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 17px 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.post-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: #f5f7fa;
+    margin-bottom: 12px;
+}
+
+.post-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: #8190a4;
+    font-size: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.post-actions {
+    display: flex;
+    gap: 6px;
+    padding: 8px 0;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.post-action.active {
+    color: #2468c9;
+    font-weight: 700;
+}
+
+.comments-section { margin-top: 14px; }
+
+.comment-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.comment-avatar {
+    width: 31px;
+    height: 31px;
+    min-width: 31px;
+    border-radius: 50%;
+    background: #e6edf7;
+    color: #415b7e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    overflow: hidden;
+}
+
+.comment-bubble {
+    background: #f3f6fa;
+    border-radius: 0 10px 10px 10px;
+    padding: 9px 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.comment-author {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.comment-text {
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.comment-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+}
+
+.comment-controls button {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: #75849a;
+    font-size: 11px;
+}
+
+.comment-controls button:hover { color: #2468c9; }
+
+.comment-compose {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 14px;
+}
+
+.comment-input {
+    border-radius: 22px;
+    padding: 10px 14px;
+    resize: none;
+}
+
+.comment-submit {
+    border: 0;
+    background: #2468c9;
+    color: #fff;
+    border-radius: 50%;
+    width: 37px;
+    height: 37px;
+    min-width: 37px;
+}
+
+.empty-feed {
+    padding: 42px 20px;
+    text-align: center;
+    color: #8190a4;
+}
+
+.empty-feed i {
+    font-size: 35px;
+    color: #9dbbe9;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.empty-feed h5 {
+    color: #35465e;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.empty-feed p { font-size: 13px; margin: 0; }
+
+.my-posts-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.my-posts-subtitle {
+    color: #8290a3;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.close-my-posts {
+    border: 0;
+    background: #edf4ff;
+    color: #2468c9;
+    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+}
+
+.my-post-item {
+    padding: 15px 0;
+    border-bottom: 1px solid #edf0f5;
+}
+
+.my-post-item:last-child { border-bottom: 0; }
+
+.my-post-preview {
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    margin: 8px 0;
+}
+
+.my-post-date {
+    color: #8a97a8;
+    font-size: 11px;
+}
+
+.my-post-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.small-action {
+    border: 1px solid #dce4ef;
+    background: #fff;
+    color: #40516a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 11px;
+}
+
+.small-action:hover {
+    background: #edf4ff;
+    color: #2468c9;
+}
+
+.small-action.delete { color: #c24141; }
+
+.inline-edit { margin-top: 9px; }
+
+.inline-edit .form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.status-message {
+    display: none;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.status-message.error {
+    display: block;
+    color: #a12e2e;
+    background: #fff0f0;
+}
+
+.status-message.success {
+    display: block;
+    color: #17683a;
+    background: #eaf8ef;
+}
+
+.loading-message {
+    color: #8290a3;
+    font-size: 13px;
+    text-align: center;
+    padding: 25px 10px;
+}
+
+.hidden { display: none !important; }
+
+@media (max-width: 991.98px) {
+    .community-dashboard { padding-top: 85px; }
+
+    .community-dashboard .container-fluid {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .community-dashboard { padding: 80px 0 25px; }
+
+    .community-card { padding: 15px; }
+
+    .profile-body {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+}
+</style>
 {% endblock %}
 
 
 {% block content %}
+<div class="community-dashboard">
+    <div class="container-fluid">
+        <div class="row g-4 dashboard-row">
 
-<div class="container mt-5 pt-5">
+            <!-- LEFT SIDEBAR -->
+            <aside class="col-lg-3 col-md-4 sidebar-column">
+                <div class="sidebar-card">
+                    <div class="profile-banner"></div>
 
-    <!-- ==========================
-         Welcome
-    =========================== -->
+                    <div class="profile-body">
+                        <div class="profile-avatar">
+                            {% if current_user.profile_image %}
+                                <img
+                                    src="{{ url_for('static', filename='uploads/profile/' ~ current_user.profile_image) }}"
+                                    alt="Profile picture"
+                                >
+                            {% else %}
+                                {{ current_user.full_name[0]|upper if current_user.full_name else 'A' }}
+                            {% endif %}
+                        </div>
 
-    <div class="mb-4">
+                        <h5 class="profile-name">
+                            {{ current_user.full_name or current_user.username }}
+                        </h5>
 
-        <h1>
-            Welcome, {{ current_user.full_name }}
-        </h1>
+                        <div class="profile-role">Applicant</div>
 
-        <p class="text-muted">
-            Manage your profile, resume and job applications from here.
-        </p>
+                        <a
+                            href="{{ url_for('applicant.applicant_profile') }}"
+                            class="btn btn-outline-primary btn-sm w-100"
+                        >
+                            <i class="bi bi-person-lines-fill me-1"></i>
+                            View Profile
+                        </a>
 
+                        <button
+                            type="button"
+                            id="toggleMyPosts"
+                            class="my-posts-toggle"
+                            aria-expanded="false"
+                        >
+                            <i class="bi bi-file-earmark-person"></i>
+                            My Posts
+                            <i class="bi bi-chevron-right float-end mt-1"
+                               id="myPostsChevron"></i>
+                        </button>
+
+                        <hr class="sidebar-divider">
+
+                        <div class="sidebar-heading">My Career</div>
+
+                        <a href="{{ url_for('applicant.applicant_resume') }}"
+                           class="side-link">
+                            <i class="bi bi-file-earmark-text"></i>
+                            My Resume
+                        </a>
+
+                        <a href="{{ url_for('applicant.applicant_profile') }}"
+                           class="side-link">
+                            <i class="bi bi-person-vcard"></i>
+                            Education & Profile
+                        </a>
+
+                        <a href="{{ url_for('applicant.profile') }}"
+                           class="side-link">
+                            <i class="bi bi-person-gear"></i>
+                            Profile Management
+                        </a>
+
+                        <a href="{{ url_for('applicant.resumes') }}"
+                           class="side-link">
+                            <i class="bi bi-file-earmark-pdf"></i>
+                            Resume Management
+                        </a>
+
+                        <a href="{{ url_for('applicant.settings') }}"
+                           class="side-link">
+                            <i class="bi bi-gear"></i>
+                            Account Settings
+                        </a>
+
+                        <hr class="sidebar-divider">
+
+                        <div class="sidebar-heading">CVision Community</div>
+
+                        <p class="sidebar-description">
+                            Connect with applicants, discover companies,
+                            share career updates, and grow professionally
+                            with the CVision community.
+                        </p>
+                    </div>
+                </div>
+            </aside>
+
+
+            <!-- COMMUNITY FEED -->
+            <main id="feedColumn"
+                  class="col-lg-9 col-md-8 feed-column">
+
+                <div class="community-card">
+                    <div class="feed-heading">
+                        <div>
+                            <h4>CVision Community</h4>
+                            <div class="feed-subtitle">
+                                Share your journey. Connect with opportunities.
+                            </div>
+                        </div>
+
+                        <i class="bi bi-people-fill"
+                           style="font-size:25px;color:#2468c9;"></i>
+                    </div>
+
+                    <div id="composeStatus" class="status-message"></div>
+
+                    <form id="createPostForm" enctype="multipart/form-data">
+                        <div class="compose-header">
+                            <div class="post-avatar">
+                                {% if current_user.profile_image %}
+                                    <img
+                                        src="{{ url_for('static', filename='uploads/profile/' ~ current_user.profile_image) }}"
+                                        alt=""
+                                    >
+                                {% else %}
+                                    {{ current_user.full_name[0]|upper if current_user.full_name else 'A' }}
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <div class="post-author-name">
+                                    {{ current_user.full_name or current_user.username }}
+                                </div>
+                                <div class="post-meta">Posting as Applicant</div>
+                            </div>
+                        </div>
+
+                        <textarea
+                            class="compose-input"
+                            id="postContent"
+                            name="content"
+                            maxlength="5000"
+                            placeholder="What's on your mind? Share an update with the community..."
+                        ></textarea>
+
+                        <div id="imagePreview" class="image-preview">
+                            <img id="previewImage" src=""
+                                 alt="Selected image preview">
+
+                            <button type="button"
+                                    id="removeImage"
+                                    class="remove-preview"
+                                    aria-label="Remove selected image">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+
+                        <div class="compose-tools">
+                            <label class="image-upload-label">
+                                <i class="bi bi-image"></i>
+                                Add Photo
+
+                                <input
+                                    type="file"
+                                    id="postImage"
+                                    name="image"
+                                    accept="image/png,image/jpeg,image/webp,image/gif"
+                                >
+                            </label>
+
+                            <button type="submit"
+                                    id="publishPostButton"
+                                    class="btn-publish">
+                                <i class="bi bi-send me-1"></i>
+                                Publish
+                            </button>
+                        </div>
+
+                        <small class="text-muted">
+                            Images up to 5 MB. Supported formats: JPG, PNG,
+                            WEBP, GIF.
+                        </small>
+                    </form>
+                </div>
+
+                <div class="feed-filters">
+                    <button type="button"
+                            class="feed-filter active"
+                            data-filter="all">
+                        All Posts
+                    </button>
+
+                    <button type="button"
+                            class="feed-filter"
+                            data-filter="applicant">
+                        Applicants
+                    </button>
+
+                    <button type="button"
+                            class="feed-filter"
+                            data-filter="recruiter">
+                        Recruiters & Companies
+                    </button>
+                </div>
+
+                <div id="feedStatus" class="status-message"></div>
+
+                <div id="communityFeed">
+                    <div id="feedLoading" class="loading-message">
+                        Loading community posts...
+                    </div>
+                </div>
+
+                <div id="emptyFeed"
+                     class="community-card empty-feed hidden">
+                    <i class="bi bi-chat-square-text"></i>
+                    <h5>Welcome to CVision Community</h5>
+                    <p>
+                        No posts yet. Be the first to share something
+                        with the community!
+                    </p>
+                </div>
+            </main>
+
+
+            <!-- MY POSTS COLUMN -->
+            <aside id="myPostsColumn"
+                  class="col-lg-3 col-md-4 my-posts-column hidden">
+
+                <div class="community-card">
+                    <div class="feed-heading">
+                        <div>
+                            <h5 class="my-posts-title">My Posts</h5>
+                            <div class="my-posts-subtitle">
+                                Manage your posts and comments
+                            </div>
+                        </div>
+
+                        <button type="button"
+                                id="closeMyPosts"
+                                class="close-my-posts"
+                                aria-label="Close My Posts">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+
+                    <div id="myPostsStatus" class="status-message"></div>
+
+                    <div id="myPostsList">
+                        <div class="loading-message">
+                            Your posts will appear here.
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+        </div>
     </div>
-
-
-    <!-- ==========================
-         Dashboard Cards
-    =========================== -->
-
-    <div class="row g-4">
-
-
-        <!-- Profile -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Profile
-                </h4>
-
-                <p class="text-muted">
-                    Manage your personal and professional information.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.profile') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    View Profile
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Resume -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Resume
-                </h4>
-
-                <p class="text-muted">
-                    Upload and manage your resume.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.resumes') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    Manage Resume
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Jobs -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Jobs
-                </h4>
-
-                <p class="text-muted">
-                    Find jobs that match your profile.
-                </p>
-
-                <a
-                    href="#"
-                    class="btn btn-primary mt-auto"
-                >
-                    Browse Jobs
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Education -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Education
-                </h4>
-
-                <p class="text-muted">
-                    Add and manage your educational qualifications.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.education') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    Manage Education
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Experience -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Work Experience
-                </h4>
-
-                <p class="text-muted">
-                    Manage your professional experience.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.experience') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    Manage Experience
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Skills -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Skills
-                </h4>
-
-                <p class="text-muted">
-                    Add and manage your professional skills.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.skills') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    Manage Skills
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Certifications -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Certifications
-                </h4>
-
-                <p class="text-muted">
-                    Manage your certifications and achievements.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.certifications') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    Manage Certifications
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Projects -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Projects & Portfolio
-                </h4>
-
-                <p class="text-muted">
-                    Manage your projects and portfolio information.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.projects') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    Manage Projects
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- Account Settings -->
-
-        <div class="col-md-4">
-
-            <div class="card p-4 shadow-sm border-0 h-100">
-
-                <h4>
-                    Account Settings
-                </h4>
-
-                <p class="text-muted">
-                    Change your password or email address.
-                </p>
-
-                <a
-                    href="{{ url_for('applicant.settings') }}"
-                    class="btn btn-primary mt-auto"
-                >
-                    Account Settings
-                </a>
-
-            </div>
-
-        </div>
-
-    </div>
-
 </div>
 
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
+
+    const API = {
+        posts: "/social/api/posts",
+        createPost: "/social/api/posts",
+        react: id => `/social/api/posts/${id}/reaction`,
+        updatePost: id => `/social/api/posts/${id}`,
+        deletePost: id => `/social/api/posts/${id}`,
+        comments: id => `/social/api/posts/${id}/comments`,
+        updateComment: id => `/social/api/comments/${id}`,
+        deleteComment: id => `/social/api/comments/${id}`
+    };
+
+    const feedColumn = document.getElementById("feedColumn");
+    const myPostsColumn = document.getElementById("myPostsColumn");
+    const toggleMyPosts = document.getElementById("toggleMyPosts");
+    const closeMyPosts = document.getElementById("closeMyPosts");
+    const myPostsChevron = document.getElementById("myPostsChevron");
+
+    const feed = document.getElementById("communityFeed");
+    const emptyFeed = document.getElementById("emptyFeed");
+    const feedLoading = document.getElementById("feedLoading");
+
+    const form = document.getElementById("createPostForm");
+    const postContent = document.getElementById("postContent");
+    const postImage = document.getElementById("postImage");
+    const preview = document.getElementById("imagePreview");
+    const previewImage = document.getElementById("previewImage");
+    const removeImage = document.getElementById("removeImage");
+    const publishButton = document.getElementById("publishPostButton");
+
+    const feedStatus = document.getElementById("feedStatus");
+    const composeStatus = document.getElementById("composeStatus");
+    const myPostsList = document.getElementById("myPostsList");
+
+    let postsCache = [];
+    let activeFilter = "all";
+    let loadingPosts = false;
+    let refreshQueued = false;
+
+    const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[char];
+        });
+    }
+
+    function formatText(value) {
+        return escapeHtml(value).replace(/\n/g, "<br>");
+    }
+
+    function initialOf(name) {
+        const value = String(name || "U").trim();
+        return escapeHtml(value ? value.charAt(0).toUpperCase() : "U");
+    }
+
+    function formatDate(value) {
+        if (!value) return "Just now";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return String(value);
+        }
+
+        return date.toLocaleString([], {
+            dateStyle: "medium",
+            timeStyle: "short"
+        });
+    }
+
+    function showStatus(element, message, type = "error") {
+        element.textContent = message;
+        element.className = "status-message " + type;
+    }
+
+    function clearStatus(element) {
+        element.textContent = "";
+        element.className = "status-message";
+    }
+
+    async function request(url, options = {}) {
+        const headers = { ...(options.headers || {}) };
+
+        if (
+            !(options.body instanceof FormData) &&
+            options.body !== undefined
+        ) {
+            headers["Content-Type"] = "application/json";
+        }
+
+        const response = await fetch(url, {
+            credentials: "same-origin",
+            ...options,
+            headers
+        });
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch (_) {
+            data = {};
+        }
+
+        if (!response.ok || data.success === false) {
+            throw new Error(
+                data.message ||
+                data.error ||
+                `Request failed (${response.status}).`
+            );
+        }
+
+        return data;
+    }
+
+    function normalizePost(post) {
+        return {
+            ...post,
+            id: post.id,
+            content: post.content || "",
+            image_url: post.image_url || null,
+            created_at: post.created_at || "",
+            author: post.author || {
+                name: "Community Member",
+                initial: "C",
+                role: "applicant",
+                label: "Applicant"
+            },
+            can_manage: Boolean(post.can_manage),
+            my_reaction: post.my_reaction || null,
+            like_count: Number(post.like_count || 0),
+            dislike_count: Number(post.dislike_count || 0),
+            comments: Array.isArray(post.comments) ? post.comments : []
+        };
+    }
+
+    function authorRole(post) {
+        const role = String(
+            post.author?.role || post.author?.label || "applicant"
+        ).toLowerCase();
+
+        return role.includes("recruit") || role.includes("compan")
+            ? "recruiter"
+            : "applicant";
+    }
+
+    function authorLabel(post) {
+        if (post.author?.label) return post.author.label;
+
+        return authorRole(post) === "recruiter"
+            ? "Recruiter / Company"
+            : "Applicant";
+    }
+
+    function avatarHtml(author, cssClass = "post-avatar") {
+        const name = author?.name || "Community Member";
+        const initial = author?.initial || name.charAt(0) || "U";
+
+        // Support the profile_picture field returned by routes/social.py,
+        // as well as the alternative names used by older responses.
+        const image =
+            author?.profile_picture ||
+            author?.profile_image ||
+            author?.avatar_url;
+
+        if (image) {
+            return `
+                <div class="${cssClass}">
+                    <img src="${escapeHtml(image)}"
+                         alt=""
+                         onerror="this.style.display='none'">
+                </div>
+            `;
+        }
+
+        return `<div class="${cssClass}">${initialOf(initial)}</div>`;
+    }
+
+    function renderComment(comment, postId, allComments = [], depth = 0) {
+        const author = comment.author || {};
+        const name = author.name || comment.author_name || "Community Member";
+        const commentId = String(comment.id);
+        const children = allComments.filter(item =>
+            item.parent_comment_id != null &&
+            String(item.parent_comment_id) === commentId
+        );
+
+        return `
+            <div class="comment-item comment-thread"
+                 data-comment-id="${escapeHtml(comment.id)}"
+                 style="${depth ? `margin-left:${Math.min(depth * 18, 54)}px;padding-left:10px;border-left:2px solid #dce8f8;` : ""}">
+
+                ${avatarHtml(author, "comment-avatar")}
+
+                <div class="comment-bubble">
+                    <div class="comment-author">
+                        ${escapeHtml(name)}
+                        ${author.role || comment.author_role ? `
+                            <span class="text-muted fw-normal">
+                                · ${escapeHtml(author.label || author.role || comment.author_role)}
+                            </span>
+                        ` : ""}
+                    </div>
+
+                    <div class="comment-meta text-muted small mb-1">
+                        ${escapeHtml(formatDate(comment.created_at))}
+                    </div>
+
+                    <div class="comment-text">
+                        ${formatText(comment.content || "")}
+                    </div>
+
+                    <div class="comment-controls">
+                        <button type="button"
+                                data-action="toggle-reply"
+                                data-comment-id="${escapeHtml(comment.id)}">
+                            <i class="bi bi-reply"></i> Reply
+                        </button>
+
+                        ${comment.can_manage ? `
+                            <button type="button"
+                                    data-action="edit-comment"
+                                    data-comment-id="${escapeHtml(comment.id)}">
+                                <i class="bi bi-pencil"></i> Edit
+                            </button>
+
+                            <button type="button"
+                                    class="text-danger"
+                                    data-action="delete-comment"
+                                    data-comment-id="${escapeHtml(comment.id)}">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        ` : ""}
+                    </div>
+
+                    <form class="comment-compose reply-compose hidden"
+                          data-comment-form
+                          data-post-id="${escapeHtml(postId)}"
+                          data-parent-comment-id="${escapeHtml(comment.id)}">
+                        <input type="text"
+                               class="comment-input"
+                               name="content"
+                               maxlength="2000"
+                               placeholder="Write a reply..."
+                               aria-label="Write a reply"
+                               required>
+                        <button type="submit"
+                                class="comment-submit"
+                                aria-label="Send reply">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            ${children.map(child =>
+                renderComment(child, postId, allComments, depth + 1)
+            ).join("")}
+        `;
+    }
+
+    function renderCommentsHtml(comments, postId) {
+        const roots = comments.filter(comment =>
+            comment.parent_comment_id == null ||
+            !comments.some(parent => String(parent.id) === String(comment.parent_comment_id))
+        );
+
+        if (!roots.length) {
+            return '<p class="small text-muted mt-3 mb-0">No comments yet. Start the conversation.</p>';
+        }
+
+        return roots.map(comment =>
+            renderComment(comment, postId, comments, 0)
+        ).join("");
+    }
+
+        function renderPost(post) {
+        const author = post.author || {};
+        const role = authorRole(post);
+
+        return `
+            <article class="community-card post-card"
+                     data-post-id="${escapeHtml(post.id)}"
+                     data-role="${role}">
+
+                <div class="post-header">
+                    <div class="post-author-info">
+                        ${avatarHtml(author)}
+
+                        <div>
+                            <div class="post-author-name">
+                                ${escapeHtml(author.name || "Community Member")}
+                                <span class="account-type">
+                                    ${escapeHtml(authorLabel(post))}
+                                </span>
+                            </div>
+
+                            <div class="post-meta">
+                                ${escapeHtml(formatDate(post.created_at))}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${post.can_manage ? `
+                        <div class="post-menu">
+                            <button type="button"
+                                    data-action="edit-post"
+                                    data-post-id="${escapeHtml(post.id)}"
+                                    title="Edit post">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <button type="button"
+                                    data-action="delete-post"
+                                    data-post-id="${escapeHtml(post.id)}"
+                                    title="Delete post">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    ` : ""}
+                </div>
+
+                <div class="post-content">
+                    ${formatText(post.content)}
+                </div>
+
+                ${post.image_url ? `
+                    <img class="post-image"
+                         src="${escapeHtml(post.image_url)}"
+                         alt="Post image"
+                         loading="lazy">
+                ` : ""}
+
+                <div class="post-stats">
+                    <span>
+                        <i class="bi bi-hand-thumbs-up"></i>
+                        ${post.like_count} likes
+                    </span>
+
+                    <span>
+                        ${post.dislike_count} dislikes
+                        · ${post.comments.length} comments
+                    </span>
+                </div>
+
+                <div class="post-actions">
+                    <button type="button"
+                            class="post-action ${post.my_reaction === "like" ? "active" : ""}"
+                            data-action="react"
+                            data-reaction="like"
+                            data-post-id="${escapeHtml(post.id)}">
+                        <i class="bi bi-hand-thumbs-up"></i> Like
+                    </button>
+
+                    <button type="button"
+                            class="post-action ${post.my_reaction === "dislike" ? "active" : ""}"
+                            data-action="react"
+                            data-reaction="dislike"
+                            data-post-id="${escapeHtml(post.id)}">
+                        <i class="bi bi-hand-thumbs-down"></i> Dislike
+                    </button>
+
+                    <button type="button"
+                            class="post-action"
+                            data-action="focus-comment"
+                            data-post-id="${escapeHtml(post.id)}">
+                        <i class="bi bi-chat"></i> Comment
+                    </button>
+                </div>
+
+                <div class="comments-section">
+                    <div class="comments-list">
+                        ${renderCommentsHtml(post.comments, post.id)}
+                    </div>
+
+                    <form class="comment-compose"
+                          data-comment-form
+                          data-post-id="${escapeHtml(post.id)}">
+
+                        <input type="text"
+                               class="comment-input"
+                               name="content"
+                               maxlength="2000"
+                               placeholder="Write a comment..."
+                               required>
+
+                        <button type="submit"
+                                class="comment-submit"
+                                aria-label="Send comment">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </form>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderMyPosts() {
+        const ownPosts = postsCache.filter(post => post.can_manage);
+
+        if (!ownPosts.length) {
+            myPostsList.innerHTML = `
+                <div class="empty-feed">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <h5>No posts yet</h5>
+                    <p>Your published posts will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+
+        myPostsList.innerHTML = ownPosts.map(post => `
+            <div class="my-post-item"
+                 data-my-post-id="${escapeHtml(post.id)}">
+
+                <div class="my-post-date">
+                    ${escapeHtml(formatDate(post.created_at))}
+                </div>
+
+                <div class="my-post-preview">
+                    ${escapeHtml(
+                        post.content.length > 180
+                            ? post.content.slice(0, 180) + "..."
+                            : post.content
+                    )}
+                </div>
+
+                ${post.image_url ? `
+                    <img src="${escapeHtml(post.image_url)}"
+                         alt="Your post image"
+                         style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;">
+                ` : ""}
+
+                <div class="my-post-date">
+                    <i class="bi bi-hand-thumbs-up"></i>
+                    ${post.like_count}
+                    ·
+                    <i class="bi bi-chat"></i>
+                    ${post.comments.length} comments
+                </div>
+
+                <div class="my-post-actions">
+                    <button type="button"
+                            class="small-action"
+                            data-action="edit-post"
+                            data-post-id="${escapeHtml(post.id)}">
+                        <i class="bi bi-pencil"></i> Edit
+                    </button>
+
+                    <button type="button"
+                            class="small-action delete"
+                            data-action="delete-post"
+                            data-post-id="${escapeHtml(post.id)}">
+                        <i class="bi bi-trash"></i> Delete
+                    </button>
+
+                    <button type="button"
+                            class="small-action"
+                            data-action="view-comments"
+                            data-post-id="${escapeHtml(post.id)}">
+                        <i class="bi bi-chat"></i> Comments
+                    </button>
+                </div>
+
+                <div id="editPost-${escapeHtml(post.id)}"
+                     class="inline-edit hidden">
+
+                    <textarea class="edit-post-input"
+                              maxlength="5000">${escapeHtml(post.content)}</textarea>
+
+                    <div class="form-actions">
+                        <button type="button"
+                                class="small-action"
+                                data-action="save-post"
+                                data-post-id="${escapeHtml(post.id)}">
+                            Save
+                        </button>
+
+                        <button type="button"
+                                class="small-action"
+                                data-action="cancel-edit-post"
+                                data-post-id="${escapeHtml(post.id)}">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <div id="myComments-${escapeHtml(post.id)}" class="hidden">
+                    ${post.comments.length
+                        ? renderCommentsHtml(post.comments, post.id)
+                        : '<p class="my-post-date mt-3">No comments yet.</p>'}
+                </div>
+            </div>
+        `).join("");
+    }
+
+    function renderFeed() {
+        const visiblePosts = postsCache.filter(post =>
+            activeFilter === "all" || authorRole(post) === activeFilter
+        );
+
+        feed.innerHTML = visiblePosts.map(renderPost).join("");
+
+        // Show the welcome message only when no posts exist anywhere.
+        emptyFeed.classList.toggle("hidden", postsCache.length !== 0);
+
+        if (postsCache.length > 0 && visiblePosts.length === 0) {
+            feed.innerHTML = `
+                <div class="community-card empty-feed">
+                    <i class="bi bi-funnel"></i>
+                    <h5>No posts in this category</h5>
+                    <p>Choose another filter to see more posts.</p>
+                </div>
+            `;
+        }
+
+        renderMyPosts();
+    }
+
+    /*
+     * IMPORTANT:
+     * Polling must not replace the DOM while someone is typing in a
+     * comment or editing a post in My Posts.
+     */
+    function isTypingOrEditing() {
+        const active = document.activeElement;
+
+        if (!active || typeof active.matches !== "function") {
+            return false;
+        }
+
+        const isEditableField = active.matches(
+            ".comment-input, .edit-post-input"
+        );
+
+        if (!isEditableField) {
+            return false;
+        }
+
+        return feed.contains(active) || myPostsList.contains(active);
+    }
+
+    /*
+     * force=true is used after successful user actions.
+     * If a previous request is still running, queue a refresh so the
+     * update is not lost.
+     */
+    async function loadPosts(options = {}) {
+        const force = options.force === true;
+
+        if (!force && isTypingOrEditing()) {
+            return;
+        }
+
+        if (loadingPosts) {
+            if (force) {
+                refreshQueued = true;
+            }
+            return;
+        }
+
+        loadingPosts = true;
+
+        try {
+            const data = await request(API.posts);
+
+            const receivedPosts = Array.isArray(data)
+                ? data
+                : (Array.isArray(data.posts) ? data.posts : []);
+
+            postsCache = receivedPosts.map(normalizePost);
+
+            renderFeed();
+            clearStatus(feedStatus);
+
+        } catch (error) {
+            showStatus(
+                feedStatus,
+                "Could not load community posts. " + error.message
+            );
+
+        } finally {
+            loadingPosts = false;
+            feedLoading?.classList.add("hidden");
+
+            if (refreshQueued) {
+                refreshQueued = false;
+                loadPosts({ force: true });
+            }
+        }
+    }
+
+    function setMyPostsOpen(open) {
+        myPostsColumn.classList.toggle("hidden", !open);
+
+        toggleMyPosts.setAttribute("aria-expanded", String(open));
+
+        myPostsChevron.className = open
+            ? "bi bi-chevron-left float-end mt-1"
+            : "bi bi-chevron-right float-end mt-1";
+
+        feedColumn.classList.toggle("col-lg-6", open);
+        feedColumn.classList.toggle("col-lg-9", !open);
+    }
+
+    toggleMyPosts.addEventListener("click", function () {
+        setMyPostsOpen(myPostsColumn.classList.contains("hidden"));
+    });
+
+    closeMyPosts.addEventListener("click", function () {
+        setMyPostsOpen(false);
+    });
+
+    document.querySelectorAll(".feed-filter").forEach(button => {
+        button.addEventListener("click", function () {
+            document.querySelectorAll(".feed-filter").forEach(item =>
+                item.classList.remove("active")
+            );
+
+            button.classList.add("active");
+            activeFilter = button.dataset.filter;
+            renderFeed();
+        });
+    });
+
+    postImage.addEventListener("change", function () {
+        clearStatus(composeStatus);
+
+        const file = this.files?.[0];
+
+        if (!file) {
+            preview.style.display = "none";
+            previewImage.removeAttribute("src");
+            return;
+        }
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            showStatus(
+                composeStatus,
+                "Choose a JPG, PNG, WEBP, or GIF image."
+            );
+
+            this.value = "";
+            preview.style.display = "none";
+            previewImage.removeAttribute("src");
+            return;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            showStatus(
+                composeStatus,
+                "The image must be 5 MB or smaller."
+            );
+
+            this.value = "";
+            preview.style.display = "none";
+            previewImage.removeAttribute("src");
+            return;
+        }
+
+        previewImage.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+    });
+
+    removeImage.addEventListener("click", function () {
+        postImage.value = "";
+        previewImage.removeAttribute("src");
+        preview.style.display = "none";
+    });
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        clearStatus(composeStatus);
+
+        const content = postContent.value.trim();
+        const image = postImage.files?.[0];
+
+        if (!content && !image) {
+            showStatus(
+                composeStatus,
+                "Write something or choose an image before publishing."
+            );
+            return;
+        }
+
+        if (image && image.size > MAX_IMAGE_SIZE) {
+            showStatus(
+                composeStatus,
+                "The image must be 5 MB or smaller."
+            );
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("content", content);
+
+        if (image) {
+            formData.append("image", image);
+        }
+
+        publishButton.disabled = true;
+        publishButton.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-1"></span> Publishing';
+
+        try {
+            await request(API.createPost, {
+                method: "POST",
+                body: formData
+            });
+
+            postContent.value = "";
+            postImage.value = "";
+            previewImage.removeAttribute("src");
+            preview.style.display = "none";
+
+            showStatus(
+                composeStatus,
+                "Post published successfully.",
+                "success"
+            );
+
+            activeFilter = "all";
+
+            document.querySelectorAll(".feed-filter").forEach(button => {
+                button.classList.toggle(
+                    "active",
+                    button.dataset.filter === "all"
+                );
+            });
+
+            await loadPosts({ force: true });
+
+        } catch (error) {
+            showStatus(
+                composeStatus,
+                "Could not publish your post. " + error.message
+            );
+
+        } finally {
+            publishButton.disabled = false;
+            publishButton.innerHTML =
+                '<i class="bi bi-send me-1"></i> Publish';
+        }
+    });
+
+    async function deletePost(postId) {
+        if (!confirm("Are you sure you want to delete this post?")) {
+            return;
+        }
+
+        try {
+            await request(API.deletePost(postId), {
+                method: "DELETE"
+            });
+
+            await loadPosts({ force: true });
+
+        } catch (error) {
+            alert("Could not delete post: " + error.message);
+        }
+    }
+
+    async function savePost(postId) {
+        const editor = document.querySelector(
+            `#editPost-${CSS.escape(String(postId))} textarea`
+        );
+
+        if (!editor) return;
+
+        const content = editor.value.trim();
+
+        if (!content) {
+            alert("Post content cannot be empty.");
+            return;
+        }
+
+        try {
+            await request(API.updatePost(postId), {
+                method: "PATCH",
+                body: JSON.stringify({ content })
+            });
+
+            await loadPosts({ force: true });
+
+        } catch (error) {
+            alert("Could not update post: " + error.message);
+        }
+    }
+
+    async function addComment(postId, content, parentCommentId = null) {
+        const payload = { content };
+        if (parentCommentId !== null && parentCommentId !== "") {
+            payload.parent_comment_id = parentCommentId;
+        }
+
+        await request(API.comments(postId), {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+
+        await loadPosts({ force: true });
+    }
+
+    async function reactToPost(postId, reaction) {
+        await request(API.react(postId), {
+            method: "POST",
+            body: JSON.stringify({ reaction })
+        });
+
+        await loadPosts({ force: true });
+    }
+
+    async function editComment(commentId, currentContent) {
+        const updated = prompt("Edit your comment:", currentContent);
+
+        if (updated === null) return;
+
+        const content = updated.trim();
+
+        if (!content) {
+            alert("Comment cannot be empty.");
+            return;
+        }
+
+        await request(API.updateComment(commentId), {
+            method: "PATCH",
+            body: JSON.stringify({ content })
+        });
+
+        await loadPosts({ force: true });
+    }
+
+    async function deleteComment(commentId) {
+        if (!confirm("Delete this comment?")) return;
+
+        await request(API.deleteComment(commentId), {
+            method: "DELETE"
+        });
+
+        // Remove the comment and every nested reply immediately from the cached UI.
+        const removedIds = new Set([String(commentId)]);
+        let foundNewChild = true;
+
+        while (foundNewChild) {
+            foundNewChild = false;
+            postsCache.forEach(post => {
+                post.comments.forEach(comment => {
+                    if (
+                        comment.parent_comment_id != null &&
+                        removedIds.has(String(comment.parent_comment_id)) &&
+                        !removedIds.has(String(comment.id))
+                    ) {
+                        removedIds.add(String(comment.id));
+                        foundNewChild = true;
+                    }
+                });
+            });
+        }
+
+        postsCache.forEach(post => {
+            post.comments = post.comments.filter(
+                comment => !removedIds.has(String(comment.id))
+            );
+        });
+
+        renderFeed();
+        renderMyPosts();
+        await loadPosts({ force: true });
+    }
+
+    feed.addEventListener("submit", async function (event) {
+        const commentForm = event.target.closest("[data-comment-form]");
+
+        if (!commentForm || !feed.contains(commentForm)) return;
+
+        event.preventDefault();
+
+        const input = commentForm.querySelector('input[name="content"]');
+        const content = input.value.trim();
+
+        if (!content) return;
+
+        const postId = commentForm.dataset.postId;
+        const submitButton = commentForm.querySelector(
+            'button[type="submit"]'
+        );
+
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+
+        try {
+            await addComment(
+                postId,
+                content,
+                commentForm.dataset.parentCommentId || null
+            );
+
+        } catch (error) {
+            alert("Could not add comment: " + error.message);
+
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
+    });
+
+    document.addEventListener("click", async function (event) {
+        const button = event.target.closest("[data-action]");
+
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const postId = button.dataset.postId;
+        const commentId = button.dataset.commentId;
+
+        try {
+            if (action === "delete-post") {
+                await deletePost(postId);
+            }
+
+            if (action === "edit-post") {
+                setMyPostsOpen(true);
+
+                const editor = document.getElementById(
+                    `editPost-${postId}`
+                );
+
+                if (editor) {
+                    editor.classList.toggle("hidden");
+
+                    if (!editor.classList.contains("hidden")) {
+                        editor.querySelector("textarea")?.focus();
+                    }
+                } else {
+                    const ownPost = document.querySelector(
+                        `#myPostsList [data-my-post-id="${CSS.escape(String(postId))}"]`
+                    );
+
+                    if (!ownPost) {
+                        alert("Only your own posts can be edited.");
+                    }
+                }
+            }
+
+            if (action === "save-post") {
+                await savePost(postId);
+            }
+
+            if (action === "cancel-edit-post") {
+                document.getElementById(`editPost-${postId}`)
+                    ?.classList.add("hidden");
+            }
+
+            if (action === "react") {
+                await reactToPost(postId, button.dataset.reaction);
+            }
+
+            if (action === "focus-comment") {
+                const post = feed.querySelector(
+                    `[data-post-id="${CSS.escape(String(postId))}"]`
+                );
+
+                post?.querySelector(".comment-input")?.focus();
+            }
+
+            if (action === "toggle-reply") {
+                const commentRow = button.closest(".comment-thread");
+                const replyForm = commentRow?.querySelector(
+                    ":scope > .comment-bubble .reply-compose"
+                );
+
+                if (replyForm) {
+                    replyForm.classList.toggle("hidden");
+                    if (!replyForm.classList.contains("hidden")) {
+                        replyForm.querySelector("input[name='content']")?.focus();
+                    }
+                }
+            }
+
+            if (action === "edit-comment") {
+                const comment = postsCache
+                    .flatMap(post => post.comments)
+                    .find(item => String(item.id) === String(commentId));
+
+                if (comment) {
+                    await editComment(commentId, comment.content);
+                }
+            }
+
+            if (action === "delete-comment") {
+                await deleteComment(commentId);
+            }
+
+            if (action === "view-comments") {
+                document.getElementById(`myComments-${postId}`)
+                    ?.classList.toggle("hidden");
+            }
+
+        } catch (error) {
+            alert("Action failed: " + error.message);
+        }
+    });
+
+    // Initial load.
+    loadPosts({ force: true });
+
+    /*
+     * Polling keeps the shared feed updated for applicants and recruiters.
+     * It will not re-render the feed while the user is typing in a comment
+     * or editing a post.
+     */
+    window.setInterval(function () {
+        if (!document.hidden) {
+            loadPosts();
+        }
+    }, 3000);
+
+    // Refresh when the user returns to the page, unless editing is active.
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            loadPosts();
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -26,6 +26,8 @@ from routes.dashboard import dashboard
 from routes.applicant import applicant
 from routes.recruiter import recruiter
 from routes.admin import admin
+from models.social import SocialPost, SocialComment, SocialReaction
+from routes.social import social
 
 from werkzeug.security import generate_password_hash
 
@@ -67,7 +69,17 @@ os.makedirs(
 
 app.config.from_object(Config)
 
+app.config["SOCIAL_UPLOAD_FOLDER"] = os.path.join(
+    app.root_path,
+    "static",
+    "uploads",
+    "social"
+)
 
+os.makedirs(
+    app.config["SOCIAL_UPLOAD_FOLDER"],
+    exist_ok=True
+)
 # ==========================
 # Initialize Extensions
 # ==========================
@@ -114,7 +126,7 @@ app.register_blueprint(recruiter)
 app.register_blueprint(admin)
 
 app.register_blueprint(notifications)
-
+app.register_blueprint(social)
 # ==========================
 # Create Database Tables
 # ==========================
