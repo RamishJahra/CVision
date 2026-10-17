@@ -1,0 +1,392 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Recruiter Profile | CVision{% endblock %}
+
+{% block content %}
+<style>
+    .view-page {
+        padding: 105px 0 50px;
+        background: #f4f7fc;
+        min-height: 100vh;
+    }
+
+    .view-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 28px;
+    }
+
+    .view-header h2 {
+        color: #153e75;
+        font-weight: 700;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .view-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .view-card {
+        background: #ffffff;
+        border: 1px solid #e4eaf3;
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(22, 55, 100, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .profile-heading {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .profile-avatar {
+        width: 105px;
+        height: 105px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #e7efff;
+        background: #edf3ff;
+        box-shadow: 0 4px 12px rgba(23, 101, 193, 0.12);
+    }
+
+    .profile-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1765c1;
+        font-size: 42px;
+        background: linear-gradient(135deg, #edf3ff 0%, #e2ecff 100%);
+    }
+
+    .profile-name {
+        color: #183b69;
+        font-weight: 700;
+        margin-bottom: 6px;
+        overflow-wrap: anywhere;
+        font-size: 1.65rem;
+    }
+
+    .profile-subtitle {
+        color: #64748b;
+        margin-bottom: 6px;
+        overflow-wrap: anywhere;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+
+    .profile-handle {
+        color: #1765c1;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .view-section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #174a87;
+        padding-bottom: 14px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #e8edf5;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-card-box {
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 16px 20px;
+        height: 100%;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .info-card-box:hover {
+        background: #f1f5f9;
+        border-color: #e2e8f0;
+    }
+
+    .info-item {
+        margin-bottom: 0;
+        min-width: 0;
+    }
+
+    .info-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-label i {
+        font-size: 15px;
+        color: #1765c1;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 0.98rem;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+    }
+
+    .info-value a {
+        color: #1765c1;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        word-break: break-all;
+    }
+
+    .info-value a:hover {
+        text-decoration: underline;
+    }
+
+    .empty-value {
+        color: #94a3b8;
+        font-style: italic;
+        font-weight: 400;
+    }
+
+    .view-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #1765c1;
+        background: #eaf2ff;
+        border: 1px solid #d0e1fd;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 15px;
+        color: #718096;
+    }
+
+    @media (max-width: 576px) {
+        .view-card {
+            padding: 20px;
+        }
+
+        .profile-heading {
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .profile-avatar {
+            width: 85px;
+            height: 85px;
+        }
+    }
+</style>
+
+<div class="view-page">
+    <div class="container">
+
+        <div class="view-header">
+            <div>
+                <h2><i class="bi bi-person-badge text-primary"></i> Recruiter Profile</h2>
+                <p>View your recruiter account information.</p>
+            </div>
+        </div>
+
+        <div class="view-card">
+            <div class="profile-heading">
+
+                {% if current_user.profile_image %}
+                    <img
+                        class="profile-avatar"
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/profile/' ~ current_user.profile_image
+                        ) }}"
+                        alt="Recruiter profile picture"
+                    >
+                {% else %}
+                    <div class="profile-avatar profile-placeholder">
+                        <i class="bi bi-person"></i>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <h3 class="profile-name">
+                        {{ current_user.full_name or 'Name not added' }}
+                    </h3>
+
+                    <p class="profile-subtitle">
+                        <i class="bi bi-briefcase text-primary"></i>
+                        {% if profile and profile.job_title %}
+                            {{ profile.job_title }}
+                        {% else %}
+                            Recruiter
+                        {% endif %}
+                    </p>
+
+                    <p class="profile-subtitle profile-handle mb-0">
+                        <i class="bi bi-at"></i>{{ current_user.username }}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="view-card">
+            <h5 class="view-section-title">
+                <i class="bi bi-person-vcard-fill"></i> Personal Information
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-person"></i> Full Name</span>
+                            <div class="info-value">
+                                {{ current_user.full_name or 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-at"></i> Username</span>
+                            <div class="info-value">
+                                {{ current_user.username or 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-envelope"></i> Email Address</span>
+                            <div class="info-value">
+                                {{ current_user.email or 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-telephone"></i> Phone Number</span>
+                            <div class="info-value">
+                                {{ current_user.phone or 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-geo-alt"></i> District</span>
+                            <div class="info-value">
+                                {{ current_user.district.name
+                                   if current_user.district else 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-pin-map"></i> Area</span>
+                            <div class="info-value">
+                                {{ current_user.area.name
+                                   if current_user.area else 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-card">
+            <h5 class="view-section-title">
+                <i class="bi bi-award-fill"></i> Professional Information
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-briefcase"></i> Job Title</span>
+                            <div class="info-value">
+                                {{ profile.job_title
+                                   if profile and profile.job_title
+                                   else 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-linkedin"></i> LinkedIn Profile</span>
+                            <div class="info-value">
+                                {% if profile and profile.linkedin_url %}
+                                    <a href="{{ profile.linkedin_url }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        <i class="bi bi-box-arrow-up-right"></i> {{ profile.linkedin_url }}
+                                    </a>
+                                {% else %}
+                                    <span class="empty-value">Not added</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="info-card-box">
+                        <div class="info-item mb-0">
+                            <span class="info-label"><i class="bi bi-card-text"></i> Professional Bio</span>
+                            <div class="info-value">
+                                {{ profile.bio
+                                   if profile and profile.bio
+                                   else 'No professional bio added yet.' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

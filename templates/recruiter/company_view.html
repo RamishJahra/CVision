@@ -1,0 +1,337 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Company Profile | CVision{% endblock %}
+
+{% block content %}
+<style>
+    .view-page {
+        padding: 105px 0 50px;
+        background: #f4f7fc;
+        min-height: 100vh;
+    }
+
+    .view-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 28px;
+    }
+
+    .view-header h2 {
+        color: #153e75;
+        font-weight: 700;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .view-header p {
+        color: #718096;
+        margin: 0;
+    }
+
+    .view-card {
+        background: #ffffff;
+        border: 1px solid #e4eaf3;
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 24px rgba(22, 55, 100, 0.04);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .company-heading {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+
+    .company-logo {
+        width: 105px;
+        height: 105px;
+        border-radius: 16px;
+        object-fit: contain;
+        padding: 8px;
+        border: 1px solid #e4eaf3;
+        background: #ffffff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    }
+
+    .company-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #1765c1;
+        background: linear-gradient(135deg, #edf3ff 0%, #e2ecff 100%);
+        font-size: 40px;
+    }
+
+    .company-name {
+        color: #183b69;
+        font-weight: 700;
+        margin-bottom: 8px;
+        overflow-wrap: anywhere;
+        font-size: 1.65rem;
+    }
+
+    .company-subtitle {
+        color: #64748b;
+        margin-bottom: 0;
+        overflow-wrap: anywhere;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+    }
+
+    .view-section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #174a87;
+        padding-bottom: 14px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid #e8edf5;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-card-box {
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+        border-radius: 12px;
+        padding: 16px 20px;
+        height: 100%;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .info-card-box:hover {
+        background: #f1f5f9;
+        border-color: #e2e8f0;
+    }
+
+    .info-item {
+        margin-bottom: 0;
+        min-width: 0;
+    }
+
+    .info-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-label i {
+        font-size: 15px;
+        color: #1765c1;
+    }
+
+    .info-value {
+        color: #1e293b;
+        font-weight: 600;
+        font-size: 0.98rem;
+        overflow-wrap: anywhere;
+        white-space: pre-wrap;
+    }
+
+    .info-value a {
+        color: #1765c1;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        word-break: break-all;
+    }
+
+    .info-value a:hover {
+        text-decoration: underline;
+    }
+
+    .empty-value {
+        color: #94a3b8;
+        font-style: italic;
+        font-weight: 400;
+    }
+
+    .view-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #1765c1;
+        background: #eaf2ff;
+        border: 1px solid #d0e1fd;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    @media (max-width: 576px) {
+        .view-card {
+            padding: 20px;
+        }
+
+        .company-heading {
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .company-logo {
+            width: 85px;
+            height: 85px;
+        }
+    }
+</style>
+
+<div class="view-page">
+    <div class="container">
+
+        <div class="view-header">
+            <div>
+                <h2><i class="bi bi-building-gear text-primary"></i> Company Profile</h2>
+                <p>View your organization's detailed information.</p>
+            </div>
+        </div>
+
+        <div class="view-card">
+            <div class="company-heading">
+
+                {% if profile and profile.company_logo %}
+                    <img
+                        class="company-logo"
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/profile/' ~ profile.company_logo
+                        ) }}"
+                        alt="Company logo"
+                    >
+                {% else %}
+                    <div class="company-logo company-placeholder">
+                        <i class="bi bi-building"></i>
+                    </div>
+                {% endif %}
+
+                <div>
+                    <h3 class="company-name">
+                        {{ profile.company_name
+                           if profile and profile.company_name
+                           else 'Company name not added' }}
+                    </h3>
+
+                    <p class="company-subtitle">
+                        <i class="bi bi-briefcase text-primary"></i>
+                        {{ profile.industry
+                           if profile and profile.industry
+                           else 'Industry not specified' }}
+                    </p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="view-card">
+            <h5 class="view-section-title">
+                <i class="bi bi-info-circle-fill"></i> Company Information
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-building"></i> Company Name</span>
+                            <div class="info-value">
+                                {{ profile.company_name
+                                   if profile and profile.company_name
+                                   else 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-tag"></i> Industry</span>
+                            <div class="info-value">
+                                {{ profile.industry
+                                   if profile and profile.industry
+                                   else 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-people"></i> Company Size</span>
+                            <div class="info-value">
+                                {{ profile.company_size
+                                   if profile and profile.company_size
+                                   else 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-geo-alt"></i> Company Location</span>
+                            <div class="info-value">
+                                {{ profile.company_location
+                                   if profile and profile.company_location
+                                   else 'Not added' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="info-card-box">
+                        <div class="info-item">
+                            <span class="info-label"><i class="bi bi-globe"></i> Company Website</span>
+                            <div class="info-value">
+                                {% if profile and profile.company_website %}
+                                    <a href="{{ profile.company_website }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        <i class="bi bi-box-arrow-up-right"></i> {{ profile.company_website }}
+                                    </a>
+                                {% else %}
+                                    <span class="empty-value">Not added</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="info-card-box">
+                        <div class="info-item mb-0">
+                            <span class="info-label"><i class="bi bi-file-text"></i> Company Description</span>
+                            <div class="info-value">
+                                {{ profile.company_description
+                                   if profile and profile.company_description
+                                   else 'No company description added yet.' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -153,6 +153,18 @@ Jobs | CVision
         color: #6c757d;
         margin-bottom: 0;
     }
+    .suggested-badge {
+    display: inline-flex;
+    align-items: center;
+    background: #eaf2ff;
+    color: #0d6efd;
+    border: 1px solid #cfe0ff;
+    border-radius: 50px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
 
 </style>
 
@@ -212,9 +224,20 @@ Jobs | CVision
 
                                 <div>
 
-                                    <h2 class="job-title">
-                                        {{ job.job_title }}
-                                    </h2>
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                    
+                                        <h2 class="job-title mb-0">
+                                            {{ job.job_title }}
+                                        </h2>
+                                    
+                                        {% if job.id in suggested_job_ids %}
+                                        <span class="suggested-badge">
+                                            <i class="bi bi-stars me-1"></i>
+                                            Suggested
+                                        </span>
+                                        {% endif %}
+                                    
+                                    </div>
 
 
                                     {% if job.recruiter
@@ -529,9 +552,25 @@ Jobs | CVision
 
                                             <div>
 
-                                                <h2 class="job-title">
-                                                    ${escapeApplicantJobHtml(job.job_title)}
-                                                </h2>
+                                                                                                    <div class="d-flex flex-wrap align-items-center gap-2">
+
+                                                        <h2 class="job-title mb-0">
+                                                            ${escapeApplicantJobHtml(job.job_title)}
+                                                        </h2>
+
+                                                        ${job.suggested
+                                                                                        ?
+                                                                                        `
+                                                            <span class="suggested-badge">
+                                                                <i class="bi bi-stars me-1"></i>
+                                                                Suggested
+                                                            </span>
+                                                            `
+                                                                                        :
+                                                                                        ""
+                                                        }
+
+                                                    </div>
 
                                                 ${
                                                     job.company_name

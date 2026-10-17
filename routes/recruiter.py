@@ -2015,3 +2015,44 @@ def verify_new_email():
     return render_template(
         "recruiter/verify_email.html"
     )
+
+# ==========================================================
+# Recruiter Profile View (Read Only)
+# ==========================================================
+
+@recruiter.route("/profile-view", methods=["GET"])
+@login_required
+def profile_view():
+
+    if current_user.role != "Recruiter":
+        return redirect(url_for("dashboard.home"))
+
+    profile = RecruiterProfile.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    return render_template(
+        "recruiter/profile_view.html",
+        profile=profile
+    )
+
+
+# ==========================================================
+# Company Profile View (Read Only)
+# ==========================================================
+
+@recruiter.route("/company-view", methods=["GET"])
+@login_required
+def company_view():
+
+    if current_user.role != "Recruiter":
+        return redirect(url_for("dashboard.home"))
+
+    profile = RecruiterProfile.query.filter_by(
+        user_id=current_user.id
+    ).first()
+
+    return render_template(
+        "recruiter/company_view.html",
+        profile=profile
+    )

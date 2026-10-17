@@ -4268,6 +4268,7 @@ def close_expired_jobs():
         db.session.commit()
 
 
+
 # ==========================================================
 # APPLICANT JOB BROWSING
 # ==========================================================
@@ -4314,11 +4315,22 @@ def jobs():
         ).all()
     }
 
+    # ------------------------------------------------------
+    # Get jobs suggested for this applicant
+    # ------------------------------------------------------
+
+    suggested_job_ids = get_suggested_job_ids(
+        jobs,
+        current_user.id
+    )
+
     return render_template(
         "applicant/jobs.html",
         jobs=jobs,
-        applied_job_ids=applied_job_ids
+        applied_job_ids=applied_job_ids,
+        suggested_job_ids=suggested_job_ids
     )
+
 # ==========================================================
 # REAL-TIME APPLICANT JOB UPDATES
 # ==========================================================
@@ -4351,7 +4363,10 @@ def jobs_live():
             applicant_id=current_user.id
         ).all()
     }
-
+    suggested_job_ids = get_suggested_job_ids(
+    jobs,
+    current_user.id
+)
     job_data = []
 
     for job in jobs:
@@ -4382,7 +4397,7 @@ def jobs_live():
             "location": job.location or "",
 
             "job_type": job.job_type or "",
-
+          
             "salary": job.salary or "",
 
             "application_deadline": (
@@ -4390,7 +4405,7 @@ def jobs_live():
                 if job.application_deadline
                 else None
             ),
-
+            "suggested": job.id in suggested_job_ids,
             "company_name": company_name,
 
             "recruiter_name": recruiter_name or "",
@@ -4411,7 +4426,8 @@ def jobs_live():
                 job["application_deadline"],
                 job["company_name"],
                 job["recruiter_name"],
-                job["applied"]
+                job["applied"],
+                job["suggested"]
             )
             for job in job_data
         ]
@@ -4505,6 +4521,77 @@ def job_detail(job_id):
         application=application
     )
 
+
+# ==========================================================
+# APPLICANT JOB SUGGESTION MATCHING
+# ==========================================================
+
+def get_suggested_job_ids(jobs, applicant_id):
+    """
+    Return job IDs whose required skills match at least
+    50% of the applicant's saved skills requirements.
+
+    A job must have at least one required skill and at
+    least one matching applicant skill to be suggested.
+    """
+
+    applicant_skills = Skill.query.filter_by(
+        user_id=applicant_id
+    ).all()
+
+    applicant_skill_names = {
+        re.sub(
+            r"[^a-z0-9+#.]",
+            "",
+            skill.skill_name.lower()
+        )
+        for skill in applicant_skills
+        if skill.skill_name
+    }
+
+    suggested_job_ids = set()
+
+    for job in jobs:
+
+        required_text = job.skills_required or ""
+
+        # Support comma-separated, semicolon-separated,
+        # newline-separated, and pipe-separated skills.
+        required_skills = re.split(
+            r"[,;\n|]+",
+            required_text
+        )
+
+        required_skills = {
+            re.sub(
+                r"[^a-z0-9+#.]",
+                "",
+                skill.strip().lower()
+            )
+            for skill in required_skills
+            if skill.strip()
+        }
+
+        required_skills.discard("")
+
+        # Do not suggest jobs without explicit skill
+        # requirements, because their compatibility
+        # cannot be reliably determined from skills.
+        if not required_skills:
+            continue
+
+        matched_skills = (
+            required_skills & applicant_skill_names
+        )
+
+        match_ratio = (
+            len(matched_skills) / len(required_skills)
+        )
+
+        if matched_skills and match_ratio >= 0.50:
+            suggested_job_ids.add(job.id)
+
+    return suggested_job_ids
 
 # ==========================================================
 # APPLY TO JOB
