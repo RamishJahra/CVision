@@ -1247,7 +1247,112 @@
     </div>
 
 </section>
+<!-- ===================== RATINGS & FEEDBACK ===================== -->
 
+<section id="feedback" class="py-5" style="background:#f5f8ff;">
+    <div class="container">
+
+        <div class="section-title text-center mb-5">
+            <small>YOUR VOICE MATTERS</small>
+            <h2>Share Your Rating & Feedback</h2>
+            <p>
+                Help us improve CVision by sharing your experience.
+            </p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="p-4 p-md-5 bg-white rounded-4 shadow-sm">
+
+                    <form id="feedbackForm">
+
+                        <label class="form-label fw-semibold">
+                            How would you rate CVision?
+                        </label>
+
+                        <div class="d-flex gap-2 mb-4"
+                             id="feedbackStarPicker"
+                             role="radiogroup"
+                             aria-label="Select a rating from 1 to 5">
+
+                            {% for star in range(1, 6) %}
+                            <button type="button"
+                                    class="feedback-star-btn"
+                                    data-rating="{{ star }}"
+                                    aria-label="{{ star }} star{% if star != 1 %}s{% endif %}"
+                                    aria-checked="false"
+                                    role="radio"
+                                    style="border:0;background:none;font-size:36px;color:#cbd5e1;padding:0 3px;">
+                                ★
+                            </button>
+                            {% endfor %}
+
+                        </div>
+
+                        <input type="hidden" id="feedbackRating" value="0">
+
+                        <div class="mb-3">
+                            <label for="feedbackMessage" class="form-label fw-semibold">
+                                Your Feedback
+                            </label>
+
+                            <textarea id="feedbackMessage"
+                                      class="form-control"
+                                      rows="5"
+                                      maxlength="2000"
+                                      placeholder="Tell us what you liked or what we can improve..."
+                                      required></textarea>
+
+                            <div class="text-end small text-secondary mt-1">
+                                Maximum 2000 characters
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   id="feedbackAnonymous"
+                                   checked>
+
+                            <label class="form-check-label"
+                                   for="feedbackAnonymous">
+                                Submit anonymously
+                            </label>
+                        </div>
+
+                        <div class="mb-4" id="feedbackNameWrapper" hidden>
+                            <label for="feedbackName" class="form-label fw-semibold">
+                                Your Name
+                            </label>
+
+                            <input type="text"
+                                   id="feedbackName"
+                                   class="form-control"
+                                   maxlength="100"
+                                   placeholder="Enter your name">
+                        </div>
+
+                        <div id="feedbackStatus"
+                             class="mb-3"
+                             role="status"
+                             aria-live="polite"></div>
+
+                        <button type="submit"
+                                id="feedbackSubmit"
+                                class="btn btn-primary w-100 py-3">
+                            <i class="bi bi-send me-2"></i>
+                            Submit Feedback
+                        </button>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
 <!-- ===================== FOOTER ===================== -->
 
 <footer class="footer">
@@ -1585,5 +1690,128 @@ gsap.to(".workflow-card", {
 
 });
 
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("feedbackForm");
+
+    if (!form) return;
+
+    const stars = document.querySelectorAll(".feedback-star-btn");
+    const ratingInput = document.getElementById("feedbackRating");
+    const anonymousCheckbox = document.getElementById("feedbackAnonymous");
+    const nameWrapper = document.getElementById("feedbackNameWrapper");
+    const nameInput = document.getElementById("feedbackName");
+    const messageInput = document.getElementById("feedbackMessage");
+    const status = document.getElementById("feedbackStatus");
+    const submitButton = document.getElementById("feedbackSubmit");
+
+    function renderStars(rating) {
+        stars.forEach(function (star) {
+            const value = Number(star.dataset.rating);
+            const selected = value <= rating;
+
+            star.style.color = selected ? "#f59e0b" : "#cbd5e1";
+            star.setAttribute("aria-checked", value === rating ? "true" : "false");
+        });
+    }
+
+    stars.forEach(function (star) {
+        star.addEventListener("click", function () {
+            ratingInput.value = star.dataset.rating;
+            renderStars(Number(ratingInput.value));
+        });
+
+        star.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                star.click();
+            }
+        });
+    });
+
+    anonymousCheckbox.addEventListener("change", function () {
+        nameWrapper.hidden = anonymousCheckbox.checked;
+        nameInput.required = !anonymousCheckbox.checked;
+
+        if (anonymousCheckbox.checked) {
+            nameInput.value = "";
+        }
+    });
+
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const rating = Number(ratingInput.value);
+        const message = messageInput.value.trim();
+        const isAnonymous = anonymousCheckbox.checked;
+        const name = nameInput.value.trim();
+
+        status.className = "mb-3";
+        status.textContent = "";
+
+        if (rating < 1 || rating > 5) {
+            status.classList.add("text-danger");
+            status.textContent = "Please select a star rating.";
+            return;
+        }
+
+        if (!message) {
+            status.classList.add("text-danger");
+            status.textContent = "Please enter your feedback.";
+            messageInput.focus();
+            return;
+        }
+
+        if (!isAnonymous && !name) {
+            status.classList.add("text-danger");
+            status.textContent = "Please enter your name or select anonymous feedback.";
+            nameInput.focus();
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+
+        try {
+            const response = await fetch("{{ url_for('feedback.submit_feedback') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    rating: rating,
+                    message: message,
+                    is_anonymous: isAnonymous,
+                    name: isAnonymous ? "" : name
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || "Unable to submit feedback.");
+            }
+
+            status.classList.add("text-success");
+            status.textContent = result.message;
+
+            form.reset();
+            ratingInput.value = "0";
+            renderStars(0);
+            nameWrapper.hidden = true;
+            nameInput.required = false;
+
+        } catch (error) {
+            status.classList.add("text-danger");
+            status.textContent = error.message || "Something went wrong. Please try again.";
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML =
+                '<i class="bi bi-send me-2"></i>Submit Feedback';
+        }
+    });
+});
 </script>
 {% endblock %}

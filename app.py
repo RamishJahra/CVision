@@ -30,6 +30,8 @@ from models.social import SocialPost, SocialComment, SocialReaction
 from routes.social import social
 from models.interview import Interview
 from routes.interviews import interviews
+from models.feedback import Feedback
+from routes.feedback import feedback
 from werkzeug.security import generate_password_hash
 
 
@@ -129,6 +131,7 @@ app.register_blueprint(admin)
 app.register_blueprint(notifications)
 app.register_blueprint(social)
 app.register_blueprint(interviews)
+app.register_blueprint(feedback)
 # ==========================
 # Create Database Tables
 # ==========================

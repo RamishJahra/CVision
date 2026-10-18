@@ -12,6 +12,7 @@ from flask_login import login_required, current_user
 
 from models import db
 from models.user import User
+from models.feedback import Feedback
 
 
 admin = Blueprint(
@@ -469,3 +470,37 @@ def delete_user(user_id):
                 "the user."
             )
         }), 500
+
+# ==========================================================
+# Feedback Management
+# ==========================================================
+
+@admin.route("/feedback")
+@login_required
+def feedback_list():
+    if not admin_required():
+        return redirect(url_for("dashboard.home"))
+
+    feedbacks = Feedback.query.order_by(
+        Feedback.created_at.desc()
+    ).all()
+
+    total_feedback = len(feedbacks)
+
+    average_rating = (
+        round(sum(item.rating for item in feedbacks) / total_feedback, 1)
+        if total_feedback else 0
+    )
+
+    rating_counts = {
+        star: sum(1 for item in feedbacks if item.rating == star)
+        for star in range(5, 0, -1)
+    }
+
+    return render_template(
+        "admin/feedback.html",
+        feedbacks=feedbacks,
+        total_feedback=total_feedback,
+        average_rating=average_rating,
+        rating_counts=rating_counts
+    )
