@@ -19,6 +19,7 @@ from models.resume import Resume
 from models.application import Application
 from models.notification import Notification
 from routes.notifications import notifications
+from models.company import Company, CompanyLocation
 
 from routes.public import public
 from routes.auth import auth

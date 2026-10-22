@@ -5112,3 +5112,57 @@ def applicant_resume():
         parsed_data=parsed_data,
         score_data=score_data
     )
+
+
+# ==========================================================
+# Applicant Profile 
+# ==========================================================
+
+
+
+@applicant.route("/public/<string:username>")
+@login_required
+def public_profile(username):
+
+    # Find the applicant
+    user = User.query.filter(
+        User.username == username,
+        User.role.ilike("applicant")
+    ).first_or_404()
+
+    # Applicant profile
+    profile = ApplicantProfile.query.filter_by(
+        user_id=user.id
+    ).first()
+
+    # Portfolio sections
+    education = Education.query.filter_by(
+        user_id=user.id
+    ).all()
+
+    experience = WorkExperience.query.filter_by(
+        user_id=user.id
+    ).all()
+
+    skills = Skill.query.filter_by(
+        user_id=user.id
+    ).all()
+
+    certifications = Certification.query.filter_by(
+        user_id=user.id
+    ).all()
+
+    projects = Project.query.filter_by(
+        user_id=user.id
+    ).all()
+
+    return render_template(
+        "applicant/public_profile.html",
+        user=user,
+        profile=profile,
+        education=education,
+        experience=experience,
+        skills=skills,
+        certifications=certifications,
+        projects=projects
+    )

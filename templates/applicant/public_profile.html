@@ -1,0 +1,1187 @@
+
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ user.full_name or user.username }} | CVision{% endblock %}
+
+{% block content %}
+{% set display_name = user.full_name or user.username %}
+{% set profile_image = user.profile_image if user.profile_image and user.profile_image != 'default.png' else none %}
+
+<style>
+    .li-profile {
+        --blue: #0a66c2;
+        --ink: #191919;
+        --muted: #666;
+        --line: #bbd0e9;
+        --surface: #fff;
+        padding: 92px 0 42px;
+        min-height: 100vh;
+        background: #f2f3f3;
+        color: var(--ink);
+        font-family: inherit;
+    }
+
+    .li-wrap {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 24px;
+    box-sizing: border-box;
+}
+
+    .li-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        margin-bottom: 12px;
+        overflow: hidden;
+        min-width: 0;
+    }
+
+    .li-cover {
+        height: 165px;
+        background:
+            radial-gradient(ellipse at 78% 15%, #a9d8ff 0, transparent 32%),
+            linear-gradient(115deg, #123d70 0%, #1769aa 55%, #6bb7e8 100%);
+        position: relative;
+    }
+
+    .li-cover::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: .16;
+        background-image: radial-gradient(#fff 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .li-profile-main {
+        padding: 0 24px 22px;
+    }
+
+    .li-avatar {
+        width: 116px;
+        height: 116px;
+        border: 4px solid white;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #e3effa;
+        margin-top: -58px;
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+    }
+
+    .li-avatar-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #155b98;
+        font-size: 37px;
+        font-weight: 700;
+    }
+
+    .li-name {
+        font-size: 27px;
+        line-height: 1.25;
+        font-weight: 650;
+        letter-spacing: -.4px;
+        margin: 13px 0 3px;
+        overflow-wrap: anywhere;
+    }
+
+    .li-handle {
+        font-size: 14px;
+        color: #666;
+        overflow-wrap: anywhere;
+    }
+
+    .li-bio {
+        font-size: 14px;
+        line-height: 1.65;
+        margin-top: 12px;
+        max-width: 720px;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .li-location {
+        color: #666;
+        font-size: 13px;
+        margin-top: 7px;
+    }
+
+    .li-profile-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 14px;
+    }
+
+    .li-profile-links a {
+        display: inline-flex;
+        gap: 7px;
+        align-items: center;
+        color: var(--blue);
+        border: 1px solid #c8dff5;
+        border-radius: 20px;
+        padding: 7px 13px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+    }
+
+    .li-profile-links a:hover {
+        background: #eef6fd;
+    }
+
+    .li-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(255px, .88fr);
+        gap: 14px;
+        align-items: start;
+    }
+
+    .li-main,
+    .li-sidebar {
+        min-width: 0;
+    }
+
+    .li-section {
+        padding: 19px 20px;
+    }
+
+    .li-section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 15px;
+        font-size: 18px;
+        font-weight: 650;
+        letter-spacing: -.15px;
+    }
+
+    .li-section-heading small {
+        color: #777;
+        font-size: 12px;
+        font-weight: 400;
+    }
+
+    .li-feed-tabs {
+        display: flex;
+        gap: 19px;
+        border-bottom: 1px solid var(--line);
+        margin: -2px 0 15px;
+    }
+
+    .li-feed-tabs span {
+        padding: 8px 1px 11px;
+        color: #27734b;
+        border-bottom: 2px solid #27734b;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .li-post {
+        padding: 17px 18px;
+        margin-bottom: 12px;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #fff;
+        min-width: 0;
+    }
+
+    .li-post:last-child {
+        margin-bottom: 0;
+    }
+
+    .li-post-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .li-post-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #e8f1fa;
+        flex-shrink: 0;
+    }
+
+    .li-post-avatar-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #155b98;
+        font-weight: 700;
+    }
+
+    .li-post-author-wrap {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .li-post-author {
+        font-size: 13px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .li-post-date {
+        color: #777;
+        font-size: 11px;
+        margin-top: 3px;
+    }
+
+    .li-post-content {
+        font-size: 13.5px;
+        line-height: 1.75;
+        margin-top: 14px;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .li-post-image {
+        display: block;
+        width: 100%;
+        max-height: 560px;
+        object-fit: contain;
+        margin-top: 13px;
+        border-radius: 7px;
+        background: #f5f7f9;
+    }
+
+    .li-post-stats {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        color: #666;
+        font-size: 11px;
+        padding: 12px 0 10px;
+        border-bottom: 1px solid #e8ebef;
+    }
+
+    .li-post-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        padding-top: 6px;
+    }
+
+    .li-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 0;
+        background: transparent;
+        border-radius: 6px;
+        padding: 11px 5px;
+        color: #5e6874;
+        font-size: 12px;
+        font-weight: 650;
+        cursor: pointer;
+        transition: background .15s, color .15s;
+    }
+
+    .li-action:hover {
+        background: #f0f5fa;
+        color: var(--blue);
+    }
+
+    .li-action.is-liked {
+        color: var(--blue);
+    }
+
+    .li-action:disabled {
+        opacity: .6;
+        cursor: wait;
+    }
+
+    .li-comments {
+        margin-top: 9px;
+        border-top: 1px solid #edf0f3;
+        padding-top: 12px;
+    }
+
+    .li-comment {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        min-width: 0;
+    }
+
+    .li-comment-avatar {
+        width: 31px;
+        height: 31px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: #e9f2fc;
+    }
+
+    .li-comment-bubble {
+        background: #f2f4f7;
+        border-radius: 4px 10px 10px 10px;
+        padding: 9px 11px;
+        min-width: 0;
+        flex: 1;
+    }
+
+    .li-comment-author {
+        font-size: 12px;
+        font-weight: 650;
+        margin-bottom: 4px;
+        overflow-wrap: anywhere;
+    }
+
+    .li-comment-text {
+        font-size: 12px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .li-comment-date {
+        color: #777;
+        font-size: 10px;
+        margin-top: 5px;
+    }
+
+    .li-comment-form {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 12px;
+    }
+
+    .li-comment-input {
+        flex: 1;
+        min-width: 0;
+        border: 1px solid #cbd3dc;
+        border-radius: 22px;
+        padding: 10px 13px;
+        font: inherit;
+        font-size: 12px;
+        outline: none;
+        background: #fff;
+    }
+
+    .li-comment-input:focus {
+        border-color: var(--blue);
+        box-shadow: 0 0 0 2px #0a66c21a;
+    }
+
+    .li-send {
+        border: 0;
+        border-radius: 20px;
+        background: var(--blue);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 650;
+        padding: 10px 15px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .li-send:hover {
+        background: #004182;
+    }
+
+    .li-send:disabled {
+        opacity: .6;
+        cursor: wait;
+    }
+
+    .li-empty {
+        text-align: center;
+        padding: 34px 15px;
+        color: #687586;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .li-empty i {
+        display: block;
+        font-size: 26px;
+        color: #8ba9c7;
+        margin-bottom: 9px;
+    }
+
+    .li-loading {
+        text-align: center;
+        padding: 24px 10px;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .li-error {
+        background: #fff3f3;
+        border: 1px solid #f2cece;
+        color: #a12d35;
+        border-radius: 8px;
+        padding: 12px;
+        font-size: 12px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .li-sidebar .li-card {
+        margin-bottom: 12px;
+    }
+
+    .li-side-heading {
+        font-size: 15px;
+        font-weight: 650;
+        margin: 0 0 15px;
+    }
+
+    .li-side-item {
+        display: flex;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid #edf0f3;
+        min-width: 0;
+    }
+
+    .li-side-item:first-of-type {
+        padding-top: 0;
+    }
+
+    .li-side-item:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .li-side-icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 35px;
+        height: 35px;
+        flex-shrink: 0;
+        border-radius: 7px;
+        background: #edf4fb;
+        color: #286aa5;
+        font-size: 15px;
+    }
+
+    .li-side-copy {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .li-side-title {
+        font-size: 12.5px;
+        font-weight: 650;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .li-side-sub {
+        font-size: 11.5px;
+        line-height: 1.55;
+        color: #6b7280;
+        margin-top: 2px;
+        overflow-wrap: anywhere;
+        white-space: pre-line;
+    }
+
+    .li-skill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .li-skill {
+        font-size: 11.5px;
+        line-height: 1.4;
+        color: #335c7c;
+        background: #f0f6fb;
+        border: 1px solid #dceaf5;
+        border-radius: 5px;
+        padding: 5px 8px;
+        overflow-wrap: anywhere;
+    }
+
+    .li-notice {
+        color: #707b88;
+        font-size: 11.5px;
+        line-height: 1.6;
+    }
+    
+    @media (max-width: 760px) {
+        .li-profile {
+            padding-top: 80px;
+        }
+
+        .li-wrap {
+            padding: 0 10px;
+        }
+
+        .li-layout {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .li-sidebar {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .li-sidebar .li-card {
+            margin-bottom: 0;
+        }
+
+        .li-cover {
+            height: 125px;
+        }
+
+        .li-profile-main {
+            padding: 0 17px 18px;
+        }
+
+        .li-avatar {
+            width: 95px;
+            height: 95px;
+            margin-top: -48px;
+        }
+
+        .li-name {
+            font-size: 23px;
+        }
+
+        .li-section {
+            padding: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .li-sidebar {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .li-post {
+            padding: 13px;
+        }
+
+        .li-post-actions {
+            gap: 1px;
+        }
+
+        .li-action {
+            gap: 5px;
+            font-size: 11px;
+        }
+    }
+    /* Compact Experience and Education boxes */
+.li-compact-card {
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+.li-compact-card .li-side-heading {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.li-compact-card .li-side-item {
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.li-compact-card .li-side-item:first-of-type {
+    padding-top: 0;
+}
+
+.li-compact-card .li-side-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+.li-compact-card .li-side-title {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.li-compact-card .li-side-sub {
+    font-size: 10.5px;
+    line-height: 1.4;
+    margin-top: 1px;
+}
+
+.li-compact-card .li-notice {
+    font-size: 11px;
+}
+</style>
+
+<div class="li-profile">
+    <div class="li-wrap">
+
+        <!-- PROFILE HEADER -->
+        <section class="li-card">
+            <div class="li-cover"></div>
+
+            <div class="li-profile-main">
+                {% if profile_image %}
+                    <img
+                        class="li-avatar"
+                        src="{{ url_for('static', filename='uploads/profile/' ~ profile_image) }}"
+                        alt="{{ display_name|e }}"
+                    >
+                {% else %}
+                    <div class="li-avatar li-avatar-fallback">
+                        {{ (display_name or 'U')[0]|upper }}
+                    </div>
+                {% endif %}
+
+                <h1 class="li-name">{{ display_name }}</h1>
+                <div class="li-handle">@{{ user.username }} · Applicant</div>
+
+                {% if profile and profile.bio %}
+                    <div class="li-bio">{{ profile.bio|striptags }}</div>
+                {% else %}
+                    <div class="li-bio">
+                        Building skills, experience and opportunities with CVision.
+                    </div>
+                {% endif %}
+
+                {% if profile and profile.address %}
+                    <div class="li-location">
+                        <i class="bi bi-geo-alt"></i>
+                        {{ profile.address }}
+                    </div>
+                {% endif %}
+
+                <div class="li-profile-links">
+                    {% if profile and profile.linkedin_url %}
+                        <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-linkedin"></i> LinkedIn
+                        </a>
+                    {% endif %}
+
+                    {% if profile and profile.github_url %}
+                        <a href="{{ profile.github_url }}" target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-github"></i> GitHub
+                        </a>
+                    {% endif %}
+
+                    {% if profile and profile.portfolio_url %}
+                        <a href="{{ profile.portfolio_url }}" target="_blank" rel="noopener noreferrer">
+                            <i class="bi bi-globe"></i> Portfolio
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- TWO-COLUMN PROFILE -->
+        <div class="li-layout">
+
+            <!-- WIDE COLUMN: ALL POSTS -->
+            <main class="li-main">
+                <section class="li-card li-section">
+                    <h2 class="li-section-heading">
+                        Activity
+                        <small id="liPostCount">Posts</small>
+                    </h2>
+
+                    <div class="li-feed-tabs">
+                        <span>All activity</span>
+                    </div>
+
+                    <div
+                        id="liPosts"
+                        data-posts-url="{{ url_for('social.get_posts') }}"
+                        data-profile-id="{{ user.id }}"
+                        data-profile-name="{{ display_name|e }}"
+                        data-profile-image="{{ url_for('static', filename='uploads/profile/' ~ profile_image) if profile_image else '' }}"
+                    >
+                        <div class="li-loading">
+                            <i class="bi bi-arrow-repeat"></i> Loading activity...
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- NARROW COLUMN: EDUCATION, EXPERIENCE, SKILLS -->
+            <aside class="li-sidebar">
+<section class="li-card li-section li-compact-card">
+                    <h2 class="li-side-heading">
+                        <i class="bi bi-mortarboard" style="color:#286aa5"></i>
+                        Education
+                    </h2>
+
+                    {% for item in education %}
+                        <div class="li-side-item">
+                            <div class="li-side-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div class="li-side-copy">
+                                <div class="li-side-title">
+                                    {{ item|attr('institution')|default('', true)
+                                       or item|attr('institution_name')|default('', true)
+                                       or item|attr('school')|default('', true)
+                                       or 'Education' }}
+                                </div>
+                                {% if item|attr('degree')|default('', true) %}
+                                    <div class="li-side-sub">
+                                        {{ item|attr('degree') }}
+                                    </div>
+                                {% endif %}
+                                {% if item|attr('field_of_study')|default('', true) %}
+                                    <div class="li-side-sub">
+                                        {{ item|attr('field_of_study') }}
+                                    </div>
+                                {% endif %}
+            
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="li-notice">No education added yet.</div>
+                    {% endfor %}
+                </section>
+
+                <section class="li-card li-section li-compact-card">
+                    <h2 class="li-side-heading">
+                        <i class="bi bi-briefcase" style="color:#286aa5"></i>
+                        Experience
+                    </h2>
+
+                    {% for item in experience %}
+                        <div class="li-side-item">
+                            <div class="li-side-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <div class="li-side-copy">
+                                <div class="li-side-title">
+                                    {{ item.job_title or 'Position' }}
+                                </div>
+                                <div class="li-side-sub">
+                                    {{ item.company_name or '' }}
+                                    {% if item.employment_type %}
+                                        · {{ item.employment_type }}
+                                    {% endif %}
+                                </div>
+                
+                                {% if item.location %}
+                                    <div class="li-side-sub">{{ item.location }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="li-notice">No experience added yet.</div>
+                    {% endfor %}
+                </section>
+
+                
+                <section class="li-card li-section">
+                    <h2 class="li-side-heading">
+                        <i class="bi bi-stars" style="color:#286aa5"></i>
+                        Skills
+                    </h2>
+
+                    {% if skills %}
+                        <div class="li-skill-list">
+                            {% for item in skills %}
+                                {% set skill_name = item|attr('skill_name')|default('', true)
+                                    or item|attr('name')|default('', true) %}
+                                {% if skill_name %}
+                                    <span class="li-skill">{{ skill_name }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="li-notice">No skills added yet.</div>
+                    {% endif %}
+                </section>
+
+            </aside>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    const root = document.getElementById("liPosts");
+    const countLabel = document.getElementById("liPostCount");
+
+    if (!root || !countLabel) return;
+
+    const postsUrl = root.dataset.postsUrl;
+    const profileId = String(root.dataset.profileId || "");
+    const profileName = root.dataset.profileName || "CVision Member";
+    const profileImage = root.dataset.profileImage || "";
+
+    let posts = [];
+    let currentUser = null;
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[char];
+        });
+    }
+
+    function csrfToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        if (meta && meta.content) return meta.content;
+
+        const input = document.querySelector('input[name="csrf_token"]');
+        if (input && input.value) return input.value;
+
+        return "";
+    }
+
+    function requestHeaders() {
+        const headers = { "Accept": "application/json" };
+        const token = csrfToken();
+
+        if (token) headers["X-CSRFToken"] = token;
+
+        return headers;
+    }
+
+    async function apiRequest(url, options) {
+        const response = await fetch(url, {
+            credentials: "same-origin",
+            ...options,
+            headers: {
+                ...requestHeaders(),
+                ...(options && options.headers ? options.headers : {})
+            }
+        });
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch (_) {
+            // A non-JSON response will be handled below.
+        }
+
+        if (!response.ok || data.success === false) {
+            throw new Error(
+                data.message || "Request failed. Please try again."
+            );
+        }
+
+        return data;
+    }
+
+    function formatDate(value) {
+        if (!value) return "";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return "";
+
+        return date.toLocaleString([], {
+            dateStyle: "medium",
+            timeStyle: "short"
+        });
+    }
+
+    function makeAvatar(url, name, className) {
+        if (url) {
+            return `
+                <img class="${className}"
+                     src="${escapeHtml(url)}"
+                     alt=""
+                     loading="lazy">
+            `;
+        }
+
+        const initial = (name || "U").trim().charAt(0).toUpperCase();
+
+        return `
+            <div class="${className} li-post-avatar-fallback">
+                ${escapeHtml(initial || "U")}
+            </div>
+        `;
+    }
+
+    function commentMarkup(comment) {
+        const author = comment.author || {};
+        const name = author.name || author.username || "Member";
+        const image = author.profile_picture || "";
+
+        return `
+            <div class="li-comment">
+                ${makeAvatar(image, name, "li-comment-avatar")}
+                <div class="li-comment-bubble">
+                    <div class="li-comment-author">${escapeHtml(name)}</div>
+                    <div class="li-comment-text">${escapeHtml(comment.content || "")}</div>
+                    <div class="li-comment-date">${escapeHtml(formatDate(comment.created_at))}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function postMarkup(post) {
+        const author = post.author || {};
+        const comments = Array.isArray(post.comments) ? post.comments : [];
+        const liked = post.my_reaction === "like";
+        const postId = Number(post.id);
+        const isOwnProfilePost = String(author.id) === profileId;
+
+        const imageMarkup = post.image_url
+            ? `<img class="li-post-image"
+                    src="${escapeHtml(post.image_url)}"
+                    alt="Post image"
+                    loading="lazy">`
+            : "";
+
+        const commentMarkupHtml = comments.length
+            ? comments.map(commentMarkup).join("")
+            : `<div class="li-notice">No comments yet. Start the conversation.</div>`;
+
+        return `
+            <article class="li-post" data-post-id="${postId}">
+                <div class="li-post-header">
+                    ${makeAvatar(
+                        isOwnProfilePost ? profileImage : (author.profile_picture || ""),
+                        author.name || profileName,
+                        "li-post-avatar"
+                    )}
+                    <div class="li-post-author-wrap">
+                        <div class="li-post-author">
+                            ${escapeHtml(author.name || profileName)}
+                        </div>
+                        <div class="li-post-date">
+                            ${escapeHtml(formatDate(post.created_at))}
+                        </div>
+                    </div>
+                </div>
+
+                ${post.content
+                    ? `<div class="li-post-content">${escapeHtml(post.content)}</div>`
+                    : ""}
+
+                ${imageMarkup}
+
+                <div class="li-post-stats">
+                    <span class="li-like-count">
+                        <i class="bi bi-hand-thumbs-up-fill"></i>
+                        ${Number(post.like_count || 0)} likes
+                    </span>
+                    <span class="li-comment-count">
+                        ${comments.length} comments
+                    </span>
+                </div>
+
+                <div class="li-post-actions">
+                    <button type="button"
+                            class="li-action ${liked ? "is-liked" : ""}"
+                            data-action="like"
+                            data-post-id="${postId}">
+                        <i class="bi ${liked ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up"}"></i>
+                        ${liked ? "Liked" : "Like"}
+                    </button>
+
+                    <button type="button"
+                            class="li-action"
+                            data-action="comment"
+                            data-post-id="${postId}">
+                        <i class="bi bi-chat-left-text"></i>
+                        Comment
+                    </button>
+                </div>
+
+                <div class="li-comments" id="li-comments-${postId}">
+                    ${commentMarkupHtml}
+
+                    <form class="li-comment-form" data-post-id="${postId}">
+                        <input class="li-comment-input"
+                               type="text"
+                               name="content"
+                               maxlength="2000"
+                               placeholder="Write a comment..."
+                               aria-label="Write a comment"
+                               required>
+
+                        <button class="li-send" type="submit">Send</button>
+                    </form>
+                </div>
+            </article>
+        `;
+    }
+
+    function renderPosts() {
+        countLabel.textContent =
+            posts.length + (posts.length === 1 ? " post" : " posts");
+
+        if (!posts.length) {
+            root.innerHTML = `
+                <div class="li-empty">
+                    <i class="bi bi-chat-square-text"></i>
+                    <strong>No activity yet</strong><br>
+                    Posts shared by this applicant will appear here.
+                </div>
+            `;
+            return;
+        }
+
+        root.innerHTML = posts.map(postMarkup).join("");
+    }
+
+    async function loadPosts() {
+        if (!postsUrl || !profileId) {
+            root.innerHTML = `
+                <div class="li-error">The Activity feed could not be configured.</div>
+            `;
+            return;
+        }
+
+        try {
+            const data = await apiRequest(postsUrl, { method: "GET" });
+
+            if (!Array.isArray(data.posts)) {
+                throw new Error("Unexpected posts response.");
+            }
+
+            posts = data.posts.filter(function (post) {
+                return post.author &&
+                    String(post.author.id) === profileId;
+            });
+
+            renderPosts();
+        } catch (error) {
+            console.error("CVision profile feed:", error);
+            root.innerHTML = `
+                <div class="li-error">
+                    Could not load posts. Please refresh the page and try again.
+                </div>
+            `;
+        }
+    }
+
+    async function toggleLike(postId, button) {
+        const post = posts.find(item => String(item.id) === String(postId));
+        if (!post) return;
+
+        button.disabled = true;
+
+        try {
+            const data = await apiRequest(
+                `${postsUrl}/${encodeURIComponent(postId)}/reaction`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reaction: "like" })
+                }
+            );
+
+            post.my_reaction = data.my_reaction || null;
+
+            if (data.like_count !== undefined) {
+                post.like_count = data.like_count;
+            }
+
+            if (data.dislike_count !== undefined) {
+                post.dislike_count = data.dislike_count;
+            }
+
+            renderPosts();
+        } catch (error) {
+            console.error("Like error:", error);
+            alert(error.message || "Could not update your reaction.");
+            button.disabled = false;
+        }
+    }
+
+    async function submitComment(form) {
+        const postId = form.dataset.postId;
+        const input = form.querySelector('input[name="content"]');
+        const button = form.querySelector('button[type="submit"]');
+        const content = input.value.trim();
+
+        if (!content) {
+            input.focus();
+            return;
+        }
+
+        button.disabled = true;
+
+        try {
+            const data = await apiRequest(
+                `${postsUrl}/${encodeURIComponent(postId)}/comments`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: content })
+                }
+            );
+
+            const post = posts.find(item => String(item.id) === String(postId));
+
+            if (post && data.comment) {
+                if (!Array.isArray(post.comments)) post.comments = [];
+                post.comments.push(data.comment);
+                renderPosts();
+
+                const newInput = root.querySelector(
+                    `.li-comment-form[data-post-id="${CSS.escape(String(postId))}"] input`
+                );
+
+                if (newInput) newInput.focus();
+            } else {
+                await loadPosts();
+            }
+        } catch (error) {
+            console.error("Comment error:", error);
+            alert(error.message || "Could not publish your comment.");
+            button.disabled = false;
+        }
+    }
+
+    root.addEventListener("click", function (event) {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const postId = button.dataset.postId;
+
+        if (action === "like") {
+            toggleLike(postId, button);
+        }
+
+        if (action === "comment") {
+            const form = root.querySelector(
+                `.li-comment-form[data-post-id="${CSS.escape(String(postId))}"]`
+            );
+
+            if (form) {
+                form.querySelector("input").focus();
+                form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        }
+    });
+
+    root.addEventListener("submit", function (event) {
+        const form = event.target.closest(".li-comment-form");
+        if (!form) return;
+
+        event.preventDefault();
+        submitComment(form);
+    });
+
+    loadPosts();
+})();
+</script>
+
+{% endblock %}

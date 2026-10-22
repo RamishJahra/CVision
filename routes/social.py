@@ -71,6 +71,7 @@ def image_url(filename):
 def author_data(user):
     return {
         "id": user.id,
+        "username": user.username,
         "name": user.full_name or user.username,
         "initial": (
             (user.full_name or user.username or "U")[0].upper()
@@ -738,4 +739,92 @@ def delete_comment(comment_id):
     return jsonify({
         "success": True,
         "message": "Comment deleted successfully."
+    })
+
+# ==========================================
+# LOGIN-PROTECTED APPLICANT PROFILE POSTS
+# ==========================================
+
+@social.route(
+    "/public/users/<int:user_id>/posts",
+    methods=["GET"]
+)
+@login_required
+def get_public_user_posts(user_id):
+    user = db.session.get(User, user_id)
+
+    if (
+        user is None
+        or (user.role or "").strip().lower() != "applicant"
+        or user.is_banned
+    ):
+        return jsonify({
+            "success": False,
+            "message": "Profile not found."
+        }), 404
+
+    posts = (
+        SocialPost.query
+        .filter_by(user_id=user.id)
+        .order_by(
+            SocialPost.created_at.desc(),
+            SocialPost.id.desc()
+        )
+        .all()
+    )
+
+    result = []
+
+    for post in posts:
+        comments = []
+
+        for comment in post.comments:
+            author = comment.author
+
+            comments.append({
+                "id": comment.id,
+                "content": comment.content,
+                "created_at": (
+                    comment.created_at.isoformat()
+                    if comment.created_at else None
+                ),
+                "author": {
+                    "name": (
+                        author.full_name or author.username
+                    ),
+                    "profile_picture": (
+                        url_for(
+                            "static",
+                            filename=(
+                                "uploads/profile/"
+                                + author.profile_image
+                            )
+                        )
+                        if (
+                            author.profile_image
+                            and author.profile_image != "default.png"
+                        )
+                        else None
+                    )
+                }
+            })
+
+        result.append({
+            "id": post.id,
+            "content": post.content or "",
+            "image_url": image_url(post.image_filename),
+            "created_at": (
+                post.created_at.isoformat()
+                if post.created_at else None
+            ),
+            "like_count": sum(
+                1 for reaction in post.reactions
+                if reaction.reaction == "like"
+            ),
+            "comments": comments
+        })
+
+    return jsonify({
+        "success": True,
+        "posts": result
     })

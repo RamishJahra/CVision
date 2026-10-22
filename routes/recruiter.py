@@ -37,6 +37,7 @@ from models.application import Application
 from models.resume import Resume
 from models.notification import Notification
 from services.job_resume_matcher import calculate_job_match
+from models.company import Company, CompanyLocation
 
 recruiter = Blueprint(
     "recruiter",
@@ -238,203 +239,305 @@ def profile_picture():
 
 
 # ==========================================================
-# Company Profile
+# Shared Company Profile
 # ==========================================================
 
-@recruiter.route(
-    "/company-profile",
-    methods=["GET", "POST"]
-)
+@recruiter.route("/company-profile", methods=["GET", "POST"])
 @login_required
 def company_profile():
 
     if current_user.role != "Recruiter":
-
-        return redirect(
-            url_for("dashboard.home")
-        )
+        return redirect(url_for("dashboard.home"))
 
     profile = RecruiterProfile.query.filter_by(
         user_id=current_user.id
     ).first()
 
     if not profile:
-
-        profile = RecruiterProfile(
-            user_id=current_user.id
-        )
-
+        profile = RecruiterProfile(user_id=current_user.id)
         db.session.add(profile)
-        db.session.commit()
+        db.session.flush()
 
     if request.method == "POST":
 
-        profile.company_name = request.form.get(
-            "company_name",
-            ""
+        company_name = request.form.get(
+            "company_name", ""
         ).strip()
 
-        profile.industry = request.form.get(
-            "industry",
-            ""
-        ).strip()
+        if not company_name:
+            flash("Please enter your company name.", "danger")
 
-        profile.company_size = request.form.get(
-            "company_size",
-            ""
-        ).strip()
+            return redirect(
+                url_for("recruiter.company_profile")
+            )
 
-        profile.company_website = request.form.get(
-            "company_website",
-            ""
-        ).strip()
+        try:
+            # Find the recruiter's existing shared company.
+            company = profile.company
 
-        profile.company_location = request.form.get(
-            "company_location",
-            ""
-        ).strip()
+            # If not associated with a company yet, try to find
+            # an existing company with the same name.
+            if company is None:
+                company = Company.query.filter(
+                    func.lower(Company.company_name)
+                    == company_name.lower()
+                ).first()
 
-        profile.company_description = request.form.get(
-            "company_description",
-            ""
-        ).strip()
+            # Create a company only when no matching record exists.
+            if company is None:
+                company = Company(company_name=company_name)
+                db.session.add(company)
+                db.session.flush()
 
-        db.session.commit()
+            # Associate this recruiter with the shared company.
+            profile.company = company
 
-        flash(
-            "Company profile updated successfully!",
-            "success"
-        )
+            # Save shared company information.
+            company.company_name = company_name
 
-        return redirect(
-            url_for("recruiter.company_profile")
-        )
+            company.industry = (
+                request.form.get("industry", "").strip() or None
+            )
+
+            company.company_size = (
+                request.form.get("company_size", "").strip() or None
+            )
+
+            company.company_website = (
+                request.form.get("company_website", "").strip() or None
+            )
+
+            company.company_description = (
+                request.form.get("company_description", "").strip() or None
+            )
+
+            # Preserve legacy fields temporarily for compatibility
+            # with existing templates and routes.
+            profile.company_name = company.company_name
+            profile.industry = company.industry
+            profile.company_size = company.company_size
+            profile.company_website = company.company_website
+            profile.company_description = company.company_description
+            profile.company_logo = company.company_logo
+
+            # Shared company location.
+            address = request.form.get(
+                "company_location", ""
+            ).strip()
+
+            latitude_value = request.form.get("latitude", "").strip()
+            longitude_value = request.form.get("longitude", "").strip()
+
+            latitude = None
+            longitude = None
+
+            if latitude_value and longitude_value:
+                try:
+                    latitude = float(latitude_value)
+                    longitude = float(longitude_value)
+
+                    if not (
+                        -90 <= latitude <= 90
+                        and -180 <= longitude <= 180
+                    ):
+                        raise ValueError
+
+                except (ValueError, TypeError):
+                    flash(
+                        "The selected map coordinates are invalid.",
+                        "danger"
+                    )
+                    return redirect(
+                        url_for("recruiter.company_profile")
+                    )
+
+            if address:
+                location = company.location
+
+                if location is None:
+                    location = CompanyLocation(
+                        company=company,
+                        address=address
+                    )
+                    db.session.add(location)
+
+                location.address = address
+                location.latitude = latitude
+                location.longitude = longitude
+
+                if latitude is not None and longitude is not None:
+                    location.google_maps_url = (
+                        "https://www.google.com/maps?q="
+                        f"{latitude},{longitude}"
+                    )
+                else:
+                    location.google_maps_url = (
+                        "https://www.google.com/maps/search/?api=1&query="
+                        + address.replace(" ", "+")
+                    )
+
+                # Keep the old location field populated while
+                # the remaining templates are migrated.
+                profile.company_location = address
+
+            else:
+                # Removing the address removes the shared location.
+                company.location = None
+                profile.company_location = None
+
+            db.session.commit()
+
+            flash(
+                "Company profile saved successfully!",
+                "success"
+            )
+
+            return redirect(
+                url_for("recruiter.company_profile")
+            )
+
+        except Exception:
+            db.session.rollback()
+            current_app.logger.exception(
+                "Failed to save the shared company profile."
+            )
+
+            flash(
+                "We couldn't save the company profile. "
+                "Please try again.",
+                "danger"
+            )
+    company = profile.company
+
+    # Use legacy information as a temporary fallback for older records.
+    company_name = (
+        company.company_name
+        if company
+        else profile.company_name
+    )
+
+    industry = company.industry if company else profile.industry
+    company_size = company.company_size if company else profile.company_size
+    company_website = (
+        company.company_website
+        if company
+        else profile.company_website
+    )
+    company_description = (
+        company.company_description
+        if company
+        else profile.company_description
+    )
+    company_logo = company.company_logo if company else profile.company_logo
+
+    location = company.location if company else None
 
     return render_template(
         "recruiter/company_profile.html",
-        profile=profile
+        profile=profile,
+        company=company,
+        company_name=company_name,
+        industry=industry,
+        company_size=company_size,
+        company_website=company_website,
+        company_description=company_description,
+        company_logo=company_logo,
+        location=location
     )
-
-
 # ==========================================================
-# Company Logo
+# Shared Company Logo
 # ==========================================================
 
-@recruiter.route(
-    "/company-logo",
-    methods=["POST"]
-)
+@recruiter.route("/company-logo", methods=["POST"])
 @login_required
 def company_logo():
 
     if current_user.role != "Recruiter":
-
-        return redirect(
-            url_for("dashboard.home")
-        )
+        return redirect(url_for("dashboard.home"))
 
     profile = RecruiterProfile.query.filter_by(
         user_id=current_user.id
     ).first()
 
-    if not profile:
-
-        profile = RecruiterProfile(
-            user_id=current_user.id
-        )
-
-        db.session.add(profile)
-        db.session.commit()
-
-    file = request.files.get(
-        "company_logo"
-    )
-
-    if not file or file.filename == "":
-
+    if not profile or not profile.company:
         flash(
-            "Please select a company logo.",
-            "danger"
+            "Please save your company profile before uploading a logo.",
+            "warning"
         )
+        return redirect(url_for("recruiter.company_profile"))
 
-        return redirect(
-            url_for("recruiter.company_profile")
-        )
+    file = request.files.get("company_logo")
 
-    allowed_extensions = {
-        "jpg",
-        "jpeg",
-        "png",
-        "webp"
-    }
+    if not file or not file.filename:
+        flash("Please select a company logo.", "danger")
+        return redirect(url_for("recruiter.company_profile"))
 
-    filename = file.filename
+    allowed_extensions = {"jpg", "jpeg", "png", "webp"}
 
-    extension = filename.rsplit(
-        ".",
-        1
-    )[-1].lower()
+    if "." not in file.filename:
+        flash("Invalid image filename.", "danger")
+        return redirect(url_for("recruiter.company_profile"))
+
+    extension = file.filename.rsplit(".", 1)[-1].lower()
 
     if extension not in allowed_extensions:
-
         flash(
             "Only JPG, JPEG, PNG and WEBP images are allowed.",
             "danger"
         )
+        return redirect(url_for("recruiter.company_profile"))
 
-        return redirect(
-            url_for("recruiter.company_profile")
+    upload_folder = current_app.config["UPLOAD_FOLDER"]
+    os.makedirs(upload_folder, exist_ok=True)
+
+    new_filename = f"company_{uuid.uuid4().hex}.{extension}"
+    file_path = os.path.join(upload_folder, new_filename)
+
+    try:
+        file.save(file_path)
+
+        company = profile.company
+        old_logo = company.company_logo
+
+        company.company_logo = new_filename
+
+        # Temporary compatibility for older code that still reads
+        # the logo from RecruiterProfile.
+        profile.company_logo = new_filename
+
+        db.session.commit()
+
+        # Delete the old image only after the database update succeeds.
+        if old_logo and old_logo != new_filename:
+            old_logo_path = os.path.join(upload_folder, old_logo)
+
+            if os.path.isfile(old_logo_path):
+                try:
+                    os.remove(old_logo_path)
+                except OSError:
+                    current_app.logger.warning(
+                        "Could not remove the old company logo: %s",
+                        old_logo_path
+                    )
+
+        flash("Company logo updated successfully!", "success")
+
+    except Exception:
+        db.session.rollback()
+
+        if os.path.isfile(file_path):
+            try:
+                os.remove(file_path)
+            except OSError:
+                pass
+
+        current_app.logger.exception(
+            "Failed to update the company logo."
         )
 
-    new_filename = (
-        "company_"
-        + str(uuid.uuid4())
-        + "."
-        + extension
-    )
+        flash("Unable to update the company logo.", "danger")
 
-    upload_folder = current_app.config[
-        "UPLOAD_FOLDER"
-    ]
-
-    os.makedirs(
-        upload_folder,
-        exist_ok=True
-    )
-
-    file_path = os.path.join(
-        upload_folder,
-        new_filename
-    )
-
-    file.save(file_path)
-
-    old_logo = profile.company_logo
-
-    if old_logo:
-
-        old_logo_path = os.path.join(
-            upload_folder,
-            old_logo
-        )
-
-        if os.path.exists(old_logo_path):
-
-            os.remove(old_logo_path)
-
-    profile.company_logo = new_filename
-
-    db.session.commit()
-
-    flash(
-        "Company logo updated successfully!",
-        "success"
-    )
-
-    return redirect(
-        url_for("recruiter.company_profile")
-    )
-
+    return redirect(url_for("recruiter.company_profile"))
 
 # ==========================================================
 # Job Management
@@ -2052,7 +2155,44 @@ def company_view():
         user_id=current_user.id
     ).first()
 
+    company = profile.company if profile else None
+
+    location = company.location if company else None
+
     return render_template(
         "recruiter/company_view.html",
-        profile=profile
+        profile=profile,
+        company=company,
+        location=location
+    )
+
+
+# ==========================================================
+# Public Recruiter Profile
+# ==========================================================
+
+@recruiter.route("/public/<string:username>", methods=["GET"])
+@login_required
+def public_profile(username):
+
+    # Only logged-in users can reach this route.
+    user = User.query.filter(
+        User.username == username,
+        func.lower(func.trim(User.role)) == "recruiter"
+    ).first_or_404()
+
+    profile = RecruiterProfile.query.filter_by(
+        user_id=user.id
+    ).first()
+
+    # Use the shared company record, not duplicate recruiter fields.
+    company = profile.company if profile else None
+    location = company.location if company else None
+
+    return render_template(
+        "recruiter/public_profile.html",
+        user=user,
+        profile=profile,
+        company=company,
+        location=location
     )

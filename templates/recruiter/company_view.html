@@ -5,8 +5,8 @@
 {% block content %}
 <style>
     .view-page {
-        padding: 105px 0 50px;
-        background: #f4f7fc;
+        padding: 100px 0 40px;
+        background: #f5f8fd;
         min-height: 100vh;
     }
 
@@ -14,51 +14,47 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 28px;
+        gap: 12px;
+        margin-bottom: 20px;
     }
 
     .view-header h2 {
         color: #153e75;
+        font-size: 1.55rem;
         font-weight: 700;
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        margin-bottom: 5px;
     }
 
     .view-header p {
         color: #718096;
+        font-size: 0.9rem;
         margin: 0;
     }
 
     .view-card {
-        background: #ffffff;
+        background: #fff;
         border: 1px solid #e4eaf3;
-        border-radius: 16px;
-        padding: 30px;
-        margin-bottom: 24px;
-        box-shadow: 0 8px 24px rgba(22, 55, 100, 0.04);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-radius: 13px;
+        padding: 22px;
+        margin-bottom: 18px;
+        box-shadow: 0 5px 18px rgba(22, 55, 100, 0.035);
     }
 
     .company-heading {
         display: flex;
         align-items: center;
-        gap: 24px;
-        flex-wrap: wrap;
+        gap: 18px;
     }
 
     .company-logo {
-        width: 105px;
-        height: 105px;
-        border-radius: 16px;
+        width: 76px;
+        height: 76px;
+        flex-shrink: 0;
         object-fit: contain;
-        padding: 8px;
-        border: 1px solid #e4eaf3;
-        background: #ffffff;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        padding: 6px;
+        border: 1px solid #e5ebf4;
+        border-radius: 12px;
+        background: #fff;
     }
 
     .company-placeholder {
@@ -66,80 +62,75 @@
         align-items: center;
         justify-content: center;
         color: #1765c1;
-        background: linear-gradient(135deg, #edf3ff 0%, #e2ecff 100%);
-        font-size: 40px;
+        background: #edf4ff;
+        font-size: 30px;
     }
 
     .company-name {
         color: #183b69;
+        font-size: 1.4rem;
         font-weight: 700;
-        margin-bottom: 8px;
+        margin-bottom: 7px;
         overflow-wrap: anywhere;
-        font-size: 1.65rem;
     }
 
     .company-subtitle {
-        color: #64748b;
-        margin-bottom: 0;
-        overflow-wrap: anywhere;
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-weight: 500;
+        gap: 7px;
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0;
     }
 
     .view-section-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #174a87;
-        padding-bottom: 14px;
-        margin-bottom: 24px;
-        border-bottom: 1px solid #e8edf5;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 9px;
+        color: #174a87;
+        font-size: 1rem;
+        font-weight: 700;
+        padding-bottom: 12px;
+        margin-bottom: 17px;
+        border-bottom: 1px solid #e8edf5;
     }
 
     .info-card-box {
-        background: #f8fafc;
-        border: 1px solid #edf2f7;
-        border-radius: 12px;
-        padding: 16px 20px;
         height: 100%;
-        transition: border-color 0.2s ease, background-color 0.2s ease;
+        min-height: 82px;
+        padding: 13px 15px;
+        border: 1px solid #e9eef6;
+        border-radius: 10px;
+        background: #f9fbfe;
+        transition: background 0.2s, border-color 0.2s;
     }
 
     .info-card-box:hover {
-        background: #f1f5f9;
-        border-color: #e2e8f0;
-    }
-
-    .info-item {
-        margin-bottom: 0;
-        min-width: 0;
+        background: #f2f7ff;
+        border-color: #d8e6fa;
     }
 
     .info-label {
         display: flex;
         align-items: center;
-        gap: 8px;
-        color: #64748b;
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 8px;
+        gap: 7px;
+        color: #718096;
+        font-size: 11px;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.45px;
+        margin-bottom: 7px;
     }
 
     .info-label i {
-        font-size: 15px;
         color: #1765c1;
+        font-size: 14px;
     }
 
     .info-value {
-        color: #1e293b;
-        font-weight: 600;
-        font-size: 0.98rem;
+        color: #24364b;
+        font-size: 0.9rem;
+        font-weight: 500;
         overflow-wrap: anywhere;
         white-space: pre-wrap;
     }
@@ -148,10 +139,7 @@
         color: #1765c1;
         text-decoration: none;
         overflow-wrap: anywhere;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        word-break: break-all;
+        word-break: break-word;
     }
 
     .info-value a:hover {
@@ -159,62 +147,132 @@
     }
 
     .empty-value {
-        color: #94a3b8;
+        color: #9aa7b8;
         font-style: italic;
         font-weight: 400;
     }
 
-    .view-badge {
+    .company-description {
+        line-height: 1.65;
+    }
+
+    .map-frame {
+        width: 100%;
+        height: 270px;
+        border: 0;
+        border-radius: 10px;
+        background: #f1f5f9;
+    }
+
+    .map-address {
+        color: #64748b;
+        font-size: 0.88rem;
+        margin-top: 10px;
+        overflow-wrap: anywhere;
+    }
+
+    .map-link {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         color: #1765c1;
-        background: #eaf2ff;
-        border: 1px solid #d0e1fd;
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 12px;
+        font-size: 0.88rem;
         font-weight: 600;
+        text-decoration: none;
+        margin-top: 8px;
+    }
+
+    .map-link:hover {
+        text-decoration: underline;
+    }
+
+    .map-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 150px;
+        padding: 25px;
+        text-align: center;
+        background: #f8fafc;
+        border: 1px dashed #d7e1ee;
+        border-radius: 10px;
+        color: #8a99ad;
+    }
+
+    .map-empty i {
+        font-size: 27px;
+        color: #1765c1;
+        margin-bottom: 8px;
     }
 
     @media (max-width: 576px) {
+        .view-page {
+            padding-top: 85px;
+        }
+
         .view-card {
-            padding: 20px;
+            padding: 16px;
+            border-radius: 11px;
         }
 
         .company-heading {
+            gap: 13px;
             align-items: flex-start;
-            gap: 16px;
         }
 
         .company-logo {
-            width: 85px;
-            height: 85px;
+            width: 65px;
+            height: 65px;
+        }
+
+        .company-name {
+            font-size: 1.15rem;
+        }
+
+        .view-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .map-frame {
+            height: 220px;
         }
     }
 </style>
+
+{% set company_name = company.company_name if company else
+    (profile.company_name if profile else '') %}
+{% set industry = company.industry if company else
+    (profile.industry if profile else '') %}
+{% set company_size = company.company_size if company else
+    (profile.company_size if profile else '') %}
+{% set website = company.company_website if company else
+    (profile.company_website if profile else '') %}
+{% set description = company.company_description if company else
+    (profile.company_description if profile else '') %}
+{% set logo = company.company_logo if company else
+    (profile.company_logo if profile else '') %}
+{% set address = location.address if location else
+    (profile.company_location if profile else '') %}
 
 <div class="view-page">
     <div class="container">
 
         <div class="view-header">
             <div>
-                <h2><i class="bi bi-building-gear text-primary"></i> Company Profile</h2>
-                <p>View your organization's detailed information.</p>
+                <h2><i class="bi bi-buildings"></i> Company Profile</h2>
+                <p>View your organization's information and location.</p>
             </div>
         </div>
 
+        <!-- Company heading -->
         <div class="view-card">
             <div class="company-heading">
-
-                {% if profile and profile.company_logo %}
+                {% if logo %}
                     <img
                         class="company-logo"
-                        src="{{ url_for(
-                            'static',
-                            filename='uploads/profile/' ~ profile.company_logo
-                        ) }}"
-                        alt="Company logo"
+                        src="{{ url_for('static', filename='uploads/profile/' ~ logo) }}"
+                        alt="{{ company_name or 'Company' }} logo"
                     >
                 {% else %}
                     <div class="company-logo company-placeholder">
@@ -224,112 +282,143 @@
 
                 <div>
                     <h3 class="company-name">
-                        {{ profile.company_name
-                           if profile and profile.company_name
-                           else 'Company name not added' }}
+                        {{ company_name or 'Company name not added' }}
                     </h3>
 
                     <p class="company-subtitle">
-                        <i class="bi bi-briefcase text-primary"></i>
-                        {{ profile.industry
-                           if profile and profile.industry
-                           else 'Industry not specified' }}
+                        <i class="bi bi-briefcase"></i>
+                        {{ industry or 'Industry not specified' }}
                     </p>
                 </div>
-
             </div>
         </div>
 
+        <!-- Company information -->
         <div class="view-card">
             <h5 class="view-section-title">
-                <i class="bi bi-info-circle-fill"></i> Company Information
+                <i class="bi bi-info-circle"></i>
+                Company Information
             </h5>
 
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-md-6 col-lg-4">
                     <div class="info-card-box">
-                        <div class="info-item">
-                            <span class="info-label"><i class="bi bi-building"></i> Company Name</span>
-                            <div class="info-value">
-                                {{ profile.company_name
-                                   if profile and profile.company_name
-                                   else 'Not added' }}
-                            </div>
+                        <div class="info-label">
+                            <i class="bi bi-building"></i> Company Name
+                        </div>
+                        <div class="info-value">
+                            {{ company_name or 'Not added' }}
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6 col-lg-4">
                     <div class="info-card-box">
-                        <div class="info-item">
-                            <span class="info-label"><i class="bi bi-tag"></i> Industry</span>
-                            <div class="info-value">
-                                {{ profile.industry
-                                   if profile and profile.industry
-                                   else 'Not added' }}
-                            </div>
+                        <div class="info-label">
+                            <i class="bi bi-tag"></i> Industry
+                        </div>
+                        <div class="info-value">
+                            {{ industry or 'Not added' }}
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6 col-lg-4">
                     <div class="info-card-box">
-                        <div class="info-item">
-                            <span class="info-label"><i class="bi bi-people"></i> Company Size</span>
-                            <div class="info-value">
-                                {{ profile.company_size
-                                   if profile and profile.company_size
-                                   else 'Not added' }}
-                            </div>
+                        <div class="info-label">
+                            <i class="bi bi-people"></i> Company Size
                         </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6">
-                    <div class="info-card-box">
-                        <div class="info-item">
-                            <span class="info-label"><i class="bi bi-geo-alt"></i> Company Location</span>
-                            <div class="info-value">
-                                {{ profile.company_location
-                                   if profile and profile.company_location
-                                   else 'Not added' }}
-                            </div>
+                        <div class="info-value">
+                            {{ company_size or 'Not added' }}
                         </div>
                     </div>
                 </div>
 
                 <div class="col-12">
                     <div class="info-card-box">
-                        <div class="info-item">
-                            <span class="info-label"><i class="bi bi-globe"></i> Company Website</span>
-                            <div class="info-value">
-                                {% if profile and profile.company_website %}
-                                    <a href="{{ profile.company_website }}"
-                                       target="_blank"
-                                       rel="noopener noreferrer">
-                                        <i class="bi bi-box-arrow-up-right"></i> {{ profile.company_website }}
-                                    </a>
-                                {% else %}
-                                    <span class="empty-value">Not added</span>
-                                {% endif %}
-                            </div>
+                        <div class="info-label">
+                            <i class="bi bi-globe"></i> Company Website
+                        </div>
+                        <div class="info-value">
+                            {% if website %}
+                                {% set website_url = website if website.startswith('http://') or website.startswith('https://') else 'https://' ~ website %}
+                                <a href="{{ website_url }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    {{ website }}
+                                    <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            {% else %}
+                                <span class="empty-value">Not added</span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
 
                 <div class="col-12">
                     <div class="info-card-box">
-                        <div class="info-item mb-0">
-                            <span class="info-label"><i class="bi bi-file-text"></i> Company Description</span>
-                            <div class="info-value">
-                                {{ profile.company_description
-                                   if profile and profile.company_description
-                                   else 'No company description added yet.' }}
-                            </div>
+                        <div class="info-label">
+                            <i class="bi bi-file-text"></i> About Company
                         </div>
+                        <div class="info-value company-description">{{
+                            description or 'No company description added yet.'
+                        }}</div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Company location -->
+        <div class="view-card">
+            <h5 class="view-section-title">
+                <i class="bi bi-geo-alt"></i>
+                Company Location
+            </h5>
+
+            {% if location and location.latitude is not none
+                  and location.longitude is not none %}
+
+                <iframe
+                    class="map-frame"
+                    title="Company location map"
+                    src="https://www.openstreetmap.org/export/embed.html?bbox={{ location.longitude - 0.01 }},{{ location.latitude - 0.01 }},{{ location.longitude + 0.01 }},{{ location.latitude + 0.01 }}&layer=mapnik&marker={{ location.latitude }},{{ location.longitude }}"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+
+                <div class="map-address">
+                    <i class="bi bi-pin-map"></i>
+                    {{ address or 'Company address' }}
+                </div>
+
+                <a
+                    class="map-link"
+                    href="{{ location.google_maps_url or ('https://www.google.com/maps/search/?api=1&query=' ~ location.latitude ~ ',' ~ location.longitude) }}"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                    Open location in Google Maps
+                </a>
+
+            {% elif address %}
+                <div class="map-empty">
+                    <i class="bi bi-geo-alt"></i>
+                    <div class="info-value">{{ address }}</div>
+                    <p class="small mb-0 mt-2">
+                        Map coordinates are not available yet.
+                        Edit the company profile and select an address from the search results.
+                    </p>
+                </div>
+
+            {% else %}
+                <div class="map-empty">
+                    <i class="bi bi-map"></i>
+                    <div class="info-value">No company location added</div>
+                    <p class="small mb-0 mt-2">
+                        Add your company's address in Company Profile settings.
+                    </p>
+                </div>
+            {% endif %}
         </div>
 
     </div>

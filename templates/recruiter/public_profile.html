@@ -1,0 +1,1177 @@
+
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ user.full_name or user.username }} | CVision{% endblock %}
+
+{% block content %}
+{% set display_name = user.full_name or user.username %}
+{% set profile_image = user.profile_image if user.profile_image and user.profile_image != 'default.png' else none %}
+
+{% set company_name = company.company_name if company and company.company_name else (profile.company_name if profile else none) %}
+{% set company_logo = company.company_logo if company and company.company_logo else (profile.company_logo if profile else none) %}
+{% set industry = company.industry if company else (profile.industry if profile else none) %}
+{% set company_size = company.company_size if company else (profile.company_size if profile else none) %}
+{% set company_website = company.company_website if company else (profile.company_website if profile else none) %}
+{% set company_description = company.company_description if company else (profile.company_description if profile else none) %}
+
+<style>
+    .rp-page {
+        --rp-blue: #0a66c2;
+        --rp-ink: #191919;
+        --rp-muted: #687586;
+        --rp-line: #e0e5eb;
+        padding: 92px 0 42px;
+        min-height: 100vh;
+        background: #f3f6f8;
+        color: var(--rp-ink);
+    }
+
+    .rp-wrap {
+        width: 100%;
+        max-width: 1500px;
+        margin: 0 auto;
+        padding: 0 24px;
+        box-sizing: border-box;
+    }
+
+    .rp-card {
+        min-width: 0;
+        margin-bottom: 12px;
+        background: #fff;
+        border: 1px solid var(--rp-line);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .rp-cover {
+        height: 165px;
+        position: relative;
+        background:
+            radial-gradient(ellipse at 80% 15%, #a9d8ff 0, transparent 32%),
+            linear-gradient(115deg, #123d70, #1769aa 55%, #6bb7e8);
+    }
+
+    .rp-cover::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: .15;
+        background-image: radial-gradient(#fff 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+
+    .rp-profile-main {
+        padding: 0 24px 22px;
+    }
+
+    .rp-avatar {
+        width: 112px;
+        height: 112px;
+        margin-top: -56px;
+        position: relative;
+        z-index: 1;
+        flex-shrink: 0;
+        object-fit: cover;
+        border: 4px solid #fff;
+        border-radius: 50%;
+        background: #e3effa;
+    }
+
+    .rp-avatar-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #155b98;
+        font-size: 36px;
+        font-weight: 700;
+    }
+
+    .rp-name {
+        margin: 12px 0 3px;
+        font-size: 27px;
+        line-height: 1.3;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-handle {
+        color: #666;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-job-title {
+        margin-top: 9px;
+        font-size: 15px;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-bio {
+        max-width: 850px;
+        margin-top: 10px;
+        font-size: 13px;
+        line-height: 1.7;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-location {
+        margin-top: 9px;
+        color: #687586;
+        font-size: 12px;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 13px;
+    }
+
+    .rp-links a {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border: 1px solid #c8dff5;
+        border-radius: 20px;
+        color: var(--rp-blue);
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-links a:hover {
+        background: #eef6fd;
+    }
+
+    .rp-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, .75fr);
+        gap: 16px;
+        align-items: start;
+    }
+
+    .rp-main,
+    .rp-sidebar {
+        min-width: 0;
+    }
+
+    .rp-section {
+        padding: 19px 20px;
+    }
+
+    .rp-heading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 15px;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .rp-heading i {
+        color: var(--rp-blue);
+    }
+
+    .rp-feed-tabs {
+        margin: -2px 0 15px;
+        border-bottom: 1px solid var(--rp-line);
+    }
+
+    .rp-feed-tabs span {
+        display: inline-block;
+        padding: 8px 2px 10px;
+        border-bottom: 2px solid #27734b;
+        color: #27734b;
+        font-size: 13px;
+        font-weight: 650;
+    }
+
+    .rp-company-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 13px;
+        min-width: 0;
+    }
+
+    .rp-company-logo {
+        width: 62px;
+        height: 62px;
+        flex-shrink: 0;
+        object-fit: contain;
+        padding: 5px;
+        border: 1px solid #e3e8ee;
+        border-radius: 9px;
+        background: #fff;
+    }
+
+    .rp-company-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #286aa5;
+        background: #edf4fb;
+        font-size: 24px;
+    }
+
+    .rp-company-name {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-company-meta {
+        margin-top: 4px;
+        color: var(--rp-muted);
+        font-size: 11.5px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-description {
+        margin: 12px 0;
+        font-size: 12.5px;
+        line-height: 1.7;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-info-row {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 10px 0;
+        border-top: 1px solid #edf0f3;
+        font-size: 12px;
+        line-height: 1.55;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-info-row i {
+        width: 17px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        color: #286aa5;
+    }
+
+    .rp-info-row a {
+        color: var(--rp-blue);
+        text-decoration: none;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-info-row a:hover {
+        text-decoration: underline;
+    }
+
+    .rp-info-label {
+        display: block;
+        margin-bottom: 2px;
+        color: #788391;
+        font-size: 10.5px;
+    }
+
+    .rp-company-missing {
+        color: var(--rp-muted);
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .rp-post {
+        padding: 16px;
+        margin-bottom: 12px;
+        border: 1px solid var(--rp-line);
+        border-radius: 9px;
+        background: #fff;
+        min-width: 0;
+    }
+
+    .rp-post:last-child {
+        margin-bottom: 0;
+    }
+
+    .rp-post-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .rp-post-avatar {
+        width: 43px;
+        height: 43px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        background: #e8f1fa;
+    }
+
+    .rp-post-avatar-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #155b98;
+        font-weight: 700;
+    }
+
+    .rp-post-author-wrap {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .rp-post-author {
+        font-size: 13px;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-post-date {
+        margin-top: 3px;
+        color: #77808b;
+        font-size: 11px;
+    }
+
+    .rp-post-content {
+        margin-top: 13px;
+        font-size: 13px;
+        line-height: 1.75;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-post-image {
+        display: block;
+        width: 100%;
+        max-height: 560px;
+        object-fit: contain;
+        margin-top: 12px;
+        border-radius: 7px;
+        background: #f5f7f9;
+    }
+
+    .rp-post-stats {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 11px 0 9px;
+        border-bottom: 1px solid #e8ebef;
+        color: #687586;
+        font-size: 11px;
+    }
+
+    .rp-post-actions {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+        padding-top: 6px;
+    }
+
+    .rp-action {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 5px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #5e6874;
+        font-size: 12px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    .rp-action:hover {
+        background: #f0f5fa;
+        color: var(--rp-blue);
+    }
+
+    .rp-action.is-liked {
+        color: var(--rp-blue);
+    }
+
+    .rp-action:disabled {
+        opacity: .6;
+        cursor: wait;
+    }
+
+    .rp-comments {
+        margin-top: 9px;
+        padding-top: 12px;
+        border-top: 1px solid #edf0f3;
+    }
+
+    .rp-comment {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+        min-width: 0;
+    }
+
+    .rp-comment-avatar {
+        width: 31px;
+        height: 31px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #e9f2fc;
+    }
+
+    .rp-comment-bubble {
+        flex: 1;
+        min-width: 0;
+        padding: 9px 11px;
+        border-radius: 4px 10px 10px 10px;
+        background: #f2f4f7;
+    }
+
+    .rp-comment-author {
+        margin-bottom: 4px;
+        font-size: 12px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-comment-text {
+        font-size: 12px;
+        line-height: 1.6;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .rp-comment-date {
+        margin-top: 5px;
+        color: #77808b;
+        font-size: 10px;
+    }
+
+    .rp-comment-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .rp-comment-input {
+        flex: 1;
+        min-width: 0;
+        padding: 10px 13px;
+        border: 1px solid #cbd3dc;
+        border-radius: 22px;
+        outline: none;
+        font: inherit;
+        font-size: 12px;
+    }
+
+    .rp-comment-input:focus {
+        border-color: var(--rp-blue);
+        box-shadow: 0 0 0 2px #0a66c21a;
+    }
+
+    .rp-send {
+        padding: 10px 15px;
+        border: 0;
+        border-radius: 20px;
+        background: var(--rp-blue);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    .rp-send:disabled {
+        opacity: .6;
+        cursor: wait;
+    }
+
+    .rp-loading,
+    .rp-empty {
+        padding: 30px 15px;
+        color: #687586;
+        text-align: center;
+        font-size: 13px;
+        line-height: 1.7;
+    }
+
+    .rp-empty i {
+        display: block;
+        margin-bottom: 9px;
+        color: #8ba9c7;
+        font-size: 26px;
+    }
+
+    .rp-error {
+        padding: 12px;
+        border: 1px solid #f2cece;
+        border-radius: 8px;
+        background: #fff3f3;
+        color: #a12d35;
+        font-size: 12px;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 760px) {
+        .rp-page {
+            padding-top: 80px;
+        }
+
+        .rp-wrap {
+            padding: 0 10px;
+        }
+
+        .rp-layout {
+            grid-template-columns: minmax(0, 1fr);
+        }
+
+        .rp-cover {
+            height: 125px;
+        }
+
+        .rp-profile-main {
+            padding: 0 17px 18px;
+        }
+
+        .rp-avatar {
+            width: 95px;
+            height: 95px;
+            margin-top: -48px;
+        }
+
+        .rp-name {
+            font-size: 23px;
+        }
+
+        .rp-section {
+            padding: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .rp-post {
+            padding: 12px;
+        }
+
+        .rp-comment-form {
+            align-items: stretch;
+        }
+
+        .rp-send {
+            padding: 9px 12px;
+        }
+    }
+</style>
+
+<div class="rp-page">
+    <div class="rp-wrap">
+
+        <!-- RECRUITER PROFILE HEADER -->
+        <section class="rp-card">
+            <div class="rp-cover"></div>
+
+            <div class="rp-profile-main">
+                {% if profile_image %}
+                    <img
+                        class="rp-avatar"
+                        src="{{ url_for('static', filename='uploads/profile/' ~ profile_image) }}"
+                        alt="{{ display_name|e }}"
+                    >
+                {% else %}
+                    <div class="rp-avatar rp-avatar-fallback">
+                        {{ (display_name or 'R')[0]|upper }}
+                    </div>
+                {% endif %}
+
+                <h1 class="rp-name">{{ display_name }}</h1>
+
+                <div class="rp-handle">
+                    @{{ user.username }} · Recruiter
+                </div>
+
+                {% if profile and profile.job_title %}
+                    <div class="rp-job-title">{{ profile.job_title }}</div>
+                {% else %}
+                    <div class="rp-job-title">Recruiter on CVision</div>
+                {% endif %}
+
+                {% if profile and profile.bio %}
+                    <div class="rp-bio">{{ profile.bio|striptags }}</div>
+                {% endif %}
+
+                {% if location and location.address %}
+                    <div class="rp-location">
+                        <i class="bi bi-geo-alt"></i>
+                        {{ location.address }}
+                    </div>
+                {% elif profile and profile.company_location %}
+                    <div class="rp-location">
+                        <i class="bi bi-geo-alt"></i>
+                        {{ profile.company_location }}
+                    </div>
+                {% endif %}
+
+                <div class="rp-links">
+                    {% if profile and profile.linkedin_url %}
+                        <a href="{{ profile.linkedin_url }}"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="bi bi-linkedin"></i> LinkedIn
+                        </a>
+                    {% endif %}
+
+                    {% if company_website %}
+                        {% set website_url = company_website %}
+                        {% if not website_url.startswith('http://') and not website_url.startswith('https://') %}
+                            {% set website_url = 'https://' ~ website_url %}
+                        {% endif %}
+                        <a href="{{ website_url }}"
+                           target="_blank"
+                           rel="noopener noreferrer">
+                            <i class="bi bi-globe"></i> Company Website
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- TWO-COLUMN LAYOUT -->
+        <div class="rp-layout">
+
+            <!-- LEFT: RECRUITER ACTIVITY -->
+            <main class="rp-main">
+                <section class="rp-card rp-section">
+                    <h2 class="rp-heading">
+                        <i class="bi bi-newspaper"></i>
+                        Activity
+                        <small id="rpPostCount"
+                               style="margin-left:auto;color:#777;font-size:12px;font-weight:400">
+                            Posts
+                        </small>
+                    </h2>
+
+                    <div class="rp-feed-tabs">
+                        <span>All activity</span>
+                    </div>
+
+                    <div
+                        id="rpPosts"
+                        data-posts-url="{{ url_for('social.get_posts') }}"
+                        data-profile-id="{{ user.id }}"
+                        data-profile-name="{{ display_name|e }}"
+                        data-profile-image="{{ url_for('static', filename='uploads/profile/' ~ profile_image) if profile_image else '' }}"
+                    >
+                        <div class="rp-loading">
+                            <i class="bi bi-arrow-repeat"></i>
+                            Loading activity...
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- RIGHT: COMPANY INFORMATION -->
+            <aside class="rp-sidebar">
+
+                <section class="rp-card rp-section">
+                    <h2 class="rp-heading">
+                        <i class="bi bi-building"></i>
+                        Company Information
+                    </h2>
+
+                    {% if company_name %}
+                        <div class="rp-company-top">
+                            {% if company_logo %}
+                                <img
+                                    class="rp-company-logo"
+                                    src="{{ url_for('static', filename='uploads/profile/' ~ company_logo) }}"
+                                    alt="{{ company_name|e }} logo"
+                                >
+                            {% else %}
+                                <div class="rp-company-logo rp-company-fallback">
+                                    <i class="bi bi-buildings"></i>
+                                </div>
+                            {% endif %}
+
+                            <div style="min-width:0">
+                                <div class="rp-company-name">
+                                    {{ company_name }}
+                                </div>
+
+                                <div class="rp-company-meta">
+                                    {% if industry %}
+                                        {{ industry }}
+                                    {% else %}
+                                        Company on CVision
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if company_description %}
+                            <div class="rp-description">
+                                {{ company_description|striptags }}
+                            </div>
+                        {% endif %}
+
+                        {% if industry %}
+                            <div class="rp-info-row">
+                                <i class="bi bi-diagram-3"></i>
+                                <div>
+                                    <span class="rp-info-label">Industry</span>
+                                    {{ industry }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if company_size %}
+                            <div class="rp-info-row">
+                                <i class="bi bi-people"></i>
+                                <div>
+                                    <span class="rp-info-label">Company size</span>
+                                    {{ company_size }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if location and location.address %}
+                            <div class="rp-info-row">
+                                <i class="bi bi-geo-alt"></i>
+                                <div>
+                                    <span class="rp-info-label">Location</span>
+                                    {{ location.address }}
+                                </div>
+                            </div>
+                        {% elif profile and profile.company_location %}
+                            <div class="rp-info-row">
+                                <i class="bi bi-geo-alt"></i>
+                                <div>
+                                    <span class="rp-info-label">Location</span>
+                                    {{ profile.company_location }}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if company_website %}
+                            {% set website_url = company_website %}
+                            {% if not website_url.startswith('http://') and not website_url.startswith('https://') %}
+                                {% set website_url = 'https://' ~ website_url %}
+                            {% endif %}
+                            <div class="rp-info-row">
+                                <i class="bi bi-globe"></i>
+                                <div>
+                                    <span class="rp-info-label">Website</span>
+                                    <a href="{{ website_url }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        {{ company_website }}
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if location and location.google_maps_url %}
+                            <div class="rp-info-row">
+                                <i class="bi bi-map"></i>
+                                <div>
+                                    <a href="{{ location.google_maps_url }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer">
+                                        View on Google Maps
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="rp-company-missing">
+                            <i class="bi bi-info-circle"></i>
+                            This recruiter has not added company information yet.
+                        </div>
+                    {% endif %}
+                </section>
+
+                <section class="rp-card rp-section">
+                    <h2 class="rp-heading">
+                        <i class="bi bi-person-badge"></i>
+                        Recruiter Information
+                    </h2>
+
+                    {% if profile and profile.job_title %}
+                        <div class="rp-info-row">
+                            <i class="bi bi-briefcase"></i>
+                            <div>
+                                <span class="rp-info-label">Position</span>
+                                {{ profile.job_title }}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="rp-info-row">
+                        <i class="bi bi-person"></i>
+                        <div>
+                            <span class="rp-info-label">Username</span>
+                            @{{ user.username }}
+                        </div>
+                    </div>
+
+                    {% if profile and profile.linkedin_url %}
+                        <div class="rp-info-row">
+                            <i class="bi bi-linkedin"></i>
+                            <div>
+                                <span class="rp-info-label">LinkedIn</span>
+                                <a href="{{ profile.linkedin_url }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer">
+                                    View LinkedIn profile
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </section>
+
+            </aside>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    const root = document.getElementById("rpPosts");
+    const countLabel = document.getElementById("rpPostCount");
+
+    if (!root || !countLabel) return;
+
+    const postsUrl = root.dataset.postsUrl;
+    const profileId = String(root.dataset.profileId || "");
+    const profileName = root.dataset.profileName || "CVision Recruiter";
+    const profileImage = root.dataset.profileImage || "";
+
+    let posts = [];
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, function (char) {
+            return {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#039;"
+            }[char];
+        });
+    }
+
+    function csrfToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        if (meta && meta.content) return meta.content;
+
+        const input = document.querySelector('input[name="csrf_token"]');
+        return input ? input.value : "";
+    }
+
+    async function apiRequest(url, options = {}) {
+        const headers = {
+            "Accept": "application/json",
+            ...(options.headers || {})
+        };
+
+        const token = csrfToken();
+        if (token) headers["X-CSRFToken"] = token;
+
+        const response = await fetch(url, {
+            credentials: "same-origin",
+            ...options,
+            headers
+        });
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch (_) {}
+
+        if (!response.ok || data.success === false) {
+            throw new Error(data.message || "Request failed.");
+        }
+
+        return data;
+    }
+
+    function formatDate(value) {
+        if (!value) return "";
+
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "";
+
+        return date.toLocaleString([], {
+            dateStyle: "medium",
+            timeStyle: "short"
+        });
+    }
+
+    function avatar(url, name, className) {
+        if (url) {
+            return `<img class="${className}"
+                         src="${escapeHtml(url)}"
+                         alt=""
+                         loading="lazy">`;
+        }
+
+        const initial = (name || "U").trim().charAt(0).toUpperCase();
+
+        return `<div class="${className} rp-post-avatar-fallback">
+                    ${escapeHtml(initial || "U")}
+                </div>`;
+    }
+
+    function commentHtml(comment) {
+        const author = comment.author || {};
+        const name = author.name || author.username || "Member";
+
+        return `
+            <div class="rp-comment">
+                ${avatar(author.profile_picture || "", name, "rp-comment-avatar")}
+                <div class="rp-comment-bubble">
+                    <div class="rp-comment-author">${escapeHtml(name)}</div>
+                    <div class="rp-comment-text">${escapeHtml(comment.content || "")}</div>
+                    <div class="rp-comment-date">${escapeHtml(formatDate(comment.created_at))}</div>
+                </div>
+            </div>`;
+    }
+
+    function postHtml(post) {
+        const author = post.author || {};
+        const comments = Array.isArray(post.comments) ? post.comments : [];
+        const liked = post.my_reaction === "like";
+        const postId = Number(post.id);
+
+        const image = post.image_url
+            ? `<img class="rp-post-image"
+                    src="${escapeHtml(post.image_url)}"
+                    alt="Post image"
+                    loading="lazy">`
+            : "";
+
+        return `
+            <article class="rp-post" data-post-id="${postId}">
+                <div class="rp-post-header">
+                    ${avatar(
+                        author.profile_picture || profileImage,
+                        author.name || profileName,
+                        "rp-post-avatar"
+                    )}
+                    <div class="rp-post-author-wrap">
+                        <div class="rp-post-author">
+                            ${escapeHtml(author.name || profileName)}
+                        </div>
+                        <div class="rp-post-date">
+                            ${escapeHtml(formatDate(post.created_at))}
+                        </div>
+                    </div>
+                </div>
+
+                ${post.content
+                    ? `<div class="rp-post-content">${escapeHtml(post.content)}</div>`
+                    : ""}
+
+                ${image}
+
+                <div class="rp-post-stats">
+                    <span class="rp-like-count">
+                        <i class="bi bi-hand-thumbs-up-fill"></i>
+                        ${Number(post.like_count || 0)} likes
+                    </span>
+                    <span>${comments.length} comments</span>
+                </div>
+
+                <div class="rp-post-actions">
+                    <button type="button"
+                            class="rp-action ${liked ? "is-liked" : ""}"
+                            data-action="like"
+                            data-post-id="${postId}">
+                        <i class="bi ${liked ? "bi-hand-thumbs-up-fill" : "bi-hand-thumbs-up"}"></i>
+                        ${liked ? "Liked" : "Like"}
+                    </button>
+
+                    <button type="button"
+                            class="rp-action"
+                            data-action="comment"
+                            data-post-id="${postId}">
+                        <i class="bi bi-chat-left-text"></i>
+                        Comment
+                    </button>
+                </div>
+
+                <div class="rp-comments">
+                    ${comments.length
+                        ? comments.map(commentHtml).join("")
+                        : '<div class="rp-company-meta">No comments yet.</div>'}
+
+                    <form class="rp-comment-form" data-post-id="${postId}">
+                        <input class="rp-comment-input"
+                               type="text"
+                               name="content"
+                               maxlength="2000"
+                               placeholder="Write a comment..."
+                               aria-label="Write a comment"
+                               required>
+                        <button class="rp-send" type="submit">Send</button>
+                    </form>
+                </div>
+            </article>`;
+    }
+
+    function renderPosts() {
+        countLabel.textContent =
+            posts.length + (posts.length === 1 ? " post" : " posts");
+
+        if (!posts.length) {
+            root.innerHTML = `
+                <div class="rp-empty">
+                    <i class="bi bi-chat-square-text"></i>
+                    <strong>No activity yet</strong><br>
+                    Posts shared by this recruiter will appear here.
+                </div>`;
+            return;
+        }
+
+        root.innerHTML = posts.map(postHtml).join("");
+    }
+
+    async function loadPosts() {
+        if (!postsUrl || !profileId) {
+            root.innerHTML =
+                '<div class="rp-error">The Activity feed could not be configured.</div>';
+            return;
+        }
+
+        try {
+            const data = await apiRequest(postsUrl);
+
+            if (!Array.isArray(data.posts)) {
+                throw new Error("Unexpected posts response.");
+            }
+
+            posts = data.posts.filter(function (post) {
+                return post.author &&
+                    String(post.author.id) === profileId;
+            });
+
+            renderPosts();
+        } catch (error) {
+            console.error("Recruiter profile feed:", error);
+            root.innerHTML = `
+                <div class="rp-error">
+                    Could not load posts. Please refresh the page and try again.
+                </div>`;
+        }
+    }
+
+    async function toggleLike(postId, button) {
+        const post = posts.find(item => String(item.id) === String(postId));
+        if (!post) return;
+
+        button.disabled = true;
+
+        try {
+            const data = await apiRequest(
+                `${postsUrl}/${encodeURIComponent(postId)}/reaction`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reaction: "like" })
+                }
+            );
+
+            post.my_reaction = data.my_reaction || null;
+
+            if (data.like_count !== undefined) {
+                post.like_count = data.like_count;
+            }
+
+            renderPosts();
+        } catch (error) {
+            console.error("Recruiter profile like error:", error);
+            alert(error.message || "Could not update your reaction.");
+            button.disabled = false;
+        }
+    }
+
+    async function submitComment(form) {
+        const postId = form.dataset.postId;
+        const input = form.querySelector('input[name="content"]');
+        const button = form.querySelector('button[type="submit"]');
+        const content = input.value.trim();
+
+        if (!content) {
+            input.focus();
+            return;
+        }
+
+        button.disabled = true;
+
+        try {
+            const data = await apiRequest(
+                `${postsUrl}/${encodeURIComponent(postId)}/comments`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content })
+                }
+            );
+
+            const post = posts.find(item => String(item.id) === String(postId));
+
+            if (post && data.comment) {
+                if (!Array.isArray(post.comments)) post.comments = [];
+                post.comments.push(data.comment);
+                renderPosts();
+            } else {
+                await loadPosts();
+            }
+        } catch (error) {
+            console.error("Recruiter profile comment error:", error);
+            alert(error.message || "Could not publish your comment.");
+            button.disabled = false;
+        }
+    }
+
+    root.addEventListener("click", function (event) {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const postId = button.dataset.postId;
+
+        if (action === "like") {
+            toggleLike(postId, button);
+        } else if (action === "comment") {
+            const form = root.querySelector(
+                `.rp-comment-form[data-post-id="${CSS.escape(String(postId))}"]`
+            );
+
+            if (form) {
+                form.querySelector("input").focus();
+                form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }
+        }
+    });
+
+    root.addEventListener("submit", function (event) {
+        const form = event.target.closest(".rp-comment-form");
+        if (!form) return;
+
+        event.preventDefault();
+        submitComment(form);
+    });
+
+    loadPosts();
+})();
+</script>
+
+{% endblock %}

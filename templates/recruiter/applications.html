@@ -1,14 +1,10 @@
+
 {% extends "layouts/base.html" %}
 
-{% block title %}
-Applications | CVision
-{% endblock %}
-
+{% block title %}Applications | CVision{% endblock %}
 
 {% block extra_css %}
-
 <style>
-
     .applications-page {
         padding-top: 110px;
         padding-bottom: 60px;
@@ -154,121 +150,136 @@ Applications | CVision
         margin-bottom: 22px;
     }
 
-.applications-toolbar {
-    background: linear-gradient(135deg, #ffffff, #f8fbff);
-    border: 1px solid #e3eaf5;
-    border-radius: 18px;
-    padding: 24px;
-    margin-bottom: 25px;
-    box-shadow: 0 6px 24px rgba(24, 67, 125, 0.06);
-}
-
-.applications-toolbar .form-label {
-    display: block;
-    width: 100%;
-    margin-bottom: 9px;
-    color: #24344d;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.applications-search-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.applications-search-wrapper .search-icon {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #0d6efd;
-    pointer-events: none;
-}
-
-.applications-search-input,
-.applications-filter-select {
-    display: block;
-    width: 100%;
-    min-height: 46px;
-    box-sizing: border-box;
-    border: 1px solid #dce4f0;
-    border-radius: 11px;
-    background-color: #ffffff;
-    color: #263449;
-    font-size: 14px;
-}
-
-.applications-search-input {
-    padding-left: 42px;
-}
-
-.applications-search-input:focus,
-.applications-filter-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
-}
-
-.applications-search-input::placeholder {
-    color: #98a4b5;
-}
-
-.applications-clear-btn {
-    min-height: 46px;
-    border-radius: 11px;
-    border-color: #dce4f0;
-    background: #ffffff;
-}
-
-.applications-clear-btn:hover {
-    color: #ffffff;
-    background: #0d6efd;
-    border-color: #0d6efd;
-}
-
-.applications-filter-footer {
-    margin-top: 17px;
-    padding-top: 14px;
-    border-top: 1px solid #e8edf5;
-    color: #718096;
-    font-size: 13px;
-}
-
-.applications-no-results {
-    padding: 50px 20px;
-    background: #ffffff;
-    border: 1px dashed #cbd8e8;
-    border-radius: 18px;
-    text-align: center;
-}
-
-.applications-no-results i {
-    display: block;
-    margin-bottom: 14px;
-    color: #0d6efd;
-    font-size: 38px;
-}
-
-.applications-no-results h4 {
-    color: #24344d;
-    font-size: 19px;
-    font-weight: 700;
-}
-
-.applications-no-results p {
-    color: #718096;
-    margin-bottom: 0;
-}
-
-@media (max-width: 767px) {
     .applications-toolbar {
-        padding: 17px;
-        border-radius: 14px;
+        background: linear-gradient(135deg, #ffffff, #f8fbff);
+        border: 1px solid #e3eaf5;
+        border-radius: 18px;
+        padding: 24px;
+        margin-bottom: 25px;
+        box-shadow: 0 6px 24px rgba(24, 67, 125, 0.06);
     }
-}
+
+    .applications-toolbar .form-label {
+        display: block;
+        width: 100%;
+        margin-bottom: 9px;
+        color: #24344d;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .applications-search-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .applications-search-wrapper .search-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #0d6efd;
+        pointer-events: none;
+    }
+
+    .applications-search-input,
+    .applications-filter-select {
+        display: block;
+        width: 100%;
+        min-height: 46px;
+        box-sizing: border-box;
+        border: 1px solid #dce4f0;
+        border-radius: 11px;
+        background-color: #ffffff;
+        color: #263449;
+        font-size: 14px;
+    }
+
+    .applications-search-input {
+        padding-left: 42px;
+    }
+
+    .applications-search-input:focus,
+    .applications-filter-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+    }
+
+    .applications-search-input::placeholder {
+        color: #98a4b5;
+    }
+
+    .applications-clear-btn {
+        min-height: 46px;
+        border-radius: 11px;
+        border-color: #dce4f0;
+        background: #ffffff;
+    }
+
+    .applications-clear-btn:hover {
+        color: #ffffff;
+        background: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .applications-filter-footer {
+        margin-top: 17px;
+        padding-top: 14px;
+        border-top: 1px solid #e8edf5;
+        color: #718096;
+        font-size: 13px;
+    }
+
+    .applications-no-results {
+        padding: 50px 20px;
+        background: #ffffff;
+        border: 1px dashed #cbd8e8;
+        border-radius: 18px;
+        text-align: center;
+    }
+
+    .applications-no-results i {
+        display: block;
+        margin-bottom: 14px;
+        color: #0d6efd;
+        font-size: 38px;
+    }
+
+    .applications-no-results h4 {
+        color: #24344d;
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+    .applications-no-results p {
+        color: #718096;
+        margin-bottom: 0;
+    }
+
+    .application-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        min-width: 180px;
+    }
+
+    .schedule-interview-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 767px) {
+        .applications-toolbar {
+            padding: 17px;
+            border-radius: 14px;
+        }
+    }
 
     @media (max-width: 768px) {
-
         .applications-table {
             min-width: 800px;
         }
@@ -276,370 +287,209 @@ Applications | CVision
         .applications-card {
             overflow-x: auto;
         }
-
     }
-
 </style>
-
 {% endblock %}
 
-
 {% block content %}
-
 <div class="container applications-page">
 
-    <!-- ==========================
-         Page Header
-    =========================== -->
-
-    <div class="applications-header"
-         data-aos="fade-up">
-
+    <div class="applications-header" data-aos="fade-up">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-
             <div>
-
-                <h1 class="applications-title">
-                    Applications
-                </h1>
-
+                <h1 class="applications-title">Applications</h1>
                 <p class="applications-subtitle">
                     Review and manage applications submitted to your jobs.
                 </p>
-
             </div>
 
-
-            <a
-                href="{{ url_for('recruiter.jobs') }}"
-                class="btn btn-outline-primary rounded-pill px-4"
-            >
-
+            <a href="{{ url_for('recruiter.jobs') }}"
+               class="btn btn-outline-primary rounded-pill px-4">
                 <i class="bi bi-briefcase me-1"></i>
-
                 My Jobs
-
             </a>
-
         </div>
-
     </div>
 
-<!-- Applications Search and Filters -->
-<div class="applications-toolbar" data-aos="fade-up">
+    <!-- Search and filters -->
+    <div class="applications-toolbar" data-aos="fade-up">
+        <div class="row g-3 align-items-end">
 
-    <div class="row g-3 align-items-end">
+            <div class="col-lg-5 col-md-12">
+                <div class="applications-search-wrapper">
+                    <i class="bi bi-search search-icon"></i>
+                    <input
+                        type="search"
+                        id="applicationsSearch"
+                        class="form-control applications-search-input"
+                        placeholder="Search applicant, job, location..."
+                        autocomplete="off"
+                    >
+                </div>
+            </div>
 
-        <div class="col-lg-5 col-md-12">
-        
+            <div class="col-lg-3 col-md-5">
+                <label for="applicationStatusFilter" class="form-label">
+                    Application Status
+                </label>
+                <select id="applicationStatusFilter"
+                        class="form-select applications-filter-select">
+                    <option value="all">All Applications</option>
+                    <option value="pending">Pending</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="hired">Hired</option>
+                </select>
+            </div>
 
-            <div class="applications-search-wrapper">
-                <i class="bi bi-search search-icon"></i>
-                <input
-                    type="search"
-                    id="applicationsSearch"
-                    class="form-control applications-search-input"
-                    placeholder="Search applicant, job, location..."
-                    autocomplete="off"
+            <div class="col-lg-3 col-md-5">
+                <label for="applicationsSort" class="form-label">
+                    Sort By
+                </label>
+                <select id="applicationsSort"
+                        class="form-select applications-filter-select">
+                    <option value="applicant-asc">Applicant Name: A–Z</option>
+                    <option value="applicant-desc">Applicant Name: Z–A</option>
+                    <option value="job-asc">Job Title: A–Z</option>
+                    <option value="job-desc">Job Title: Z–A</option>
+                    <option value="status-asc">Status: A–Z</option>
+                </select>
+            </div>
+
+            <div class="col-lg-1 col-md-2">
+                <button
+                    type="button"
+                    id="clearApplicationsFilters"
+                    class="btn btn-outline-secondary applications-clear-btn w-100"
+                    title="Clear filters"
+                    aria-label="Clear filters"
                 >
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
             </div>
         </div>
 
-        <div class="col-lg-3 col-md-5">
-            <label for="applicationStatusFilter" class="form-label">
-                Application Status
-            </label>
-
-            <select
-                id="applicationStatusFilter"
-                class="form-select applications-filter-select"
-            >
-                <option value="all">All Applications</option>
-                <option value="pending">Pending</option>
-                <option value="shortlisted">Shortlisted</option>
-                <option value="rejected">Rejected</option>
-                <option value="hired">Hired</option>
-            </select>
+        <div class="applications-filter-footer">
+            <span id="applicationsResultsCount" aria-live="polite">
+                Loading applications...
+            </span>
         </div>
-
-        <div class="col-lg-3 col-md-5">
-            <label for="applicationsSort" class="form-label">
-                Sort By
-            </label>
-
-            <select
-                id="applicationsSort"
-                class="form-select applications-filter-select"
-            >
-                <option value="applicant-asc">Applicant Name: A–Z</option>
-                <option value="applicant-desc">Applicant Name: Z–A</option>
-                <option value="job-asc">Job Title: A–Z</option>
-                <option value="job-desc">Job Title: Z–A</option>
-                <option value="status-asc">Status: A–Z</option>
-            </select>
-        </div>
-
-        <div class="col-lg-1 col-md-2">
-            <button
-                type="button"
-                id="clearApplicationsFilters"
-                class="btn btn-outline-secondary applications-clear-btn w-100"
-                title="Clear filters"
-                aria-label="Clear filters"
-            >
-                <i class="bi bi-arrow-counterclockwise"></i>
-            </button>
-        </div>
-
     </div>
 
-    <div class="applications-filter-footer">
-        <span id="applicationsResultsCount" aria-live="polite">
-            Loading applications...
-        </span>
-    </div>
-
-</div>
-    <!-- ==========================
-         Applications
-    =========================== -->
-
+    <!-- Applications table -->
     <div id="recruiterApplicationsContainer">
-
         {% if applications %}
-
             <div class="applications-card">
-
                 <div class="table-responsive">
-
                     <table class="table applications-table">
-
                         <thead>
-
                             <tr>
-
-                                <th>
-                                    Applicant
-                                </th>
-
-                                <th>
-                                    Job
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Applied
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
+                                <th>Applicant</th>
+                                <th>Job</th>
+                                <th>Status</th>
+                                <th>Applied</th>
+                                <th>Action</th>
                             </tr>
-
                         </thead>
 
-
                         <tbody>
-
                             {% for application in applications %}
-
                                 <tr>
-
-                                    <!-- Applicant -->
-
                                     <td>
-
                                         <div class="applicant-name">
-
-                                            {{ application.applicant.full_name }}
-
+                                            {{ application.applicant.full_name or application.applicant.username }}
                                         </div>
-
-
                                         <div class="applicant-username">
-
                                             @{{ application.applicant.username }}
-
                                         </div>
-
                                     </td>
 
-
-                                    <!-- Job -->
-
                                     <td>
-
                                         <div class="job-name">
-
                                             {{ application.job.job_title }}
-
                                         </div>
-
 
                                         {% if application.job.location %}
-
                                             <div class="job-location">
-
                                                 <i class="bi bi-geo-alt me-1"></i>
-
                                                 {{ application.job.location }}
-
                                             </div>
-
                                         {% endif %}
-
                                     </td>
 
-
-                                    <!-- Status -->
-
                                     <td>
-
                                         {% if application.status == "Pending" %}
-
-                                            <span class="application-status status-pending">
-                                                Pending
-                                            </span>
-
+                                            <span class="application-status status-pending">Pending</span>
                                         {% elif application.status == "Shortlisted" %}
-
-                                            <span class="application-status status-shortlisted">
-                                                Shortlisted
-                                            </span>
-
+                                            <span class="application-status status-shortlisted">Shortlisted</span>
                                         {% elif application.status == "Rejected" %}
-
-                                            <span class="application-status status-rejected">
-                                                Rejected
-                                            </span>
-
+                                            <span class="application-status status-rejected">Rejected</span>
                                         {% elif application.status == "Hired" %}
-
-                                            <span class="application-status status-hired">
-                                                Hired
-                                            </span>
-
+                                            <span class="application-status status-hired">Hired</span>
                                         {% else %}
-
                                             <span class="application-status status-pending">
                                                 {{ application.status }}
                                             </span>
-
                                         {% endif %}
-
                                     </td>
 
-
-                                    <!-- Applied -->
-
                                     <td>
-
                                         {% if application.applied_at %}
-
                                             <div class="application-date">
-
                                                 {{ application.applied_at.strftime('%d %b %Y') }}
-
                                                 <br>
-
                                                 {{ application.applied_at.strftime('%I:%M %p') }}
-
                                             </div>
-
                                         {% else %}
-
-                                            <span class="application-date">
-                                                —
-                                            </span>
-
+                                            <span class="application-date">—</span>
                                         {% endif %}
-
                                     </td>
-
-
-                                    <!-- Action -->
 
                                     <td>
+                                        <div class="application-actions">
+                                            <a
+                                                href="{{ url_for('recruiter.application_detail', application_id=application.id) }}"
+                                                class="btn btn-primary btn-sm rounded-pill px-3"
+                                            >
+                                                <i class="bi bi-eye me-1"></i>
+                                                View Application
+                                            </a>
 
-                                        <a
-                                            href="{{ url_for(
-                                                'recruiter.application_detail',
-                                                application_id=application.id
-                                            ) }}"
-                                            class="btn btn-primary btn-sm rounded-pill px-3"
-                                        >
-
-                                            <i class="bi bi-eye me-1"></i>
-
-                                            View Application
-
-                                        </a>
-                                         
+                                            {% if application.status == "Shortlisted" %}
+                                                <a
+                                                    href="{{ url_for('interviews.recruiter_list', application_id=application.id) }}"
+                                                    class="btn btn-success btn-sm rounded-pill px-3 schedule-interview-btn"
+                                                >
+                                                    <i class="bi bi-calendar2-plus me-1"></i>
+                                                    Schedule Interview
+                                                </a>
+                                            {% endif %}
+                                        </div>
                                     </td>
-
                                 </tr>
-
                             {% endfor %}
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
-
-
         {% else %}
-
-            <!-- ==========================
-                 Empty State
-            =========================== -->
-
-            <div class="empty-applications"
-                 data-aos="fade-up">
-
+            <div class="empty-applications" data-aos="fade-up">
                 <div class="empty-applications-icon">
-
                     <i class="bi bi-file-earmark-person"></i>
-
                 </div>
 
-                <h4>
-                    No Applications Yet
-                </h4>
+                <h4>No Applications Yet</h4>
+                <p>Applications submitted to your jobs will appear here.</p>
 
-                <p>
-                    Applications submitted to your jobs will appear here.
-                </p>
-
-                <a
-                    href="{{ url_for('recruiter.jobs') }}"
-                    class="btn btn-primary rounded-pill px-4"
-                >
-
+                <a href="{{ url_for('recruiter.jobs') }}"
+                   class="btn btn-primary rounded-pill px-4">
                     <i class="bi bi-briefcase me-1"></i>
-
                     View My Jobs
-
                 </a>
-
             </div>
-
         {% endif %}
-
     </div>
-
 </div>
-
-
-<!-- ==========================
-     Real-Time Application Updates
-=========================== -->
 
 <script>
 let recruiterApplicationsVersion = null;
@@ -650,6 +500,15 @@ const applicationFilters = {
     status: "all",
     sort: "applicant-asc"
 };
+
+const recruiterApplicationsLiveUrl =
+    "{{ url_for('recruiter.applications_live') }}";
+
+const recruiterApplicationDetailUrlPattern =
+    "{{ url_for('recruiter.application_detail', application_id=0) }}";
+
+const recruiterInterviewManagementUrl =
+    "{{ url_for('interviews.recruiter_list') }}";
 
 function escapeApplicationHtml(value) {
     if (value === null || value === undefined) {
@@ -665,7 +524,7 @@ function escapeApplicationHtml(value) {
 }
 
 function getApplicationStatusClass(status) {
-    switch (String(status || "").toLowerCase()) {
+    switch (String(status || "").toLowerCase().trim()) {
         case "shortlisted":
             return "status-shortlisted";
         case "rejected":
@@ -692,10 +551,27 @@ function getApplicationTimestamp(application) {
 
     const date = application.applied_date || "";
     const time = application.applied_time || "";
-
     const timestamp = new Date(`${date} ${time}`).getTime();
 
     return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+function applicationDetailUrl(applicationId) {
+    return recruiterApplicationDetailUrlPattern.replace(
+        /\/0(?=\/|$)/,
+        "/" + encodeURIComponent(String(applicationId))
+    );
+}
+
+function interviewManagementUrl(applicationId) {
+    const url = new URL(
+        recruiterInterviewManagementUrl,
+        window.location.origin
+    );
+
+    url.searchParams.set("application_id", String(applicationId));
+
+    return url.pathname + url.search + url.hash;
 }
 
 function filterAndSortApplications(applications) {
@@ -734,16 +610,12 @@ function filterAndSortApplications(applications) {
         switch (applicationFilters.sort) {
             case "applicant-desc":
                 return applicantB.localeCompare(applicantA);
-
             case "job-asc":
                 return jobA.localeCompare(jobB);
-
             case "job-desc":
                 return jobB.localeCompare(jobA);
-
             case "status-asc":
                 return statusA.localeCompare(statusB);
-
             case "applicant-asc":
             default:
                 return applicantA.localeCompare(applicantB);
@@ -754,10 +626,7 @@ function filterAndSortApplications(applications) {
 }
 
 function renderApplicationRow(application) {
-    const statusClass = getApplicationStatusClass(
-        application.status
-    );
-
+    const statusClass = getApplicationStatusClass(application.status);
     const applicationId = Number(application.id);
 
     const appliedDate = escapeApplicationHtml(
@@ -768,27 +637,39 @@ function renderApplicationRow(application) {
         application.applied_time || ""
     );
 
+    const status = String(application.status || "Pending").trim();
+    const isShortlisted = status.toLowerCase() === "shortlisted";
+
+    const viewUrl = applicationDetailUrl(applicationId);
+
+    const scheduleButton = isShortlisted
+        ? `
+            <a
+                href="${escapeApplicationHtml(interviewManagementUrl(applicationId))}"
+                class="btn btn-success btn-sm rounded-pill px-3 schedule-interview-btn"
+            >
+                <i class="bi bi-calendar2-plus me-1"></i>
+                Schedule Interview
+            </a>
+        `
+        : "";
+
     return `
         <tr>
             <td>
                 <div class="applicant-name">
                     ${escapeApplicationHtml(
-                        application.applicant_name
+                        application.applicant_name || application.applicant_username
                     )}
                 </div>
-
                 <div class="applicant-username">
-                    @${escapeApplicationHtml(
-                        application.applicant_username
-                    )}
+                    @${escapeApplicationHtml(application.applicant_username)}
                 </div>
             </td>
 
             <td>
                 <div class="job-name">
-                    ${escapeApplicationHtml(
-                        application.job_title
-                    )}
+                    ${escapeApplicationHtml(application.job_title)}
                 </div>
 
                 ${
@@ -796,9 +677,7 @@ function renderApplicationRow(application) {
                     ? `
                         <div class="job-location">
                             <i class="bi bi-geo-alt me-1"></i>
-                            ${escapeApplicationHtml(
-                                application.job_location
-                            )}
+                            ${escapeApplicationHtml(application.job_location)}
                         </div>
                     `
                     : ""
@@ -807,9 +686,7 @@ function renderApplicationRow(application) {
 
             <td>
                 <span class="application-status ${statusClass}">
-                    ${escapeApplicationHtml(
-                        application.status || "Pending"
-                    )}
+                    ${escapeApplicationHtml(status)}
                 </span>
             </td>
 
@@ -821,13 +698,17 @@ function renderApplicationRow(application) {
             </td>
 
             <td>
-                <a
-                    href="/recruiter/applications/${applicationId}"
-                    class="btn btn-primary btn-sm rounded-pill px-3"
-                >
-                    <i class="bi bi-eye me-1"></i>
-                    View Application
-                </a>
+                <div class="application-actions">
+                    <a
+                        href="${escapeApplicationHtml(viewUrl)}"
+                        class="btn btn-primary btn-sm rounded-pill px-3"
+                    >
+                        <i class="bi bi-eye me-1"></i>
+                        View Application
+                    </a>
+
+                    ${scheduleButton}
+                </div>
             </td>
         </tr>
     `;
@@ -882,11 +763,8 @@ function renderRecruiterApplications() {
                             <th>Action</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        ${filteredApplications
-                            .map(renderApplicationRow)
-                            .join("")}
+                        ${filteredApplications.map(renderApplicationRow).join("")}
                     </tbody>
                 </table>
             </div>
@@ -895,21 +773,10 @@ function renderRecruiterApplications() {
 }
 
 function initializeApplicationFilters() {
-    const searchInput = document.getElementById(
-        "applicationsSearch"
-    );
-
-    const statusFilter = document.getElementById(
-        "applicationStatusFilter"
-    );
-
-    const sortSelect = document.getElementById(
-        "applicationsSort"
-    );
-
-    const clearButton = document.getElementById(
-        "clearApplicationsFilters"
-    );
+    const searchInput = document.getElementById("applicationsSearch");
+    const statusFilter = document.getElementById("applicationStatusFilter");
+    const sortSelect = document.getElementById("applicationsSort");
+    const clearButton = document.getElementById("clearApplicationsFilters");
 
     if (searchInput) {
         searchInput.addEventListener("input", function () {
@@ -953,16 +820,15 @@ async function refreshRecruiterApplications() {
     }
 
     try {
-        const response = await fetch(
-            "{{ url_for('recruiter.applications_live') }}",
-            {
-                method: "GET",
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                cache: "no-store"
-            }
-        );
+        const response = await fetch(recruiterApplicationsLiveUrl, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            cache: "no-store",
+            credentials: "same-origin"
+        });
 
         if (!response.ok) {
             return;
@@ -996,7 +862,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     refreshRecruiterApplications();
 
-    setInterval(refreshRecruiterApplications, 3000);
+    window.setInterval(refreshRecruiterApplications, 3000);
 
     document.addEventListener("visibilitychange", function () {
         if (!document.hidden) {
@@ -1005,5 +871,4 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 </script>
-
 {% endblock %}

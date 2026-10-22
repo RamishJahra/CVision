@@ -453,6 +453,16 @@ class RecruiterProfile(db.Model):
             uselist=False
         )
     )
+    company_id = db.Column(
+    db.Integer,
+    db.ForeignKey("companies.id"),
+    nullable=True
+    )
+
+    company = db.relationship(
+        "Company",
+        back_populates="recruiters"
+    )
 
     def __repr__(self):
 

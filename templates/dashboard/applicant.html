@@ -326,6 +326,20 @@
     overflow-wrap: anywhere;
 }
 
+/* Clickable post and comment author names */
+.profile-name-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    transition: color .2s ease;
+}
+
+.profile-name-link:hover {
+    color: #2468c9;
+    text-decoration: underline;
+}
+
 .post-meta {
     font-size: 12px;
     color: #8996a8;
@@ -400,55 +414,63 @@
     font-weight: 700;
 }
 
-.comments-section { margin-top: 14px; }
+/* Compact comments and replies */
+.comments-section { margin-top: 10px; }
 
 .comment-item {
     display: flex;
     align-items: flex-start;
-    gap: 9px;
-    margin-top: 12px;
+    gap: 7px;
+    margin-top: 8px;
 }
 
 .comment-avatar {
-    width: 31px;
-    height: 31px;
-    min-width: 31px;
+    width: 27px;
+    height: 27px;
+    min-width: 27px;
     border-radius: 50%;
     background: #e6edf7;
     color: #415b7e;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     overflow: hidden;
 }
 
 .comment-bubble {
     background: #f3f6fa;
-    border-radius: 0 10px 10px 10px;
-    padding: 9px 12px;
+    border-radius: 0 8px 8px 8px;
+    padding: 7px 10px;
     flex: 1;
     min-width: 0;
 }
 
 .comment-author {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
+    overflow-wrap: anywhere;
+}
+
+.comment-meta {
+    font-size: 10px !important;
+    margin-bottom: 4px !important;
 }
 
 .comment-text {
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 12px;
+    line-height: 1.5;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
 }
 
 .comment-controls {
     display: flex;
-    gap: 10px;
-    margin-top: 6px;
+    gap: 9px;
+    margin-top: 4px;
+    flex-wrap: wrap;
 }
 
 .comment-controls button {
@@ -456,7 +478,7 @@
     background: transparent;
     padding: 0;
     color: #75849a;
-    font-size: 11px;
+    font-size: 10px;
 }
 
 .comment-controls button:hover { color: #2468c9; }
@@ -464,13 +486,15 @@
 .comment-compose {
     display: flex;
     align-items: center;
-    gap: 9px;
-    margin-top: 14px;
+    gap: 7px;
+    margin-top: 9px;
 }
 
 .comment-input {
-    border-radius: 22px;
-    padding: 10px 14px;
+    border-radius: 18px;
+    padding: 7px 11px;
+    font-size: 12px;
+    min-height: 34px;
     resize: none;
 }
 
@@ -479,9 +503,17 @@
     background: #2468c9;
     color: #fff;
     border-radius: 50%;
-    width: 37px;
-    height: 37px;
-    min-width: 37px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.comment-submit:hover {
+    background: #1756ae;
 }
 
 .empty-feed {
@@ -625,6 +657,16 @@
         padding-right: 15px;
     }
 }
+/* Hide comments until the Comment button is clicked */
+.comments-section.comments-hidden {
+    display: none;
+}
+
+/* Optional: make the Comment button look active when open */
+.post-action.comments-toggle-active {
+    color: #2468c9;
+    font-weight: 700;
+}
 </style>
 {% endblock %}
 
@@ -641,7 +683,7 @@
 
                     <div class="profile-body">
                         <div class="profile-avatar">
-                            {% if current_user.profile_image %}
+                            {% if current_user.profile_image and current_user.profile_image != 'default.png' %}
                                 <img
                                     src="{{ url_for('static', filename='uploads/profile/' ~ current_user.profile_image) }}"
                                     alt="Profile picture"
@@ -747,7 +789,7 @@
                     <form id="createPostForm" enctype="multipart/form-data">
                         <div class="compose-header">
                             <div class="post-avatar">
-                                {% if current_user.profile_image %}
+                                {% if current_user.profile_image and current_user.profile_image != 'default.png' %}
                                     <img
                                         src="{{ url_for('static', filename='uploads/profile/' ~ current_user.profile_image) }}"
                                         alt=""
@@ -1035,6 +1077,53 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
+    /*
+     * Build a public profile URL based on the author's role.
+     * A username is required; if the API does not provide one,
+     * the name remains ordinary text instead of creating a broken link.
+     */
+    function getPublicProfileUrl(person) {
+        if (!person || !person.username) {
+            return null;
+        }
+
+        const role = String(
+            person.role ||
+            person.label ||
+            person.account_type ||
+            ""
+        ).trim().toLowerCase();
+
+        const username = encodeURIComponent(person.username);
+
+        if (role.includes("recruit")) {
+            return `/recruiter/public/${username}`;
+        }
+
+        if (role.includes("applicant")) {
+            return `/applicant/public/${username}`;
+        }
+
+        return null;
+    }
+
+    function renderProfileName(person, fallbackName) {
+        const name = person?.name || fallbackName || "Community Member";
+        const profileUrl = getPublicProfileUrl(person);
+
+        if (!profileUrl) {
+            return escapeHtml(name);
+        }
+
+        return `
+            <a
+                class="profile-name-link"
+                href="${escapeHtml(profileUrl)}"
+                title="View ${escapeHtml(name)}'s public profile"
+            >${escapeHtml(name)}</a>
+        `;
+    }
+
     function authorRole(post) {
         const role = String(
             post.author?.role || post.author?.label || "applicant"
@@ -1057,8 +1146,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const name = author?.name || "Community Member";
         const initial = author?.initial || name.charAt(0) || "U";
 
-        // Support the profile_picture field returned by routes/social.py,
-        // as well as the alternative names used by older responses.
         const image =
             author?.profile_picture ||
             author?.profile_image ||
@@ -1081,6 +1168,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const author = comment.author || {};
         const name = author.name || comment.author_name || "Community Member";
         const commentId = String(comment.id);
+
         const children = allComments.filter(item =>
             item.parent_comment_id != null &&
             String(item.parent_comment_id) === commentId
@@ -1095,8 +1183,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 <div class="comment-bubble">
                     <div class="comment-author">
-                        ${escapeHtml(name)}
-                        ${author.role || comment.author_role ? `
+                        ${renderProfileName(author, name)}
+                        ${author.role || author.label || comment.author_role ? `
                             <span class="text-muted fw-normal">
                                 · ${escapeHtml(author.label || author.role || comment.author_role)}
                             </span>
@@ -1162,7 +1250,9 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderCommentsHtml(comments, postId) {
         const roots = comments.filter(comment =>
             comment.parent_comment_id == null ||
-            !comments.some(parent => String(parent.id) === String(comment.parent_comment_id))
+            !comments.some(parent =>
+                String(parent.id) === String(comment.parent_comment_id)
+            )
         );
 
         if (!roots.length) {
@@ -1174,7 +1264,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ).join("");
     }
 
-        function renderPost(post) {
+    function renderPost(post) {
         const author = post.author || {};
         const role = authorRole(post);
 
@@ -1189,7 +1279,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         <div>
                             <div class="post-author-name">
-                                ${escapeHtml(author.name || "Community Member")}
+                                ${renderProfileName(author, "Community Member")}
                                 <span class="account-type">
                                     ${escapeHtml(authorLabel(post))}
                                 </span>
@@ -1268,29 +1358,30 @@ document.addEventListener("DOMContentLoaded", function () {
                     </button>
                 </div>
 
-                <div class="comments-section">
-                    <div class="comments-list">
-                        ${renderCommentsHtml(post.comments, post.id)}
-                    </div>
+                <div class="comments-section comments-hidden">
+    <div class="comments-list">
+        ${renderCommentsHtml(post.comments, post.id)}
+    </div>
 
-                    <form class="comment-compose"
-                          data-comment-form
-                          data-post-id="${escapeHtml(post.id)}">
+    <form class="comment-compose"
+          data-comment-form
+          data-post-id="${escapeHtml(post.id)}">
 
-                        <input type="text"
-                               class="comment-input"
-                               name="content"
-                               maxlength="2000"
-                               placeholder="Write a comment..."
-                               required>
+        <input type="text"
+               class="comment-input"
+               name="content"
+               maxlength="2000"
+               placeholder="Write a comment..."
+               aria-label="Write a comment"
+               required>
 
-                        <button type="submit"
-                                class="comment-submit"
-                                aria-label="Send comment">
-                            <i class="bi bi-send"></i>
-                        </button>
-                    </form>
-                </div>
+        <button type="submit"
+                class="comment-submit"
+                aria-label="Send comment">
+            <i class="bi bi-send"></i>
+        </button>
+    </form>
+</div>
             </article>
         `;
     }
@@ -1401,7 +1492,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         feed.innerHTML = visiblePosts.map(renderPost).join("");
 
-        // Show the welcome message only when no posts exist anywhere.
         emptyFeed.classList.toggle("hidden", postsCache.length !== 0);
 
         if (postsCache.length > 0 && visiblePosts.length === 0) {
@@ -1417,11 +1507,6 @@ document.addEventListener("DOMContentLoaded", function () {
         renderMyPosts();
     }
 
-    /*
-     * IMPORTANT:
-     * Polling must not replace the DOM while someone is typing in a
-     * comment or editing a post in My Posts.
-     */
     function isTypingOrEditing() {
         const active = document.activeElement;
 
@@ -1440,11 +1525,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return feed.contains(active) || myPostsList.contains(active);
     }
 
-    /*
-     * force=true is used after successful user actions.
-     * If a previous request is still running, queue a refresh so the
-     * update is not lost.
-     */
     async function loadPosts(options = {}) {
         const force = options.force === true;
 
@@ -1696,6 +1776,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function addComment(postId, content, parentCommentId = null) {
         const payload = { content };
+
         if (parentCommentId !== null && parentCommentId !== "") {
             payload.parent_comment_id = parentCommentId;
         }
@@ -1744,12 +1825,12 @@ document.addEventListener("DOMContentLoaded", function () {
             method: "DELETE"
         });
 
-        // Remove the comment and every nested reply immediately from the cached UI.
         const removedIds = new Set([String(commentId)]);
         let foundNewChild = true;
 
         while (foundNewChild) {
             foundNewChild = false;
+
             postsCache.forEach(post => {
                 post.comments.forEach(comment => {
                     if (
@@ -1772,6 +1853,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         renderFeed();
         renderMyPosts();
+
         await loadPosts({ force: true });
     }
 
@@ -1865,23 +1947,54 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (action === "focus-comment") {
-                const post = feed.querySelector(
-                    `[data-post-id="${CSS.escape(String(postId))}"]`
-                );
+    const post = feed.querySelector(
+        `[data-post-id="${CSS.escape(String(postId))}"]`
+    );
 
-                post?.querySelector(".comment-input")?.focus();
+    if (post) {
+        const commentsSection = post.querySelector(".comments-section");
+        const commentButton = post.querySelector(
+            '[data-action="focus-comment"]'
+        );
+
+        if (commentsSection) {
+            const isHidden = commentsSection.classList.contains(
+                "comments-hidden"
+            );
+
+            commentsSection.classList.toggle(
+                "comments-hidden",
+                !isHidden
+            );
+
+            commentButton?.classList.toggle(
+                "comments-toggle-active",
+                isHidden
+            );
+
+            if (isHidden) {
+                commentsSection.querySelector(
+                    '.comment-compose:not(.reply-compose) .comment-input'
+                )?.focus();
             }
+        }
+    }
+}
 
             if (action === "toggle-reply") {
                 const commentRow = button.closest(".comment-thread");
+
                 const replyForm = commentRow?.querySelector(
                     ":scope > .comment-bubble .reply-compose"
                 );
 
                 if (replyForm) {
                     replyForm.classList.toggle("hidden");
+
                     if (!replyForm.classList.contains("hidden")) {
-                        replyForm.querySelector("input[name='content']")?.focus();
+                        replyForm.querySelector(
+                            "input[name='content']"
+                        )?.focus();
                     }
                 }
             }
@@ -1913,18 +2026,13 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initial load.
     loadPosts({ force: true });
 
-    /*
-     * Polling keeps the shared feed updated for applicants and recruiters.
-     * It will not re-render the feed while the user is typing in a comment
-     * or editing a post.
-     */
+    // Keep the shared feed updated without interrupting typing.
     window.setInterval(function () {
         if (!document.hidden) {
             loadPosts();
         }
     }, 3000);
 
-    // Refresh when the user returns to the page, unless editing is active.
     document.addEventListener("visibilitychange", function () {
         if (!document.hidden) {
             loadPosts();

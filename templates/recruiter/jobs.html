@@ -229,6 +229,52 @@ Manage Jobs | CVision
 }
 
 
+/* Pagination */
+.jobs-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 30px;
+}
+
+.jobs-pagination button {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #212529;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.jobs-pagination button:hover:not(:disabled) {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.jobs-pagination button.active {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #ffffff;
+}
+
+.jobs-pagination button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.jobs-pagination-info {
+    width: 100%;
+    text-align: center;
+    color: #6c757d;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
 </style>
 
 {% endblock %}
@@ -618,7 +664,9 @@ let recruiterJobsVersion = null;
 const recruiterJobsState = {
     search: "",
     status: "all",
-    sort: "newest"
+    sort: "newest",
+    currentPage: 1,
+    itemsPerPage: 4
 };
 
 function escapeRecruiterJobHtml(value) {
@@ -890,48 +938,149 @@ function renderRecruiterJob(job, index) {
 }
 
 function renderRecruiterJobs(jobs) {
-    const container = document.getElementById(
-        "recruiterJobsContainer"
-    );
-
-    const resultsCount = document.getElementById(
-        "jobsResultsCount"
-    );
+    const container = document.getElementById("recruiterJobsContainer");
+    const resultsCount = document.getElementById("jobsResultsCount");
 
     if (!container) {
         return;
     }
 
     const filteredJobs = filterRecruiterJobs(jobs);
+    const totalJobs = filteredJobs.length;
+    const totalPages = Math.max(
+        1,
+        Math.ceil(totalJobs / recruiterJobsState.itemsPerPage)
+    );
 
-    if (filteredJobs.length > 0) {
+    // Keep the current page valid if live updates remove jobs.
+    recruiterJobsState.currentPage = Math.min(
+        Math.max(1, recruiterJobsState.currentPage),
+        totalPages
+    );
+
+    const startIndex =
+        (recruiterJobsState.currentPage - 1) *
+        recruiterJobsState.itemsPerPage;
+
+    const visibleJobs = filteredJobs.slice(
+        startIndex,
+        startIndex + recruiterJobsState.itemsPerPage
+    );
+
+    if (totalJobs > 0) {
         container.innerHTML = `
             <div class="row g-4">
-                ${filteredJobs.map(renderRecruiterJob).join("")}
+                ${visibleJobs.map((job, index) =>
+                    renderRecruiterJob(job, startIndex + index)
+                ).join("")}
             </div>
+            ${renderRecruiterPagination(totalJobs, totalPages)}
         `;
     } else {
         container.innerHTML = `
             <div class="jobs-no-results">
                 <i class="bi bi-search d-block"></i>
-
                 <h4>No Matching Jobs</h4>
-
-                <p>
-                    Try another search term or change your filters.
-                </p>
+                <p>Try another search term or change your filters.</p>
             </div>
         `;
     }
 
     if (resultsCount) {
-        resultsCount.textContent =
-            `Showing ${filteredJobs.length} of ${jobs.length} jobs`;
+        if (totalJobs === 0) {
+            resultsCount.textContent = "Showing 0 jobs";
+        } else {
+            const firstResult = startIndex + 1;
+            const lastResult = Math.min(
+                startIndex + visibleJobs.length,
+                totalJobs
+            );
+
+            resultsCount.textContent =
+                `Showing ${firstResult}–${lastResult} of ${totalJobs} jobs`;
+        }
     }
+
+    container.querySelectorAll("[data-jobs-page]").forEach(button => {
+        button.addEventListener("click", function() {
+            const requestedPage = Number(this.dataset.jobsPage);
+
+            if (
+                Number.isInteger(requestedPage) &&
+                requestedPage >= 1 &&
+                requestedPage <= totalPages &&
+                requestedPage !== recruiterJobsState.currentPage
+            ) {
+                recruiterJobsState.currentPage = requestedPage;
+                renderRecruiterJobs(jobs);
+
+                const listings = document.getElementById(
+                    "recruiterJobsContainer"
+                );
+                if (listings) {
+                    listings.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                }
+            }
+        });
+    });
 
     if (typeof AOS !== "undefined") {
         AOS.refreshHard();
     }
+}
+
+function renderRecruiterPagination(totalJobs, totalPages) {
+    if (totalPages <= 1) {
+        return "";
+    }
+
+    const currentPage = recruiterJobsState.currentPage;
+    let pageButtons = "";
+
+    for (let page = 1; page <= totalPages; page++) {
+        pageButtons += `
+            <button
+                type="button"
+                data-jobs-page="${page}"
+                class="${page === currentPage ? "active" : ""}"
+                ${page === currentPage ? 'aria-current="page"' : ""}
+                aria-label="Go to page ${page}"
+            >${page}</button>
+        `;
+    }
+
+    return `
+        <nav class="jobs-pagination" aria-label="Job listing pagination">
+            <button
+                type="button"
+                data-jobs-page="${currentPage - 1}"
+                ${currentPage === 1 ? "disabled" : ""}
+                aria-label="Previous page"
+            >
+                <i class="bi bi-chevron-left"></i>
+                <span class="d-none d-sm-inline ms-1">Previous</span>
+            </button>
+
+            ${pageButtons}
+
+            <button
+                type="button"
+                data-jobs-page="${currentPage + 1}"
+                ${currentPage === totalPages ? "disabled" : ""}
+                aria-label="Next page"
+            >
+                <span class="d-none d-sm-inline me-1">Next</span>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <div class="jobs-pagination-info">
+                Page ${currentPage} of ${totalPages} · ${totalJobs} jobs
+            </div>
+        </nav>
+    `;
 }
 
 function initializeRecruiterJobFilters() {
@@ -943,6 +1092,7 @@ function initializeRecruiterJobFilters() {
     if (searchInput) {
         searchInput.addEventListener("input", function() {
             recruiterJobsState.search = this.value.trim();
+            recruiterJobsState.currentPage = 1;
             refreshRecruiterJobs(true);
         });
     }
@@ -950,6 +1100,7 @@ function initializeRecruiterJobFilters() {
     if (statusFilter) {
         statusFilter.addEventListener("change", function() {
             recruiterJobsState.status = this.value;
+            recruiterJobsState.currentPage = 1;
             refreshRecruiterJobs(true);
         });
     }
@@ -957,6 +1108,7 @@ function initializeRecruiterJobFilters() {
     if (sortSelect) {
         sortSelect.addEventListener("change", function() {
             recruiterJobsState.sort = this.value;
+            recruiterJobsState.currentPage = 1;
             refreshRecruiterJobs(true);
         });
     }
@@ -966,6 +1118,7 @@ function initializeRecruiterJobFilters() {
             recruiterJobsState.search = "";
             recruiterJobsState.status = "all";
             recruiterJobsState.sort = "newest";
+            recruiterJobsState.currentPage = 1;
 
             if (searchInput) searchInput.value = "";
             if (statusFilter) statusFilter.value = "all";
