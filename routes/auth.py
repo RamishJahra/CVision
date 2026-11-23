@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, current_app
 
 from models.location import District, Area
 
@@ -937,3 +937,4 @@ def reset_password():
     return render_template(
         "auth/reset_password.html"
     )
+
