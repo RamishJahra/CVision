@@ -41,7 +41,7 @@ class Config:
     MAIL_USE_TLS = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
     MAIL_USERNAME = os.getenv("MAIL_USERNAME")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
-    MAIL_DEFAULT_SENDER = os.getenv("MAIL_USERNAME")
+    MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", os.getenv("MAIL_USERNAME"))
 
     UPLOAD_FOLDER = str(BASE_DIR / "static" / "uploads" / "profile")
     RESUME_UPLOAD_FOLDER = str(BASE_DIR / "static" / "uploads" / "resumes")
