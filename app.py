@@ -1,3 +1,4 @@
+
 import os
 from flask import Flask
 
@@ -18,222 +19,108 @@ from models.location import District, Area
 from models.resume import Resume
 from models.application import Application
 from models.notification import Notification
-from routes.notifications import notifications
 from models.company import Company, CompanyLocation
+from models.social import SocialPost, SocialComment, SocialReaction
+from models.interview import Interview
+from models.feedback import Feedback
 
+from routes.notifications import notifications
 from routes.public import public
 from routes.auth import auth
 from routes.dashboard import dashboard
 from routes.applicant import applicant
 from routes.recruiter import recruiter
 from routes.admin import admin
-from models.social import SocialPost, SocialComment, SocialReaction
 from routes.social import social
-from models.interview import Interview
 from routes.interviews import interviews
-from models.feedback import Feedback
 from routes.feedback import feedback
-from werkzeug.security import generate_password_hash
 
 
 app = Flask(__name__)
 
-# ==========================
-# Upload Folders
-# ==========================
+# Load configuration first.
+app.config.from_object(Config)
 
+# Upload directories.
 app.config["UPLOAD_FOLDER"] = os.path.join(
-    app.root_path,
-    "static",
-    "uploads",
-    "profile"
+    app.root_path, "static", "uploads", "profile"
 )
 
 app.config["RESUME_UPLOAD_FOLDER"] = os.path.join(
-    app.root_path,
-    "static",
-    "uploads",
-    "resumes"
+    app.root_path, "static", "uploads", "resumes"
 )
-
-os.makedirs(
-    app.config["UPLOAD_FOLDER"],
-    exist_ok=True
-)
-
-os.makedirs(
-    app.config["RESUME_UPLOAD_FOLDER"],
-    exist_ok=True
-)
-
-
-# ==========================
-# Load Configuration
-# ==========================
-
-app.config.from_object(Config)
 
 app.config["SOCIAL_UPLOAD_FOLDER"] = os.path.join(
-    app.root_path,
-    "static",
-    "uploads",
-    "social"
+    app.root_path, "static", "uploads", "social"
 )
 
-os.makedirs(
-    app.config["SOCIAL_UPLOAD_FOLDER"],
-    exist_ok=True
-)
-# ==========================
-# Initialize Extensions
-# ==========================
+for folder in (
+    app.config["UPLOAD_FOLDER"],
+    app.config["RESUME_UPLOAD_FOLDER"],
+    app.config["SOCIAL_UPLOAD_FOLDER"]
+):
+    os.makedirs(folder, exist_ok=True)
 
+
+# Initialize extensions.
 db.init_app(app)
 login_manager.init_app(app)
 mail.init_app(app)
 
 
-# ==========================
-# Flask-Login Configuration
-# ==========================
-
+# Flask-Login configuration.
 login_manager.login_view = "auth.login"
-
 login_manager.login_message = "Please log in to continue."
-
 login_manager.login_message_category = "warning"
 
 
 @login_manager.user_loader
 def load_user(user_id):
-
-    return db.session.get(
-        User,
-        int(user_id)
-    )
+    return db.session.get(User, int(user_id))
 
 
-# ==========================
-# Register Blueprints
-# ==========================
-
+# Register blueprints.
 app.register_blueprint(public)
-
 app.register_blueprint(auth)
-
 app.register_blueprint(dashboard)
-
 app.register_blueprint(applicant)
-
 app.register_blueprint(recruiter)
-
 app.register_blueprint(admin)
-
 app.register_blueprint(notifications)
 app.register_blueprint(social)
 app.register_blueprint(interviews)
 app.register_blueprint(feedback)
-# ==========================
-# Create Database Tables
-# ==========================
 
+
+# Database initialization and profile repair.
 with app.app_context():
 
     db.create_all()
 
-    # ==========================
-    # Create Default Admin
-    # ==========================
-
-    admin = User.query.filter_by(
-        role="Admin"
-    ).first()
-
-    if not admin:
-
-        admin = User(
-
-            full_name="CVision Admin",
-
-            username="admin",
-
-            email="cvision190@gmail.com",
-
-            phone="01813683227",
-
-            date_of_birth="2005-03-20",
-
-            password=generate_password_hash(
-                "Admin@123"
-            ),
-
-            role="Admin",
-
-            is_verified=True
-
-        )
-
-        db.session.add(admin)
-
-        db.session.commit()
-
-    # ==========================
-    # Create Missing Applicant Profiles
-    # ==========================
-
-    applicants = User.query.filter_by(
-        role="Applicant"
-    ).all()
+    applicants = User.query.filter_by(role="Applicant").all()
 
     for user in applicants:
-
         profile = ApplicantProfile.query.filter_by(
             user_id=user.id
         ).first()
 
         if not profile:
+            db.session.add(ApplicantProfile(user_id=user.id))
 
-            profile = ApplicantProfile(
-                user_id=user.id
-            )
-
-            db.session.add(profile)
-
-    # ==========================
-    # Create Missing Recruiter Profiles
-    # ==========================
-
-    recruiters = User.query.filter_by(
-        role="Recruiter"
-    ).all()
+    recruiters = User.query.filter_by(role="Recruiter").all()
 
     for user in recruiters:
-
         profile = RecruiterProfile.query.filter_by(
             user_id=user.id
         ).first()
 
         if not profile:
-
-            profile = RecruiterProfile(
-                user_id=user.id
-            )
-
-            db.session.add(profile)
-
-    # ==========================
-    # Save Profile Changes
-    # ==========================
+            db.session.add(RecruiterProfile(user_id=user.id))
 
     db.session.commit()
 
 
-# ==========================
-# Run Application
-# ==========================
-
 if __name__ == "__main__":
-
     app.run(
-        debug=True
+        debug=os.getenv("FLASK_DEBUG", "false").lower() == "true"
     )
