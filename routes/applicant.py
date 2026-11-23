@@ -2193,7 +2193,7 @@ def change_email():
 
         msg = Message(
             subject="CVision - Verify Your New Email",
-            sender=current_app.config["MAIL_USERNAME"],
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
             recipients=[new_email]
         )
 

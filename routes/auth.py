@@ -200,7 +200,7 @@ def register():
 
             "CVision Email Verification",
 
-            sender="yourgmail@gmail.com",
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
 
             recipients=[email]
 
@@ -738,7 +738,7 @@ def forgot_password():
 
             "CVision Password Reset",
 
-            sender="yourgmail@gmail.com",
+            sender=current_app.config["MAIL_DEFAULT_SENDER"],
 
             recipients=[email]
 
