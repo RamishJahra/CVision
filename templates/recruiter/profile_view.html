@@ -224,10 +224,7 @@
                 {% if current_user.profile_image %}
                     <img
                         class="profile-avatar"
-                        src="{{ url_for(
-                            'static',
-                            filename='uploads/profile/' ~ current_user.profile_image
-                        ) }}"
+                        src="{{ cloudinary_image(current_user.profile_image) }}"
                         alt="Recruiter profile picture"
                     >
                 {% else %}

@@ -1,4 +1,5 @@
 import os
+from unittest import result
 import uuid
 import fitz
 import hashlib
@@ -47,6 +48,18 @@ from services.resume_parser import (
     parse_experience_dates
 )
 from services.resume_scorer import calculate_resume_score
+from services.cloudinary_service import (
+    upload_document,
+    get_private_file_url,
+    delete_file,
+    is_cloudinary_file,
+    get_cloudinary_public_id
+)
+
+from services.cloudinary_service import (
+    upload_image,
+    delete_stored_image
+)
 import re
 
 
@@ -1903,117 +1916,48 @@ def delete_project(project_id):
     methods=["POST"]
 )
 @login_required
+
 def profile_picture():
 
     if current_user.role != "Applicant":
+        return redirect(url_for("dashboard.home"))
 
-        return redirect(
-            url_for("dashboard.home")
-        )
+    file = request.files.get("profile_image")
 
-    file = request.files.get(
-        "profile_image"
-    )
+    if not file or not file.filename:
+        flash("Please select an image.", "danger")
+        return redirect(url_for("applicant.profile"))
 
-    if not file or file.filename == "":
-
-        flash(
-            "Please select an image.",
-            "danger"
-        )
-
-        return redirect(
-            url_for("applicant.profile")
-        )
-
-
-    # Allowed extensions
-
-    allowed_extensions = {
-        "jpg",
-        "jpeg",
-        "png",
-        "webp"
-    }
-
-
-    filename = file.filename
-
-    extension = filename.rsplit(
-        ".",
-        1
-    )[-1].lower()
-
+    allowed_extensions = {"jpg", "jpeg", "png", "webp"}
+    extension = file.filename.rsplit(".", 1)[-1].lower()
 
     if extension not in allowed_extensions:
-
-        flash(
-            "Only JPG, JPEG, PNG and WEBP images are allowed.",
-            "danger"
-        )
-
-        return redirect(
-            url_for("applicant.profile")
-        )
-
-
-    # Generate unique filename
-
-    new_filename = (
-        str(uuid.uuid4())
-        + "."
-        + extension
-    )
-
-
-    upload_folder = current_app.config[
-        "UPLOAD_FOLDER"
-    ]
-
-
-    file_path = os.path.join(
-        upload_folder,
-        new_filename
-    )
-
-
-    # Save image
-
-    file.save(file_path)
-
-
-    # Delete old custom image
+        flash("Only JPG, JPEG, PNG and WEBP images are allowed.", "danger")
+        return redirect(url_for("applicant.profile"))
 
     old_image = current_user.profile_image
 
-    if old_image and old_image != "default.png":
+    try:
+        result = upload_image(file, folder="cvision/profile")
+        new_filename = result["filename"]
 
-        old_path = os.path.join(
-            upload_folder,
-            old_image
-        )
+        current_user.profile_image = new_filename
+        db.session.commit()
 
-        if os.path.exists(old_path):
+        if old_image and old_image != "default.png":
+            delete_stored_image(
+                old_image,
+                local_folder="uploads/profile"
+            )
 
-            os.remove(old_path)
+        flash("Profile picture updated successfully!", "success")
 
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Profile picture upload failed.")
+        flash("Unable to update your profile picture.", "danger")
 
-    # Update database
-
-    current_user.profile_image = new_filename
-
-    db.session.commit()
-
-
-    flash(
-        "Profile picture updated successfully!",
-        "success"
-    )
-
-
-    return redirect(
-        url_for("applicant.profile")
-    )
+    return redirect(url_for("applicant.profile"))
 
 # ==========================
 # Account Settings
@@ -2784,7 +2728,35 @@ def upload_resume():
             url_for("applicant.resumes")
         )
 
+    # --------------------------------------------
+    # Upload permanent resume to Cloudinary
+    # --------------------------------------------
 
+    try:
+        with open(file_path, "rb") as resume_file:
+            cloudinary_result = upload_document(
+                resume_file,
+                original_filename
+            )
+
+        stored_filename = cloudinary_result["filename"]
+
+    except Exception as e:
+        print("Cloudinary resume upload error:", repr(e))
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        flash(
+            "Unable to store the resume. Please try again.",
+            "danger"
+        )
+
+        return redirect(url_for("applicant.resumes"))
+
+    # Remove temporary local copy after successful upload
+    if os.path.exists(file_path):
+        os.remove(file_path)
     # --------------------------------------------
     # Create database record
     # --------------------------------------------
@@ -2795,7 +2767,7 @@ def upload_resume():
 
         file_name=original_filename,
 
-        file_path=unique_filename,
+        file_path=stored_filename,
 
         file_type=extension,
 
@@ -2824,17 +2796,12 @@ def upload_resume():
 # View / Download Resume
 # ============================================================
 
-@applicant.route(
-    "/resumes/view/<int:resume_id>"
-)
+@applicant.route("/resumes/view/<int:resume_id>")
 @login_required
 def view_resume(resume_id):
 
     if current_user.role != "Applicant":
-
-        return redirect(
-            url_for("dashboard.home")
-        )
+        return redirect(url_for("dashboard.home"))
 
     resume = Resume.query.filter_by(
         id=resume_id,
@@ -2842,35 +2809,26 @@ def view_resume(resume_id):
     ).first()
 
     if not resume:
+        flash("Resume not found.", "danger")
+        return redirect(url_for("applicant.resumes"))
 
-        flash(
-            "Resume not found.",
-            "danger"
-        )
+    if is_cloudinary_file(resume.file_path):
+        public_id = get_cloudinary_public_id(resume.file_path)
 
-        return redirect(
-            url_for("applicant.resumes")
-        )
+        try:
+            signed_url = get_private_file_url(public_id)
+            return redirect(signed_url)
+        except Exception as e:
+            print("Cloudinary resume viewing error:", repr(e))
+            flash("Unable to access the resume.", "danger")
+            return redirect(url_for("applicant.resumes"))
 
-    upload_folder = current_app.config[
-        "RESUME_UPLOAD_FOLDER"
-    ]
-
-    file_path = os.path.join(
-        upload_folder,
-        resume.file_path
-    )
+    upload_folder = current_app.config["RESUME_UPLOAD_FOLDER"]
+    file_path = os.path.join(upload_folder, resume.file_path)
 
     if not os.path.exists(file_path):
-
-        flash(
-            "Resume file could not be found.",
-            "danger"
-        )
-
-        return redirect(
-            url_for("applicant.resumes")
-        )
+        flash("Resume file could not be found.", "danger")
+        return redirect(url_for("applicant.resumes"))
 
     from flask import send_from_directory
 
@@ -2879,7 +2837,6 @@ def view_resume(resume_id):
         resume.file_path,
         as_attachment=False
     )
-
 
 # ============================================================
 # Set Active Resume
@@ -2998,21 +2955,30 @@ def delete_resume(resume_id):
     # Delete physical file
     # --------------------------------------------
 
-    if os.path.exists(file_path):
+        # --------------------------------------------
+    # Delete permanent or local resume file
+    # --------------------------------------------
+
+    if is_cloudinary_file(resume.file_path):
+
+        public_id = get_cloudinary_public_id(resume.file_path)
 
         try:
-
-            os.remove(
-                file_path
+            delete_file(
+                public_id,
+                resource_type="raw",
+                delivery_type="authenticated"
             )
+        except Exception as e:
+            print("Cloudinary resume deletion error:", repr(e))
+
+    elif os.path.exists(file_path):
+
+        try:
+            os.remove(file_path)
 
         except Exception as e:
-
-            print(
-                "Resume file deletion error:",
-                repr(e)
-            )
-
+            print("Resume file deletion error:", repr(e))
     # --------------------------------------------
     # Delete database record
     # --------------------------------------------

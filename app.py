@@ -34,10 +34,16 @@ from routes.admin import admin
 from routes.social import social
 from routes.interviews import interviews
 from routes.feedback import feedback
+from services.cloudinary_service import get_image_url
 
 
 app = Flask(__name__)
 
+@app.context_processor
+def inject_image_helpers():
+    return {
+        "cloudinary_image": get_image_url
+    }
 # Load configuration first.
 app.config.from_object(Config)
 

@@ -414,7 +414,7 @@
                             {% if current_user.profile_image
                                   and current_user.profile_image != 'default.png' %}
                                 <img
-                                    src="{{ url_for('static', filename='uploads/profile/' ~ current_user.profile_image) }}"
+                                    src="{{ cloudinary_image(current_user.profile_image) }}"
                                     alt="Recruiter profile"
                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=&quot;bi bi-building&quot;></i>';">
                             {% else %}

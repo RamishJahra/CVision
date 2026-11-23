@@ -1,4 +1,5 @@
 import os
+from unittest import result
 import uuid
 import random
 import hashlib
@@ -38,7 +39,15 @@ from models.resume import Resume
 from models.notification import Notification
 from services.job_resume_matcher import calculate_job_match
 from models.company import Company, CompanyLocation
-
+from services.cloudinary_service import (
+    get_private_file_url,
+    is_cloudinary_file,
+    get_cloudinary_public_id
+)
+from services.cloudinary_service import (
+    upload_image,
+    delete_stored_image
+)
 recruiter = Blueprint(
     "recruiter",
     __name__,
@@ -136,107 +145,50 @@ def profile():
 # Recruiter Profile Picture
 # ==========================================================
 
-@recruiter.route(
-    "/profile-picture",
-    methods=["POST"]
-)
+
+@recruiter.route("/profile-picture", methods=["POST"])
 @login_required
 def profile_picture():
 
     if current_user.role != "Recruiter":
+        return redirect(url_for("dashboard.home"))
 
-        return redirect(
-            url_for("dashboard.home")
-        )
+    file = request.files.get("profile_image")
 
-    file = request.files.get(
-        "profile_image"
-    )
+    if not file or not file.filename:
+        flash("Please select an image.", "danger")
+        return redirect(url_for("recruiter.profile"))
 
-    if not file or file.filename == "":
-
-        flash(
-            "Please select an image.",
-            "danger"
-        )
-
-        return redirect(
-            url_for("recruiter.profile")
-        )
-
-    allowed_extensions = {
-        "jpg",
-        "jpeg",
-        "png",
-        "webp"
-    }
-
-    filename = file.filename
-
-    extension = filename.rsplit(
-        ".",
-        1
-    )[-1].lower()
+    allowed_extensions = {"jpg", "jpeg", "png", "webp"}
+    extension = file.filename.rsplit(".", 1)[-1].lower()
 
     if extension not in allowed_extensions:
-
-        flash(
-            "Only JPG, JPEG, PNG and WEBP images are allowed.",
-            "danger"
-        )
-
-        return redirect(
-            url_for("recruiter.profile")
-        )
-
-    new_filename = (
-        str(uuid.uuid4())
-        + "."
-        + extension
-    )
-
-    upload_folder = current_app.config[
-        "UPLOAD_FOLDER"
-    ]
-
-    os.makedirs(
-        upload_folder,
-        exist_ok=True
-    )
-
-    file_path = os.path.join(
-        upload_folder,
-        new_filename
-    )
-
-    file.save(file_path)
+        flash("Only JPG, JPEG, PNG and WEBP images are allowed.", "danger")
+        return redirect(url_for("recruiter.profile"))
 
     old_image = current_user.profile_image
 
-    if old_image and old_image != "default.png":
+    try:
+        result = upload_image(file, folder="cvision/profile")
+        new_filename = result["filename"]
 
-        old_path = os.path.join(
-            upload_folder,
-            old_image
-        )
+        current_user.profile_image = new_filename
+        db.session.commit()
 
-        if os.path.exists(old_path):
+        if old_image and old_image != "default.png":
+            delete_stored_image(
+                old_image,
+                local_folder="uploads/profile"
+            )
 
-            os.remove(old_path)
+        flash("Profile picture updated successfully!", "success")
 
-    current_user.profile_image = new_filename
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Recruiter profile picture upload failed.")
+        flash("Unable to update your profile picture.", "danger")
 
-    db.session.commit()
-
-    flash(
-        "Profile picture updated successfully!",
-        "success"
-    )
-
-    return redirect(
-        url_for("recruiter.profile")
-    )
-
+    return redirect(url_for("recruiter.profile"))
 
 # ==========================================================
 # Shared Company Profile
@@ -448,6 +400,7 @@ def company_profile():
 # Shared Company Logo
 # ==========================================================
 
+
 @recruiter.route("/company-logo", methods=["POST"])
 @login_required
 def company_logo():
@@ -487,54 +440,33 @@ def company_logo():
         )
         return redirect(url_for("recruiter.company_profile"))
 
-    upload_folder = current_app.config["UPLOAD_FOLDER"]
-    os.makedirs(upload_folder, exist_ok=True)
-
-    new_filename = f"company_{uuid.uuid4().hex}.{extension}"
-    file_path = os.path.join(upload_folder, new_filename)
+    company = profile.company
+    old_logo = company.company_logo
 
     try:
-        file.save(file_path)
+        result = upload_image(
+            file,
+            folder="cvision/company-logos"
+        )
 
-        company = profile.company
-        old_logo = company.company_logo
+        new_filename = result["filename"]
 
         company.company_logo = new_filename
-
-        # Temporary compatibility for older code that still reads
-        # the logo from RecruiterProfile.
         profile.company_logo = new_filename
 
         db.session.commit()
 
-        # Delete the old image only after the database update succeeds.
         if old_logo and old_logo != new_filename:
-            old_logo_path = os.path.join(upload_folder, old_logo)
-
-            if os.path.isfile(old_logo_path):
-                try:
-                    os.remove(old_logo_path)
-                except OSError:
-                    current_app.logger.warning(
-                        "Could not remove the old company logo: %s",
-                        old_logo_path
-                    )
+            delete_stored_image(
+                old_logo,
+                local_folder="uploads/profile"
+            )
 
         flash("Company logo updated successfully!", "success")
 
     except Exception:
         db.session.rollback()
-
-        if os.path.isfile(file_path):
-            try:
-                os.remove(file_path)
-            except OSError:
-                pass
-
-        current_app.logger.exception(
-            "Failed to update the company logo."
-        )
-
+        current_app.logger.exception("Company logo upload failed.")
         flash("Unable to update the company logo.", "danger")
 
     return redirect(url_for("recruiter.company_profile"))
@@ -1686,10 +1618,7 @@ def update_application_status(application_id):
 def view_applicant_resume(application_id):
 
     if current_user.role != "Recruiter":
-
-        return redirect(
-            url_for("dashboard.home")
-        )
+        return redirect(url_for("dashboard.home"))
 
     application = Application.query.join(
         Job,
@@ -1700,15 +1629,8 @@ def view_applicant_resume(application_id):
     ).first()
 
     if not application:
-
-        flash(
-            "Application not found.",
-            "danger"
-        )
-
-        return redirect(
-            url_for("recruiter.applications")
-        )
+        flash("Application not found.", "danger")
+        return redirect(url_for("recruiter.applications"))
 
     active_resume = Resume.query.filter_by(
         user_id=application.applicant_id,
@@ -1718,12 +1640,10 @@ def view_applicant_resume(application_id):
     ).first()
 
     if not active_resume:
-
         flash(
             "This applicant does not have an active resume.",
             "warning"
         )
-
         return redirect(
             url_for(
                 "recruiter.application_detail",
@@ -1731,22 +1651,32 @@ def view_applicant_resume(application_id):
             )
         )
 
-    resume_folder = current_app.config[
-        "RESUME_UPLOAD_FOLDER"
-    ]
+    if is_cloudinary_file(active_resume.file_path):
 
+        public_id = get_cloudinary_public_id(active_resume.file_path)
+
+        try:
+            signed_url = get_private_file_url(public_id)
+            return redirect(signed_url)
+
+        except Exception as e:
+            print("Cloudinary recruiter resume error:", repr(e))
+            flash("Unable to access the resume.", "danger")
+            return redirect(
+                url_for(
+                    "recruiter.application_detail",
+                    application_id=application.id
+                )
+            )
+
+    resume_folder = current_app.config["RESUME_UPLOAD_FOLDER"]
     file_path = os.path.join(
         resume_folder,
         active_resume.file_path
     )
 
     if not os.path.exists(file_path):
-
-        flash(
-            "Resume file could not be found.",
-            "danger"
-        )
-
+        flash("Resume file could not be found.", "danger")
         return redirect(
             url_for(
                 "recruiter.application_detail",
@@ -1760,8 +1690,6 @@ def view_applicant_resume(application_id):
         as_attachment=False,
         download_name=active_resume.file_name
     )
-
-
 # ==========================================================
 # Recruiter Settings
 # ==========================================================

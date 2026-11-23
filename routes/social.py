@@ -1,12 +1,11 @@
+
 import os
-import uuid
 
 from flask import (
     Blueprint,
     request,
     jsonify,
-    current_app,
-    url_for
+    current_app
 )
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
@@ -15,7 +14,11 @@ from models import db
 from models.user import User
 from models.social import SocialPost, SocialComment, SocialReaction
 from models.notification import Notification
-
+from services.cloudinary_service import (
+    upload_image,
+    delete_stored_image,
+    get_image_url
+)
 
 social = Blueprint(
     "social",
@@ -59,12 +62,9 @@ def create_social_notification(user_id, title, message, notification_type):
 
 
 def image_url(filename):
-    if not filename:
-        return None
-
-    return url_for(
-        "static",
-        filename=f"uploads/social/{filename}"
+    return get_image_url(
+        filename,
+        local_folder="uploads/social"
     )
 
 
@@ -79,9 +79,9 @@ def author_data(user):
         "role": (user.role or "").lower(),
         "label": role_name(user),
         "profile_picture": (
-            url_for(
-                "static",
-                filename=f"uploads/profile/{user.profile_image}"
+            get_image_url(
+                user.profile_image,
+                local_folder="uploads/profile"
             )
             if user.profile_image and user.profile_image != "default.png"
             else None
@@ -173,66 +173,52 @@ def get_comment_or_404(comment_id):
 
 
 def save_post_image(file):
+
     if not file or not file.filename:
         return None, None
 
-    original_name = secure_filename(file.filename)
+    original_filename = secure_filename(file.filename)
 
-    if "." not in original_name:
-        return None, "Invalid image filename."
-
-    extension = original_name.rsplit(".", 1)[1].lower()
+    extension = os.path.splitext(original_filename)[1].lower().lstrip(".")
 
     if extension not in ALLOWED_IMAGE_EXTENSIONS:
-        return None, "Unsupported image format."
+        return None, "Invalid image format."
 
-    # Enforce the limit while reading the upload.
-    file.stream.seek(0, os.SEEK_END)
-    size = file.stream.tell()
-    file.stream.seek(0)
+    file.seek(0, os.SEEK_END)
+    file_size = file.tell()
+    file.seek(0)
 
-    if size > MAX_IMAGE_SIZE:
-        return None, "Images must be 5 MB or smaller."
+    if file_size > MAX_IMAGE_SIZE:
+        return None, "Image size must not exceed 5 MB."
 
-    filename = f"{uuid.uuid4().hex}.{extension}"
-
-    upload_folder = current_app.config.get(
-        "SOCIAL_UPLOAD_FOLDER",
-        os.path.join(
-            current_app.root_path,
-            "static",
-            "uploads",
-            "social"
+    try:
+        result = upload_image(
+            file,
+            folder="cvision/social"
         )
-    )
 
-    os.makedirs(upload_folder, exist_ok=True)
-    file.save(os.path.join(upload_folder, filename))
+        return result["filename"], None
 
-    return filename, None
+    except Exception:
+        current_app.logger.exception("Social image upload error.")
+        return None, "Unable to upload the image."
 
 
 def remove_post_image(filename):
+
     if not filename:
         return
 
-    upload_folder = current_app.config.get(
-        "SOCIAL_UPLOAD_FOLDER",
-        os.path.join(
-            current_app.root_path,
-            "static",
-            "uploads",
-            "social"
-        )
-    )
-
-    path = os.path.join(upload_folder, os.path.basename(filename))
-
     try:
-        if os.path.isfile(path):
-            os.remove(path)
-    except OSError:
-        current_app.logger.exception("Could not remove social image.")
+        delete_stored_image(
+            filename,
+            local_folder="uploads/social"
+        )
+    except Exception:
+        current_app.logger.exception(
+            "Could not remove social post image: %s",
+            filename
+        )
 
 
 @social.before_request
@@ -460,7 +446,6 @@ def react_to_post(post_id):
         user_id=current_user.id
     ).first()
 
-    # Notify only when a like is newly added or changed from dislike.
     was_already_liked = (
         reaction is not None
         and reaction.reaction == "like"
@@ -502,8 +487,6 @@ def react_to_post(post_id):
     try:
         db.session.commit()
 
-        # Query the database for current counts rather than iterating
-        # over a relationship that may contain a deleted reaction.
         like_count = SocialReaction.query.filter_by(
             post_id=post.id,
             reaction="like"
@@ -601,13 +584,10 @@ def create_comment(post_id):
 
         actor_name = current_user.full_name or current_user.username
 
-        # A reply notifies the parent comment's author.
-        # A normal comment notifies the post owner.
         recipient_id = (
             parent.user_id if parent else post.user_id
         )
 
-        # Never notify a user about their own action.
         if recipient_id != current_user.id:
             if parent:
                 create_social_notification(
@@ -741,6 +721,7 @@ def delete_comment(comment_id):
         "message": "Comment deleted successfully."
     })
 
+
 # ==========================================
 # LOGIN-PROTECTED APPLICANT PROFILE POSTS
 # ==========================================
@@ -793,12 +774,9 @@ def get_public_user_posts(user_id):
                         author.full_name or author.username
                     ),
                     "profile_picture": (
-                        url_for(
-                            "static",
-                            filename=(
-                                "uploads/profile/"
-                                + author.profile_image
-                            )
+                        get_image_url(
+                            author.profile_image,
+                            local_folder="uploads/profile"
                         )
                         if (
                             author.profile_image

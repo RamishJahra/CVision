@@ -271,7 +271,7 @@
                 {% if logo %}
                     <img
                         class="company-logo"
-                        src="{{ url_for('static', filename='uploads/profile/' ~ logo) }}"
+                        src="{{ cloudinary_image(logo) }}"
                         alt="{{ company_name or 'Company' }} logo"
                     >
                 {% else %}

@@ -25,7 +25,7 @@
             <div class="logo-preview">
                 {% if company_logo %}
                     <img
-                        src="{{ url_for('static', filename='uploads/profile/' + company_logo) }}"
+                        src="{{ cloudinary_image(company_logo) }}"
                         alt="Company logo"
                     >
                 {% else %}

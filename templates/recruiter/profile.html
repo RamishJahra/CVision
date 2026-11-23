@@ -33,10 +33,7 @@
             <div class="text-center mb-4">
 
                 <img
-                    src="{{ url_for(
-                        'static',
-                        filename='uploads/profile/' + current_user.profile_image
-                    ) }}"
+                    src="{{ cloudinary_image(current_user.profile_image) }}"
                     alt="Recruiter Profile"
                     class="rounded-circle border"
                     width="130"

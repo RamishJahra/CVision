@@ -579,7 +579,7 @@
                 {% if profile_image %}
                     <img
                         class="rp-avatar"
-                        src="{{ url_for('static', filename='uploads/profile/' ~ profile_image) }}"
+                        src="{{ cloudinary_image(profile_image) }}"
                         alt="{{ display_name|e }}"
                     >
                 {% else %}
@@ -664,7 +664,7 @@
                         data-posts-url="{{ url_for('social.get_posts') }}"
                         data-profile-id="{{ user.id }}"
                         data-profile-name="{{ display_name|e }}"
-                        data-profile-image="{{ url_for('static', filename='uploads/profile/' ~ profile_image) if profile_image else '' }}"
+                        data-profile-image="{{ cloudinary_image(profile_image) if profile_image else '' }}"
                     >
                         <div class="rp-loading">
                             <i class="bi bi-arrow-repeat"></i>
@@ -688,7 +688,7 @@
                             {% if company_logo %}
                                 <img
                                     class="rp-company-logo"
-                                    src="{{ url_for('static', filename='uploads/profile/' ~ company_logo) }}"
+                                    src="{{ cloudinary_image(company_logo) }}"
                                     alt="{{ company_name|e }} logo"
                                 >
                             {% else %}
